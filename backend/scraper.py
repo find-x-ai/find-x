@@ -36,21 +36,27 @@ async def scrape_website(base_url):
                 logging.info(f"Found link: {link}")
                 queue.append(link)
 
-    # Fetch content for all pages and stream the data
-    def fetch_page_content(urls):
+    # Fetch content for all pages in chunks
+    def fetch_page_content_chunked(urls, chunk_size=10):
         logging.info("Fetching page content...")
+        current_chunk = []
         for url in urls:
             try:
                 response = session.get(url, timeout=20)  # Set timeout to 20 seconds
                 if response.ok:
                     logging.info(f"Fetching content for URL: {url}")
                     soup = BeautifulSoup(response.content, "html.parser")
-                    yield {"URL": url, "Content": soup.get_text().strip()}
+                    current_chunk.append({"URL": url, "Content": soup.get_text().strip()})
+                    if len(current_chunk) >= chunk_size:
+                        yield current_chunk
+                        current_chunk = []
                 else:
                     logging.warning(f"Failed to fetch content for URL: {url}, status code: {response.status_code}")
             except requests.Timeout:
                 logging.warning(f"Timeout occurred while fetching URL: {url}. Skipping...")
+        if current_chunk:
+            yield current_chunk
 
-    # Stream the data instead of collecting it all at once
-    for page_data in fetch_page_content(bfs_crawl(base_url)):
-        yield page_data
+    # Generate CSV data in chunks
+    for chunk in fetch_page_content_chunked(bfs_crawl(base_url)):
+        yield chunk

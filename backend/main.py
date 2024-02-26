@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException, Response
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException, BackgroundTasks
+from typing import Optional
 from urllib.parse import urlparse
 from scraper import scrape_website
-import json
 
 app = FastAPI()
 
@@ -13,9 +12,14 @@ async def home():
         "message": "backend working..."
     }
 
+async def scrape_and_notify(url: str):
+    async for chunk in scrape_website(url):
+        print(chunk)  # Print the first chunk or process it as needed
+        # Send notification or perform any other action to indicate that the process has started
+        return
 
 @app.post("/scrape/")
-async def scrape(data: dict):
+async def scrape(data: dict, background_tasks: BackgroundTasks):
     url = data.get("url")
     if url is None:
         raise HTTPException(status_code=400, detail="URL parameter is required")
@@ -25,10 +29,6 @@ async def scrape(data: dict):
     if not all([parsed_url.scheme, parsed_url.netloc]):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
-    # Function to stream the data
-    async def stream_data():
-        async for chunk in scrape_website(url):
-            yield json.dumps(chunk).encode() + b'\n'  # Encode each chunk as JSON and add a newline delimiter
-
-    # Return the streamed response
-    return StreamingResponse(stream_data(), media_type="application/json")
+    # Call the scraping function in the background
+    background_tasks.add_task(scrape_and_notify, url)
+    return {"status": "process started"}
