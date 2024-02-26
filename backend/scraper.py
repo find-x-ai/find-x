@@ -9,7 +9,7 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def scrape_website(base_url):
+async def scrape_website(base_url):
     visited_urls = set()
     session = requests.Session()
 

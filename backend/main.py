@@ -26,7 +26,7 @@ async def scrape(data: dict):
 
     # Call the scraping function
     try:
-        csv_data = scrape_website(url)
+        csv_data = await scrape_website(url)
         return {"status": "success", "csv_data": csv_data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
