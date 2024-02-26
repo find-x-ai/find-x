@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from typing import Optional
 from urllib.parse import urlparse
@@ -12,11 +13,12 @@ async def home():
         "message": "backend working..."
     }
 
-async def scrape_and_notify(url: str):
+async def scrape_and_print(url: str):
     async for chunk in scrape_website(url):
-        print(chunk)  # Print the first chunk or process it as needed
-        # Send notification or perform any other action to indicate that the process has started
-        return
+        print(chunk)  # Print each chunk
+        # Process the chunk or send it to the client
+        # For demonstration, let's just sleep for 1 second to simulate processing time
+        await asyncio.sleep(1)
 
 @app.post("/scrape/")
 async def scrape(data: dict, background_tasks: BackgroundTasks):
@@ -30,5 +32,5 @@ async def scrape(data: dict, background_tasks: BackgroundTasks):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
     # Call the scraping function in the background
-    background_tasks.add_task(scrape_and_notify, url)
+    background_tasks.add_task(scrape_and_print, url)
     return {"status": "process started"}
