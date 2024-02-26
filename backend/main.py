@@ -31,6 +31,10 @@ async def scrape(data: dict, background_tasks: BackgroundTasks):
     if not all([parsed_url.scheme, parsed_url.netloc]):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
+    # Return "process started" response immediately
+    response = {"status": "process started"}
+
     # Call the scraping function in the background
     background_tasks.add_task(scrape_and_print, url)
-    return {"status": "process started"}
+
+    return response
