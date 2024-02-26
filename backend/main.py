@@ -1,4 +1,4 @@
-import asyncio
+import asyncio  # Import asyncio module for sleep function
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from typing import Optional
 from urllib.parse import urlparse
@@ -18,7 +18,7 @@ async def scrape_and_print(url: str):
         print(chunk)  # Print each chunk
         # Process the chunk or send it to the client
         # For demonstration, let's just sleep for 1 second to simulate processing time
-        await asyncio.sleep(1)
+        await asyncio.sleep(1)  # Adjust the sleep time here
 
 @app.post("/scrape/")
 async def scrape(data: dict, background_tasks: BackgroundTasks):
