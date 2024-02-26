@@ -1,16 +1,17 @@
-from fastapi import FastAPI, HTTPException
-from typing import Optional
+from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import StreamingResponse
 from urllib.parse import urlparse
 from scraper import scrape_website
+import json
 
 app = FastAPI()
 
 @app.get('/')
 async def home():
     return {
-         "status": True,
+        "status": True,
         "message": "backend working..."
-        }
+    }
 
 
 @app.post("/scrape/")
@@ -24,9 +25,10 @@ async def scrape(data: dict):
     if not all([parsed_url.scheme, parsed_url.netloc]):
         raise HTTPException(status_code=400, detail="Invalid URL")
 
-    # Call the scraping function
-    try:
-        csv_data = await scrape_website(url)
-        return {"status": "success", "csv_data": csv_data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # Function to stream the data
+    async def stream_data():
+        async for chunk in scrape_website(url):
+            yield json.dumps(chunk).encode() + b'\n'  # Encode each chunk as JSON and add a newline delimiter
+
+    # Return the streamed response
+    return StreamingResponse(stream_data(), media_type="application/json")

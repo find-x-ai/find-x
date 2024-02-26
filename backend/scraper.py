@@ -36,7 +36,7 @@ async def scrape_website(base_url):
                 logging.info(f"Found link: {link}")
                 queue.append(link)
 
-    # Fetch content for all pages
+    # Fetch content for all pages and stream the data
     def fetch_page_content(urls):
         logging.info("Fetching page content...")
         for url in urls:
@@ -51,9 +51,6 @@ async def scrape_website(base_url):
             except requests.Timeout:
                 logging.warning(f"Timeout occurred while fetching URL: {url}. Skipping...")
 
-    # Generate list of dictionaries representing CSV data
-    csv_data = []
+    # Stream the data instead of collecting it all at once
     for page_data in fetch_page_content(bfs_crawl(base_url)):
-        csv_data.append(page_data)
-
-    return csv_data
+        yield page_data
