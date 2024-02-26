@@ -1,4 +1,5 @@
 import csv
+from io import StringIO
 from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
@@ -44,19 +45,15 @@ def scrape_website(base_url):
                 if response.ok:
                     logging.info(f"Fetching content for URL: {url}")
                     soup = BeautifulSoup(response.content, "html.parser")
-                    yield url, soup.get_text().strip()
+                    yield {"URL": url, "Content": soup.get_text().strip()}
                 else:
                     logging.warning(f"Failed to fetch content for URL: {url}, status code: {response.status_code}")
             except requests.Timeout:
                 logging.warning(f"Timeout occurred while fetching URL: {url}. Skipping...")
 
-    # Write to CSV
-    csv_filename = "pages.csv"
-    with open(csv_filename, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(["URL", "Content"])  # Write column headers
-        for url, content in fetch_page_content(bfs_crawl(base_url)):
-            writer.writerow([url, content])
+    # Generate list of dictionaries representing CSV data
+    csv_data = []
+    for page_data in fetch_page_content(bfs_crawl(base_url)):
+        csv_data.append(page_data)
 
-    print(f"CSV file '{csv_filename}' has been created successfully.")
-    return "pages.csv"
+    return csv_data
