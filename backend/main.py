@@ -1,8 +1,8 @@
-from fastapi import FastAPI, HTTPException, Response
-from typing import Optional
+from fastapi import FastAPI, HTTPException
+from typing import List
 from urllib.parse import urlparse
-from scraper import scrape_website
-from fastapi.responses import StreamingResponse
+from scraper import scrape_links
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -15,22 +15,14 @@ async def home():
 
 @app.post("/scrape/")
 async def scrape(data: dict):
-    url = data.get("url")
-    if url is None:
-        raise HTTPException(status_code=400, detail="URL parameter is required")
-
-    # Check if the URL is valid
-    parsed_url = urlparse(url)
-    if not all([parsed_url.scheme, parsed_url.netloc]):
-        raise HTTPException(status_code=400, detail="Invalid URL")
-
-    # Define a generator function to stream the response
-    def generate_csv_data():
-        try:
-            for page_data in scrape_website(url):
-                yield f"{page_data}\n"  # Convert each page data to string format
-        except Exception as e:
-            yield str(e)
-
-    # Return a StreamingResponse to stream the response back to the client in chunks
-    return StreamingResponse(content=generate_csv_data(), media_type="text/csv")
+    try:
+        links = data.get('links', [])
+        if not isinstance(links, List):
+            raise HTTPException(status_code=400, detail="Links must be provided as a list in the 'links' field.")
+        
+        result_dict = scrape_links(links)
+        
+        return JSONResponse(content=result_dict)
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
