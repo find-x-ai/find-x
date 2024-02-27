@@ -5,11 +5,12 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 from collections import deque
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-async def scrape_website(base_url):
+def scrape_website(base_url):
     visited_urls = set()
     session = requests.Session()
 
@@ -36,27 +37,26 @@ async def scrape_website(base_url):
                 logging.info(f"Found link: {link}")
                 queue.append(link)
 
-    # Fetch content for all pages in chunks
-    def fetch_page_content_chunked(urls, chunk_size=10):
-        logging.info("Fetching page content...")
-        current_chunk = []
-        for url in urls:
-            try:
-                response = session.get(url, timeout=20)  # Set timeout to 20 seconds
-                if response.ok:
-                    logging.info(f"Fetching content for URL: {url}")
-                    soup = BeautifulSoup(response.content, "html.parser")
-                    current_chunk.append({"URL": url, "Content": soup.get_text().strip()})
-                    if len(current_chunk) >= chunk_size:
-                        yield current_chunk
-                        current_chunk = []
-                else:
-                    logging.warning(f"Failed to fetch content for URL: {url}, status code: {response.status_code}")
-            except requests.Timeout:
-                logging.warning(f"Timeout occurred while fetching URL: {url}. Skipping...")
-        if current_chunk:
-            yield current_chunk
+    # Fetch content for a single page
+    def fetch_page_content(url):
+        try:
+            response = session.get(url, timeout=20)  # Set timeout to 20 seconds
+            if response.ok:
+                logging.info(f"Fetching content for URL: {url}")
+                soup = BeautifulSoup(response.content, "html.parser")
+                return {"URL": url, "Content": soup.get_text().strip()}
+            else:
+                logging.warning(f"Failed to fetch content for URL: {url}, status code: {response.status_code}")
+        except requests.Timeout:
+            logging.warning(f"Timeout occurred while fetching URL: {url}. Skipping...")
 
-    # Generate CSV data in chunks
-    for chunk in fetch_page_content_chunked(bfs_crawl(base_url)):
-        yield chunk
+    # Generate list of dictionaries representing CSV data using ThreadPoolExecutor for parallel processing
+    csv_data = []
+    with ThreadPoolExecutor() as executor:
+        futures = [executor.submit(fetch_page_content, url) for url in bfs_crawl(base_url)]
+        for future in futures:
+            page_data = future.result()
+            if page_data:
+                csv_data.append(page_data)
+
+    return csv_data
