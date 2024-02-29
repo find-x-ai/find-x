@@ -1,28 +1,34 @@
-from fastapi import FastAPI, HTTPException
-from typing import List
-from urllib.parse import urlparse
-from scraper import scrape_links
-from fastapi.responses import JSONResponse
-
+from fastapi import FastAPI,HTTPException
+from pydantic import BaseModel
+import json
+from semantics import generate_embedding,model,index
 app = FastAPI()
 
-@app.get('/')
-async def home():
-    return {
-        "status": True,
-        "message": "backend working..."
-    }
+class RequestData(BaseModel):
+    client_id: str
+    data: str
+    key:int
+class QueryData(BaseModel):
+    query: str
 
-@app.post("/scrape/")
-async def scrape(data: dict):
+@app.post("/generate_embeddings/")
+async def generate_embeddings(request_data: RequestData):
     try:
-        links = data.get('links', [])
-        if not isinstance(links, List):
-            raise HTTPException(status_code=400, detail="Links must be provided as a list in the 'links' field.")
-        
-        result_dict = scrape_links(links)
-        
-        return JSONResponse(content=result_dict)
+        client_id = request_data.client_id
+        json_data = {request_data.key: request_data.data}
+        embeddings = generate_embedding(json_data,client_id)
+        return {"message": "Database created successfully"}
     
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+@app.post("/query_data/")
+async def generate_embeddings(query_data: QueryData):
+    try:
+        encode=model.encode(query_data.query)
+        answer=index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False)
+        for vec in answer:
+            question = vec.metadata["Data"]
+            print(f"Answer: {question}")
+            return {"message": "Query data processed successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
