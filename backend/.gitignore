@@ -1,2 +1,3 @@
 __pycache__
-pages.csv
+.env
+.env.local
