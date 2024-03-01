@@ -33,7 +33,7 @@ async def generate_embeddings(request_data: RequestData):
 async def query_data(query_data: QueryData):
     try:
         encode=model.encode(query_data.query)
-        answer=index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False)
+        answer=index.query(vector=encode, top_k=3, include_metadata=True, include_vectors=False)
         for vec in answer:
             question = vec.metadata["Data"]
             # print(f"Answer: {question}")
