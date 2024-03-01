@@ -16,7 +16,7 @@ def generate_embedding(json_data: str, client_id: str) -> None:
     data = json.dumps(json_data)
     spilter = RecursiveCharacterTextSplitter(
         separators=['\n\n', '\n', '\n\n\n', '.', '\t'],
-        chunk_size=500,
+        chunk_size=300,
         chunk_overlap=0
     )
     chunks = spilter.split_text(data)
