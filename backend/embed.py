@@ -1,10 +1,8 @@
 import modal
 
-def start_embedding():
+def start_embedding(name: str):
     f = modal.Function.lookup("find-x", "generate_embedding")
-    print("Starting embedding...")
-    result = f.remote()
-    
+    result = f.remote(name)
     return result
     
 
