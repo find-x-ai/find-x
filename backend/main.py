@@ -25,5 +25,5 @@ async def query_data():
     print("got query data request")
     return {
         "status": True,
-        "message":"Query data request..."
+        "message":"Query data..."
     }
