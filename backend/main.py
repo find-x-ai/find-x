@@ -1,9 +1,8 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
-from semantics import generate_embedding
-
-
+from embed import start_embedding
 app = FastAPI()
+
 
 @app.get('/')
 async def home_page():
@@ -14,18 +13,9 @@ async def home_page():
 
 @app.post("/generate_embeddings/")
 async def generate_embeddings():
-    print("got embedding request")
-    generate_embedding()
-    return {
-        "status": True,
-        "message":"generating embeddings..."
-    }
-
-
-@app.post("/query_data/")
-async def query_data():
-    print("got query data request")
-    return {
-        "status": True,
-        "message":"Query data..."
-    }
+    try:
+       res = start_embedding()
+       return res
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
