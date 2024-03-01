@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 import os
 from upstash_vector import Index
