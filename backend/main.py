@@ -1,6 +1,6 @@
 from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel
-from semantics import generate_embedding,index
+from semantics import generate_embedding
 app = FastAPI()
 
 @app.get('/')
