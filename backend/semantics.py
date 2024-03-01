@@ -8,6 +8,6 @@ Token = os.getenv("Token")
 index = Index(url=Url, token=Token)
 
 def generate_embedding():
-  print("generating embedding...")
+  print("Generating embedding...")
   
  
