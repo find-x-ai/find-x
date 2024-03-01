@@ -3,4 +3,5 @@ spacy
 fastapi== 0.109.0
 uvicorn== 0.25.0
 upstash_vector
+sentence_transformers
 python-dotenv==1.0.1
