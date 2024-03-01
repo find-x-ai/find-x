@@ -22,8 +22,11 @@ def generate_embedding(json_data: str, client_id: str) -> None:
     chunks = spilter.split_text(data)
     
     for id, value in enumerate(chunks):
-        result_vectors = model.encode([value]).tolist()
-        vector_with_metadata = {"id": str(id), "vector": result_vectors[0], "metadata": {"client_id": client_id, "Data": value}}
-        index.upsert(vectors=[vector_with_metadata])
+        # Split each chunk into smaller parts before encoding
+        sub_chunks = [value[i:i+100] for i in range(0, len(value), 100)]
+        for sub_chunk in sub_chunks:
+            result_vectors = model.encode([sub_chunk]).tolist()
+            vector_with_metadata = {"id": str(id), "vector": result_vectors[0], "metadata": {"client_id": client_id, "Data": sub_chunk}}
+            index.upsert(vectors=[vector_with_metadata])
 
     print(f"Generated {len(chunks)} embeddings.")
