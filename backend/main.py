@@ -29,6 +29,6 @@ async def generate_embeddings(query_data: QueryData):
         for vec in answer:
             question = vec.metadata["Data"]
             print(f"Answer: {question}")
-            return {"message": "Query data processed successfully"}
+        return {"message": "Query data processed successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
