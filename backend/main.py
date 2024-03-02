@@ -17,7 +17,10 @@ async def home_page():
 @app.post("/generate_embeddings/")
 async def generate_embeddings(name: Name):
     try:
-        res = start_embedding(name=name.name)
-        return res
+        start_embedding(name=name.name)
+        return {
+            "status": True,
+            "message":"embedding started successfully!!!!!!"
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
