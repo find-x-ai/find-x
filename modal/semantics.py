@@ -1,4 +1,4 @@
-from modal import Image, Secret, Stub, web_endpoint
+from modal import Image, Secret
 
 import modal
 image = Image.debian_slim().pip_install(
@@ -6,7 +6,7 @@ image = Image.debian_slim().pip_install(
 )
 stub = modal.Stub(name="find-x", image=image)
 
-@stub.function()
+@stub.function(keep_warm=3)
 def generate_embedding(name: str):
     from sentence_transformers import SentenceTransformer
     
@@ -15,8 +15,3 @@ def generate_embedding(name: str):
     
     res = model.encode("this is demo")
     print(res)
-    return {
-        "status": True,
-        "message": "embedding working ",
-         "data": res
-    }
