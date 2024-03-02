@@ -6,7 +6,7 @@ image = Image.debian_slim().pip_install(
 )
 stub = modal.Stub(name="find-x", image=image)
 
-@stub.function(keep_warm=3)
+@stub.function()
 def generate_embedding(name: str):
     from sentence_transformers import SentenceTransformer
     
@@ -15,3 +15,4 @@ def generate_embedding(name: str):
     
     res = model.encode("this is demo")
     print(res)
+    return res
