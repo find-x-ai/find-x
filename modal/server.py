@@ -74,9 +74,11 @@ def generate_embedding(requestData : Dict):
 @stub.function()
 @web_endpoint(label="query",method="POST")
 def start_query(requestData : Dict):
+    from fastapi.responses import StreamingResponse
     query = requestData["query"]
-    res = Model.query_data.remote(query)
-    return res
+    # res = Model.query_data.remote(query)
+    return StreamingResponse(Model.query_data.remote_gen(query), media_type="text/event-stream")
+
 @stub.cls(secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url"),modal.Secret.from_name("open-ai-key")])
 class Model:
     @build()
@@ -98,14 +100,16 @@ class Model:
         
     @method()
     def query_data(self,query:str):
+        from fastapi.responses import StreamingResponse
         encode = self.model.encode(query)
         answer = self.index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False) 
-        data = f"query : {query} , data: {answer}"
-        completion = self.client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-        {"role": "system", "content": self.instructions},
-        {"role": "user", "content": data.replace("\n", "").replace(" ", "").replace("\t", "")}
-        ]
-        )
-        return {"message": "Query data processed successfully" , "answer": completion.choices[0].message}
+        data = f"query : {query} , data: {answer}"    
+        for chunk in self.client.chat.completions.create(
+                       model="gpt-3.5-turbo",
+                       messages=[{"role": "system", "content": self.instructions},{"role": "user", "content": data.replace("\n", "").replace(" ", "").replace("\t", "")}],
+                       stream=True,
+                       ):
+            content = chunk.choices[0].delta.content
+            if content is not None:
+               print(content, end="")
+               yield content
