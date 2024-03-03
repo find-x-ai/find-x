@@ -1,4 +1,4 @@
-from modal import Stub, enter, method, web_endpoint,Image
+from modal import Stub, build, enter, method, web_endpoint,Image
 from typing import Dict
 import os
 import modal
@@ -6,13 +6,14 @@ import modal
 image = Image.debian_slim().pip_install(
     "sentence_transformers",
     "upstash_vector",
-    "langchain",  
+    "langchain",
+    "openai"
 )
 
 stub = Stub(name="find-x", image=image)
 
 @stub.function(secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url")],timeout=1000)
-@web_endpoint(method="POST")
+@web_endpoint(label="embed",method="POST")
 def generate_embedding(requestData : Dict):
     #imports
     from sentence_transformers import SentenceTransformer
@@ -70,20 +71,41 @@ def generate_embedding(requestData : Dict):
         "message": "successfully generated embedding...",
     }
     
-@stub.cls(keep_warm=1,secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url")])
+@stub.function()
+@web_endpoint(label="query",method="POST")
+def start_query(requestData : Dict):
+    query = requestData["query"]
+    res = Model.query_data.remote(query)
+    return res
+@stub.cls(secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url"),modal.Secret.from_name("open-ai-key")])
 class Model:
+    @build()
     @enter()
     def start_model(self):
-      from sentence_transformers import SentenceTransformer
-      from upstash_vector import Index  
-      MODEL = "multi-qa-MiniLM-L6-cos-v1"
-      self.model = SentenceTransformer(MODEL, device="cpu")
-      upstash_token = os.environ["Token"] 
-      upstash_url = os.environ["URL"]
-      self.index = Index(url=upstash_url, token=upstash_token)
-     
+        from sentence_transformers import SentenceTransformer
+        from upstash_vector import Index
+        from openai import OpenAI
+        MODEL = "multi-qa-MiniLM-L6-cos-v1"
+        self.model = SentenceTransformer(MODEL, device="cpu")
+        upstash_token = os.environ["Token"] 
+        upstash_url = os.environ["URL"]
+        self.index = Index(url=upstash_url, token=upstash_token)
+        open_ai_key = os.environ["open_ai_key"]
+        self.client = OpenAI(api_key=open_ai_key)
+        self.instructions = """You are a chat assistant. Your name is find-X. You will recieve query and data as input. Query will be question of the user. You have to answer the query by only depending on the data 
+        provided by the vector database in data part. When user greets you can greet back without depending on the data part. When the given data part is not enough to anser the query simply deny the user by responding cant assist with the query or similar responses.
+        don't give lengthy extra information just keep it up to point and assist the user. If any code is detected in the recieved data part then identify the language and assist with the code snippet by solving users query about the code snippet."""
+        
     @method()
-    def query_data(self, query):
+    def query_data(self,query:str):
         encode = self.model.encode(query)
-        answer = self.index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False)      
-        return {"message": "Query data processed successfully" , "answer": answer}
+        answer = self.index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False) 
+        data = f"query : {query} , data: {answer}"
+        completion = self.client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+        {"role": "system", "content": self.instructions},
+        {"role": "user", "content": data.replace("\n", "").replace(" ", "").replace("\t", "")}
+        ]
+        )
+        return {"message": "Query data processed successfully" , "answer": completion.choices[0].message}
