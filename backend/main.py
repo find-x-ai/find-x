@@ -11,6 +11,12 @@ f = modal.Cls.lookup("find-x","Model")
 class QueryData(BaseModel):
     query: str
 
+
+@app.get("/")
+def home():
+    return {
+        "message": "working...."
+    }
 @app.post("/query_data/")
 async def query_data(req: dict):
    query = req["query"]
