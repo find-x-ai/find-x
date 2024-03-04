@@ -18,7 +18,7 @@ export default async function Hero() {
             <div className="w-[100px] h-full bg-white flex items-center justify-center">
               <Link
                 href={"/"}
-                className="text-2xl hero-text flex items-end justify-center"
+                className="text-2xl flex items-end justify-center"
               >
                 Find X{" "}
               </Link>
@@ -27,15 +27,15 @@ export default async function Hero() {
         </div>
         <div className="w-full h-full">
           <div className="px-5 pb-0 pt-5">
-            <h1 className="text-5xl text-white hero-text">
+            <h1 className="text-5xl text-white">
               The <br className="sm:hidden block" /> Fastest <br /> Ai Chat For
               Your App
             </h1>
-            <h2 className="text-zinc-400 plain-text pt-2">
+            <h2 className="text-zinc-400 pt-2">
               Find the hidden with one click
             </h2>{" "}
             <br />
-            <button className="p-2 bg-blue-600 text-white rounded-sm w-[150px] plain-text hover:bg-blue-700 transition-colors duration-300">
+            <button className="p-2 bg-blue-600 text-white rounded-sm w-[150px] hover:bg-blue-700 transition-colors duration-300">
               get started
             </button>
           </div>

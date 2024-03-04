@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { MuseoModerno } from "next/font/google";
 import "./globals.css";
+const Muse = MuseoModerno({subsets: ["vietnamese"]});
 
 export const metadata: Metadata = {
   title: "Find-X",
@@ -13,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className={Muse.className}>
         {children}
       </body>
     </html>
