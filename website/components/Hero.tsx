@@ -2,13 +2,13 @@ import Link from "next/link";
 import Plus from "./Plus";
 export default async function Hero() {
   return (
-    <div className="w-full h-full p-6 pb-0 flex flex-col justify-center items-center">
-      <div className="w-full max-w-[1500px] h-full border border-b-0 border-[#222222] flex flex-col justify-between">
-        <div className="w-full h-[40px] flex justify-between">
+    <div className="w-full h-full px-6 pt-4 flex flex-col justify-center items-center">
+      <div className="w-full max-w-[1200px] h-full border border-b-0 border-[#222222] flex flex-col justify-between">
+        <div className="w-full h-[40px] flex justify-start">
           <div className=" relative top-[-15px] right-[15px]">
             <Plus />
           </div>
-          <div className="flex items-center gap-5">
+          {/* <div className="flex items-center gap-5">
             <Link className="text-white hover:underline" href={"/"}>
               pricing
             </Link>
@@ -23,10 +23,10 @@ export default async function Hero() {
                 Find X{" "}
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="w-full h-full">
-          <div className="px-5 pb-0 pt-5">
+          <div className="px-5 pb-0 pt-0">
             <h1 className="text-5xl text-white">
               The <br className="sm:hidden block" /> Fastest <br /> Ai Chat For
               Your App

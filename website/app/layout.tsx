@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MuseoModerno } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 const Muse = MuseoModerno({subsets: ["vietnamese"]});
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={Muse.className}>
+        <Navbar/>
         {children}
       </body>
     </html>

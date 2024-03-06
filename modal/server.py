@@ -57,7 +57,7 @@ def generate_embedding(requestData : Dict):
     upsert_vector = []
     for id, value in enumerate(data):
         vector_with_metadata = {
-            "id": str(id),
+            "id": f"{clientId}_{str(id)}",
             "vector": embeddings[id],
             "metadata": {"client_id": clientId, "Data": value}
         }
@@ -95,8 +95,11 @@ class Model:
         open_ai_key = os.environ["open_ai_key"]
         self.client = OpenAI(api_key=open_ai_key)
         self.instructions = """You are a chat assistant. Your name is find-X. You will recieve query and data as input. Query will be question of the user. You have to answer the query by only depending on the data 
-        provided by the vector database in data part. When user greets you can greet back without depending on the data part. When the given data part is not enough to anser the query simply deny the user by responding cant assist with the query or similar responses.
-        don't give lengthy extra information just keep it up to point and assist the user. If any code is detected in the recieved data part then identify the language and assist with the code snippet by solving users query about the code snippet."""
+        provided. Data provided is your whole universe. When user greets you can greet back without depending on the data part. When the given data part is not enough to anser the query simply deny the user by responding cant assist with the query or similar responses.
+        don't give lengthy extra information just keep it up to point and assist the user. If any code is detected in the recieved data part then identify the language and assist with the code snippet by solving users query about the code snippet. Always remember that only deal with the code if spotted in data
+        if not then reject the query and make sure tou don't give any addition information that is not in the recieved data part. You have the knowledge of programming languages and able to identify the language. If user request a code snippet that is present in the recieved data part but not in the language that user is requesting then
+        deny the user ex] any condition where user is requesting "A" language and you have been given "B" language code as data In such situation you should deny the users request and give him the code you have found not the code user requested. Also remember you have a freedom to have knowledge about general concepts spotted in the recieved data part, you shouldn't have extra knowledge about general concepts that are not in provided data part.
+        Make sure to maintain a proffessional flow of conversation."""
         
     @method()
     def query_data(self,query:str):

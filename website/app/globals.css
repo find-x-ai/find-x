@@ -4,5 +4,11 @@
 
 body {
     background-color: #0c0c0c;
+    overflow-y: scroll;
+
 }
+/* body::-webkit-scrollbar {
+    scrollbar-gutter: stable;
+    scrollbar-width: 0px;
+} */
 
