@@ -1,11 +1,13 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import cheerio from "cheerio";
 import { getEnvironmentUrl } from "@/actions/env";
+import { toast } from "sonner";
 export default function ConfigureComponent() {
   const [url, setUrl] = useState("");
   const [logs, setLogs] = useState([""]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showLogs, setShowLogs] = useState<boolean>(false);
   const getClientData = async (startUrl: string) => {
     const startTime = new Date();
     const queue = [startUrl];
@@ -19,7 +21,7 @@ export default function ConfigureComponent() {
       try {
         if (!visitedUrls.has(url)) {
           visitedUrls.add(url);
-          const fetchUrl = await getEnvironmentUrl() as string;
+          const fetchUrl = (await getEnvironmentUrl()) as string;
           const res = await fetch(fetchUrl, {
             method: "POST",
             body: JSON.stringify({
@@ -38,7 +40,9 @@ export default function ConfigureComponent() {
             const text = $("body").text().trim();
 
             // Check if the URL already exists in pageData
-            const existingIndex = pageData.findIndex((item) => item.url === url);
+            const existingIndex = pageData.findIndex(
+              (item) => item.url === url
+            );
             if (existingIndex !== -1) {
               // Update content if the URL already exists
               pageData[existingIndex].content = text;
@@ -72,42 +76,37 @@ export default function ConfigureComponent() {
             ]);
           }
         }
-      } catch (error:any) {
+      } catch (error: any) {
         setLogs((prevLogs) => [
           ...prevLogs,
           `Failed to fetch content for URL: ${url}, error: ${error.message}`,
         ]);
       }
     }
-    setLogs((prevLogs) => [
-      ...prevLogs,
-      `sccessfully configured all data ✅`,
-    ]);
+    setLogs((prevLogs) => [...prevLogs, `✅ sccessfully configured data of ${pageData.length} pages`]);
     console.log(pageData);
     const endTime = new Date();
     const elapsedTime = (endTime.getTime() - startTime.getTime()) / 1000;
-        
-    setLogs((prevLogs) => [
-      ...prevLogs,
-      `Total time taken : ${elapsedTime}`,
-    ]);
-  
+
+    setLogs((prevLogs) => [...prevLogs, `⌚ Total time taken : ${elapsedTime} seconds`]);
+
     return { pageData, elapsedTime, numLinksScraped: visitedUrls.size };
   };
 
   const handleStart = async () => {
     if (!url.trim()) {
-      alert("Please enter a valid URL");
+      toast.error("Please enter a valid URL");
       return;
     }
 
     try {
       setLogs([""]);
       setLoading(true);
+      setShowLogs(true);
       await getClientData(url);
     } catch (error) {
       console.error("Error:", error);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -119,7 +118,7 @@ export default function ConfigureComponent() {
         <div className="flex sm:flex-row flex-col gap-5">
           <input
             onChange={(e) => setUrl(e.target.value)}
-            className="w-full font-sans max-w-[400px] h-[40px] border border-purple-950/30 bg-purple-950/30 text-white px-3 rounded-sm"
+            className="w-full font-sans sm:max-w-[400px] h-[40px] border border-purple-950/30 bg-purple-950/30 text-white px-3 rounded-sm"
             type="text"
             placeholder="enter site url"
           />
@@ -131,14 +130,24 @@ export default function ConfigureComponent() {
             {loading ? "loading" : "start"}
           </button>
         </div>
-        <p className="text-zinc-400">
+        <p className="text-zinc-400 text-sm">
           This could take variable time to complete depending on your site, sit
-          back and let it complete...⏳
+          back and let it complete...⏳ <br />
+          don't close or refresh the browser window it'll immediately halt the process.
         </p>
-        <div className="w-full overflow-y-scroll text-white h-auto border border-purple-950/30 bg-purple-950/30 rounded-md">
-          {logs.map((log, index) => (
-            <p className=" font-mono" key={index}>{log}</p>
-          ))}
+        <div className={`w-full overflow-hidden h-80 text-[#ffffff] border-purple-950/30 bg-purple-950/30 rounded-md ${showLogs ? "block" : "hidden"}`}>
+          <div className="overflow-y-auto max-h-80 mb-5 overflow-x-auto">
+            {logs.map((log, index) => (
+              <p className="font-mono px-2" key={index}>
+                {log}
+              </p>
+            ))}
+            <div
+              ref={(el) => {
+                el && el.scrollIntoView({ behavior: "smooth" });
+              }}
+            ></div>
+          </div>
         </div>
       </div>
     </div>
