@@ -20,7 +20,7 @@ export default function Navbar() {
             pricing
           </Link>
           <Link
-            className="text-black p-2 w-[120px] bg-white text-center"
+            className="text-black p-2 w-[120px] bg-white text-center rounded-md"
             href={"/dashboard"}
           >
             dashboard

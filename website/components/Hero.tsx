@@ -1,5 +1,6 @@
 import { TextGenerateEffect } from "./ui/text-generate";
 import Plus from "./Plus";
+import Link from "next/link";
 export default async function Hero() {
   return (
     <div className="w-full h-full px-6 pt-4 flex flex-col justify-center items-center">
@@ -20,9 +21,9 @@ export default async function Hero() {
               <TextGenerateEffect className="font-normal text-zinc-400 text-sm" words="Find the hidden with one click" />
             </div>{" "}
             <br />
-            <button className="py-2 px-10  border border-violet-300 text-violet-100 transition-all duration-700 rounded-full drop-shadow-[0px_0px_70px_purple] hover:drop-shadow-[0px_0px_60px_purple] bg-[#0c0c0c]">
+            <Link href={"/configure"} className="py-2 px-10  border border-violet-300 text-violet-100 transition-all duration-700 rounded-full drop-shadow-[0px_0px_70px_purple] hover:drop-shadow-[0px_0px_60px_purple] bg-[#0c0c0c]">
               get started
-            </button>
+            </Link>
           </div>
         </div>
         <div className="w-full flex justify-end">
