@@ -1,11 +1,11 @@
 "use client"
 import React, { useState } from "react";
 import cheerio from "cheerio";
-
+import { getEnvironmentUrl } from "@/actions/env";
 export default function ConfigureComponent() {
   const [url, setUrl] = useState("");
   const [logs, setLogs] = useState([""]);
-
+  const [loading, setLoading] = useState<boolean>(false);
   const getClientData = async (startUrl: string) => {
     const startTime = new Date();
     const queue = [startUrl];
@@ -16,13 +16,11 @@ export default function ConfigureComponent() {
     while (queue.length > 0) {
       const url = queue.shift();
       if (!url) continue;
-
-      setLogs((prevLogs) => [...prevLogs, `Visiting URL: ${url}`]);
-
       try {
         if (!visitedUrls.has(url)) {
           visitedUrls.add(url);
-          const res = await fetch("https://findx.vercel.app/api/fetch", {
+          const fetchUrl = await getEnvironmentUrl() as string;
+          const res = await fetch(fetchUrl, {
             method: "POST",
             body: JSON.stringify({
               url: url,
@@ -73,11 +71,6 @@ export default function ConfigureComponent() {
               `Failed to fetch content for URL: ${url}, status : ${response.status}`,
             ]);
           }
-        } else {
-          setLogs((prevLogs) => [
-            ...prevLogs,
-            `URL already visited: ${url}`,
-          ]);
         }
       } catch (error:any) {
         setLogs((prevLogs) => [
@@ -86,10 +79,19 @@ export default function ConfigureComponent() {
         ]);
       }
     }
+    setLogs((prevLogs) => [
+      ...prevLogs,
+      `sccessfully configured all data ✅`,
+    ]);
     console.log(pageData);
     const endTime = new Date();
     const elapsedTime = (endTime.getTime() - startTime.getTime()) / 1000;
-
+        
+    setLogs((prevLogs) => [
+      ...prevLogs,
+      `Total time taken : ${elapsedTime}`,
+    ]);
+  
     return { pageData, elapsedTime, numLinksScraped: visitedUrls.size };
   };
 
@@ -101,9 +103,12 @@ export default function ConfigureComponent() {
 
     try {
       setLogs([""]);
+      setLoading(true);
       await getClientData(url);
     } catch (error) {
       console.error("Error:", error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -119,19 +124,20 @@ export default function ConfigureComponent() {
             placeholder="enter site url"
           />
           <button
+            disabled={loading}
             onClick={handleStart}
             className="sm:w-[200px] w-full h-[40px] text-white border border-purple-950/30 bg-purple-500 rounded-sm"
           >
-            Start
+            {loading ? "loading" : "start"}
           </button>
         </div>
         <p className="text-zinc-400">
           This could take variable time to complete depending on your site, sit
           back and let it complete...⏳
         </p>
-        <div className="w-full overflow-y-scroll text-white h-[300px] border border-purple-950/30 bg-purple-950/30 rounded-md">
+        <div className="w-full overflow-y-scroll text-white h-auto border border-purple-950/30 bg-purple-950/30 rounded-md">
           {logs.map((log, index) => (
-            <p key={index}>{log}</p>
+            <p className=" font-mono" key={index}>{log}</p>
           ))}
         </div>
       </div>
