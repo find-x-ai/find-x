@@ -135,10 +135,10 @@ export default function ConfigureComponent() {
           back and let it complete...⏳ <br />
           don't close or refresh the browser window it'll immediately halt the process.
         </p>
-        <div className={`w-full overflow-hidden h-80 text-[#ffffff] border-purple-950/30 bg-purple-950/30 rounded-md ${showLogs ? "block" : "hidden"}`}>
+        <div className={`w-full overflow-hidden h-80 text-[#ffffff] border-purple-950/30 bg-black/20 rounded-md ${showLogs ? "block" : "hidden"}`}>
           <div className="overflow-y-auto max-h-80 mb-5 overflow-x-auto">
             {logs.map((log, index) => (
-              <p className="font-mono px-2" key={index}>
+              <p className={`font-mono px-2 ${log.includes("Failed") ? "text-red-600" : "text-green-600"}`} key={index}>
                 {log}
               </p>
             ))}
