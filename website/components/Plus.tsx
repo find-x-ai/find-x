@@ -1,7 +1,7 @@
 export default function Plus() {
     return (
       <svg
-        className=" stroke-none fill-[#ffffff]"
+        className=" stroke-none fill-[#222]"
         height="30"
         viewBox="0 0 100 100"
         width="30"

@@ -7,10 +7,10 @@ export default function Features() {
       <div className="w-full max-w-[1200px] h-full flex flex-col justify-between">
         <div className=" pt-10 pb-5  flex md:flex-row flex-col gap-7 cursor-pointer">
           <CardContainer>
-            <div className="w-full border border-purple-950/30 rounded-xl p-5 bg-purple-950/5">
+            <div className="w-full border border-[#222]/20 rounded-xl p-5 bg-[#222]">
               <h1 className="text-5xl text-white">Your Data</h1>
               <br />
-              <p className="text-zinc-400 leading-8 w-full max-w-[800px]">
+              <p className="text-zinc-300 leading-8 w-full max-w-[800px]">
                 Your app is the answer to users all questions and that is
                 exactly what it takes to get you started! Just provide the URL
                 of your application and start configuring the data that will
@@ -19,10 +19,10 @@ export default function Features() {
             </div>
           </CardContainer>
           <CardContainer>
-            <div className="w-full border border-purple-950/30 rounded-xl p-5 bg-purple-950/5">
+            <div className="w-full border border-[#222]/20 rounded-xl p-5 bg-[#222]">
               <h1 className="text-5xl text-white">Secure data flow</h1>
               <br />
-              <p className="text-zinc-400 leading-8 w-full max-w-[800px]">
+              <p className="text-zinc-300 leading-8 w-full max-w-[800px]">
                 Whole process works on the visible data for the application.
                 There isn't any need to share any confidential information about
                 your application. This eliminates the possibility of any
@@ -31,7 +31,7 @@ export default function Features() {
             </div>
           </CardContainer>
         </div>
-        <div className="w-full sm:h-[150px] h-[100px] border border-purple-950/30 bg-purple-950/5 rounded-xl flex justify-center items-center">
+        <div className="w-full sm:h-[150px] h-[100px] border border-[#222]/20 bg-[#222] rounded-xl flex justify-center items-center">
           <div>
             <Link href={"/"} className="text-4xl text-white">
               try Now
