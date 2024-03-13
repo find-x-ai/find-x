@@ -1,8 +1,8 @@
 import Home from "@/components/Home";
-export default async function HomePage() {
+export default function HomePage() {
   return (
-    <div className="w-full">
-      <Home />
-    </div>
+     <div className="w-full h-[calc(100vh-60px)] flex justify-center items-start">
+         <Home/>
+     </div>
   );
 }

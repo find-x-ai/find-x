@@ -1,44 +1,33 @@
-import Link from "next/link";
-import { CardContainer } from "./ui/3d-card";
-
-export default function Features() {
+const Features = () => {
   return (
-    <div className="w-full py-0 px-6 flex flex-col justify-center items-center relative top-[-30px]">
-      <div className="w-full max-w-[1200px] h-full flex flex-col justify-between">
-        <div className=" pt-10 pb-5  flex md:flex-row flex-col gap-7 cursor-pointer">
-          <CardContainer>
-            <div className="w-full border border-[#222]/20 rounded-xl p-5 bg-[#222]">
-              <h1 className="text-5xl text-white">Your Data</h1>
-              <br />
-              <p className="text-zinc-300 leading-8 w-full max-w-[800px]">
-                Your app is the answer to users all questions and that is
-                exactly what it takes to get you started! Just provide the URL
-                of your application and start configuring the data that will
-                enable us to deliver you the best experience possible.
-              </p>
-            </div>
-          </CardContainer>
-          <CardContainer>
-            <div className="w-full border border-[#222]/20 rounded-xl p-5 bg-[#222]">
-              <h1 className="text-5xl text-white">Secure data flow</h1>
-              <br />
-              <p className="text-zinc-300 leading-8 w-full max-w-[800px]">
-                Whole process works on the visible data for the application.
-                There isn't any need to share any confidential information about
-                your application. This eliminates the possibility of any
-                potentially risks associated with your data.
-              </p>
-            </div>
-          </CardContainer>
-        </div>
-        <div className="w-full sm:h-[150px] h-[100px] border border-[#222]/20 bg-[#222] rounded-xl flex justify-center items-center">
-          <div>
-            <Link href={"/"} className="text-4xl text-white">
-              try Now
-            </Link>
-          </div>
-        </div>
+    <div className="w-full flex md:flex-row flex-col sm:gap-10 gap-5 max-w-[1200px] cursor-pointer py-5 border-b px-5">
+      <div className="w-full sm:border-b-0 border-b pb-5">
+        <h1 className="text-4xl font-sans">Faster</h1> <br />
+        <p className=" leading-7">
+          Find x average time for each query response is about 2 sec which makes
+          it fastest ai chat in the current market. With this speed your
+          application users doesn't have to wait for 10 sec just to get answer
+          of one question
+        </p>
+      </div>
+      <div className="w-full sm:border-b-0 border-b pb-5">
+        <h1 className="text-4xl font-sans">Affordable</h1> <br />
+        <p className=" leading-7">
+          Compared to the competitions of find x we offer least charges than any
+          other provider. With find x each query response for client will take
+          just 0.02 $. This is 10X cheaper than the cost of other providers
+        </p>
+      </div>
+      <div className="w-full sm:border-b-0 border-b pb-5">
+        <h1 className="text-4xl font-sans">Effortless</h1> <br />
+        <p className=" leading-7">
+          Our whole architecture is based on serverless approach. You don't need to add and
+          maintain ton of code just to enable chat in your app , just install
+          the package and within minutes you are ready to serve!
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default Features;

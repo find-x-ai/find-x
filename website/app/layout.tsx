@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { MuseoModerno } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import { Toaster } from "sonner";
-const Muse = MuseoModerno({subsets: ["vietnamese"]});
+
 
 export const metadata: Metadata = {
-  title: "Find-X",
-  description: "AI based chat for your app",
+  title: "Find x",
+  description: "Fastest ai chat",
 };
 
 export default function RootLayout({
@@ -17,10 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={Muse.className}>
+      <body>
         <Navbar/>
         {children}
-        <Toaster />
       </body>
     </html>
   );
