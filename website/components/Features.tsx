@@ -1,7 +1,7 @@
 const Features = () => {
   return (
-    <div className="w-full flex md:flex-row flex-col sm:gap-10 gap-5 max-w-[1200px] cursor-pointer py-5 border-b px-5">
-      <div className="w-full sm:border-b-0 border-b pb-5">
+    <div className="w-full flex md:flex-row flex-col sm:gap-10 gap-5 max-w-[1200px] cursor-pointer py-5 px-5 z-10 shadow-[0px_-20px_30px_#222]">
+      <div className="w-full border-b pb-5">
         <h1 className="text-4xl font-sans">Faster</h1> <br />
         <p className=" leading-7">
           Find x average time for each query response is about 2 sec which makes
@@ -10,7 +10,7 @@ const Features = () => {
           of one question
         </p>
       </div>
-      <div className="w-full sm:border-b-0 border-b pb-5">
+      <div className="w-full border-b pb-5">
         <h1 className="text-4xl font-sans">Affordable</h1> <br />
         <p className=" leading-7">
           Compared to the competitions of find x we offer least charges than any
@@ -18,7 +18,7 @@ const Features = () => {
           just 0.02 $. This is 10X cheaper than the cost of other providers
         </p>
       </div>
-      <div className="w-full sm:border-b-0 border-b pb-5">
+      <div className="w-full border-b pb-5">
         <h1 className="text-4xl font-sans">Effortless</h1> <br />
         <p className=" leading-7">
           Our whole architecture is based on serverless approach. You don't need to add and
