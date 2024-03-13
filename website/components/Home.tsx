@@ -13,8 +13,8 @@ const Home = () => {
             Experience the fastest ai assistance for your app
           </p>
         </div>
-        <div className="flex justify-center items-center">
-          <button className="p-3 bg-blue-600 w-[150px] z-10 transition-colors duration-500 font-semibold hover:bg-blue-700 text-[#fff] rounded-sm">
+        <div className="flex justify-center items-center px-3">
+          <button className="px-3 py-2 bg-blue-600 w-[150px] z-10 transition-colors duration-500 font-semibold hover:bg-blue-700 text-[#fff] rounded-sm">
             get sterted
           </button>
         </div>
