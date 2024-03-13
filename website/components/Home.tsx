@@ -3,9 +3,9 @@ import { BackgroundBeams } from "./ui/background-beams";
 
 const Home = () => {
   return (
-    <div className="w-full flex flex-col gap-5 justify-start items-center max-w-[1200px] px-2 bg-[#222] text-white">
+    <div className="w-full flex flex-col gap-5 justify-start items-center max-w-[1200px] px-2">
       <div className="w-full flex flex-col gap-5 justify-center items-start py-10 px-5 bg-[#222] overflow-hidden relative antialiased">
-        <div className="text-start p-2">
+        <div className="text-start p-2 z-20">
           <h1 className="md:text-7xl sm:text-6xl text-5xl font-sans text-white font-bold">
             Lightning Fast <br className="sm:hidden" /> <span className="text-blue-700">AI</span> chat
           </h1>
