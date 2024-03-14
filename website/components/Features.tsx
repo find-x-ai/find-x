@@ -1,6 +1,6 @@
 const Features = () => {
   return (
-    <div className="w-full flex md:flex-row flex-col sm:gap-10 gap-5 max-w-[1200px] cursor-pointer py-5 px-5 z-10 shadow-[0px_-20px_50px_#fafafa]">
+    <div className="w-full flex md:flex-row flex-col sm:gap-10 gap-5 max-w-[1200px] cursor-pointer py-5 z-10 shadow-[0px_-20px_50px_#fafafa]">
       <div className="w-full border-b pb-5">
         <h1 className="text-4xl font-sans">Faster</h1> <br />
         <p className=" leading-7">
