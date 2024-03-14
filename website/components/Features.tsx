@@ -1,9 +1,9 @@
 const Features = () => {
   return (
     <div className="w-full flex md:flex-row flex-col sm:gap-10 gap-5 max-w-[1200px] cursor-pointer py-5 z-10 shadow-[0px_-20px_50px_#fafafa]">
-      <div className="w-full border p-3 rounded-md hover:border-blue-600 transition-colors duration-300">
-        <h1 className="text-4xl font-sans">
-          <span className="text-blue-600 font-semibold">3X</span> Faster
+      <div className="w-full shadow-sm border p-3 rounded-md hover:border-blue-600 transition-colors duration-300">
+        <h1 className="text-4xl text-zinc-800 font-sans">
+          <span className="font-semibold">3X</span> Faster
         </h1>{" "}
         <br />
         <p className=" leading-7 text-zinc-600">
@@ -13,10 +13,10 @@ const Features = () => {
           of one question
         </p>
       </div>
-      <div className="w-full border p-3 rounded-md hover:border-blue-600 transition-colors duration-300">
-        <h1 className="text-4xl font-sans">
+      <div className="w-full shadow-sm border p-3 rounded-md hover:border-blue-600 transition-colors duration-300">
+        <h1 className="text-4xl text-zinc-800 font-sans">
           {" "}
-          <span className="text-blue-600 font-semibold">10X</span> Affordable
+          <span className="font-semibold">10X</span> Affordable
         </h1>{" "}
         <br />
         <p className=" leading-7 text-zinc-600">
@@ -25,9 +25,9 @@ const Features = () => {
           just 0.02 $. This is 10X cheaper than the cost of other providers
         </p>
       </div>
-      <div className="w-full border p-3 rounded-md hover:border-blue-600 transition-colors duration-300">
-        <h1 className="text-4xl font-sans">
-          <span className="text-blue-600 font-semibold">100X</span> Effortless
+      <div className="w-full shadow-sm border p-3 rounded-md hover:border-blue-600 transition-colors duration-300">
+        <h1 className="text-4xl text-zinc-800 font-sans">
+          <span className="font-semibold">100X</span> Effortless
         </h1>{" "}
         <br />
         <p className=" leading-7 text-zinc-600">

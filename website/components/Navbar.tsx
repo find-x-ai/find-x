@@ -9,7 +9,7 @@ const Navbar = () => {
             Find X
           </Link>
         </div>
-        <div className="flex flex-shrink px-2 justify-end items-center gap-5 text-[#222] min-w-[100px] overflow-x-scroll">
+        <div className="flex flex-shrink px-2 justify-end items-center gap-5 text-[#222] min-w-[100px] sm:overflow-hidden overflow-x-scroll">
             <Link className="hover:underline" href={'/'}>pricing</Link>
             <Link className="hover:underline" href={'/'}>docs</Link>
             {/* <Link className="hover:underline" href={'/'}>team</Link> */}
