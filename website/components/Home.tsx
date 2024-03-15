@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Features from "./Features";
 import { BackgroundBeams } from "./ui/background-beams";
 
@@ -7,20 +8,23 @@ const Home = () => {
       <div className="w-full flex flex-col gap-5 justify-center items-start py-10 overflow-hidden relative antialiased">
         <div className="text-start z-20 h-full">
           <h1 className="md:text-7xl sm:text-6xl text-5xl font-sans text-[#222] font-bold">
-            Lightning Fast <br className="sm:hidden" /> <span className="text-blue-700">AI</span> chat
+            Lightning Fast <br className="sm:hidden" />{" "}
+            <span className="text-blue-700">AI</span> chat
           </h1>
           <p className="text-zinc-600 pt-5">
             Experience the fastest ai assistance for your app
           </p>
         </div>
         <div className="flex justify-center items-center">
-          <button className="px-3 py-2 bg-blue-600 w-[150px] z-10 transition-colors duration-500 font-semibold hover:bg-blue-700 text-[#fff] rounded-sm">
-            get sterted
-          </button>
+          <Link className="z-10" href={"/dashboard"}>
+            <button className="px-3 py-2 bg-[#0c0c0c] w-[150px]  transition-colors duration-500 font-semibold text-[#fff] rounded-sm">
+              get sterted
+            </button>
+          </Link>
         </div>
-        <BackgroundBeams className="bg-[#fafafa]"/>
+        <BackgroundBeams className="bg-[#fafafa]" />
       </div>
-      <Features/>
+      <Features />
     </div>
   );
 };
