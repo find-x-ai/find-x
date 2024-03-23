@@ -1,7 +1,0 @@
-bs4
-spacy
-fastapi== 0.109.0
-uvicorn== 0.25.0
-upstash_vector
-python-dotenv==1.0.1
-modal

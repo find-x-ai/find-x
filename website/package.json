@@ -9,11 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
     "ai": "^3.0.13",
     "next": "14.1.0",
     "openai": "^4.29.2",
     "react": "^18",
     "react-dom": "^18"
+=======
+    "@clerk/nextjs": "^4.29.9",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.12",
+    "mini-svg-data-uri": "^1.4.4",
+    "next": "14.1.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "tailwind-merge": "^2.2.1"
+>>>>>>> 12f1aaef718d4bf58795d11fa8ad8eb7e7f93e8f
   },
   "devDependencies": {
     "@types/node": "^20",
