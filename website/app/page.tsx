@@ -1,19 +1,56 @@
 "use client"
-export default function Home() {
+import { useState } from "react";
+export default function Home(){
+
+  const [res , setRes ] = useState<string>("");
+  const [loading , setLoading] = useState<boolean>(false);
+
+  const fakeLoad = async()=>{return}
+  const handleSubmit = async (formData: FormData)=>{
+    await fakeLoad();
+    setLoading(true);
+    setRes("")
+      const message = formData.get('message');
+      const response = await fetch("https://findx.vercel.app/api/query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: message
+        })
+      });
+
+    if(!response.ok || !response.body){
+      return {
+        status: false,
+        message: "failed to submit"
+      }
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    while(true){
+      const { value , done} = await reader.read()
+      const text = decoder.decode(value);
+      setRes((prev)=> prev + " " + text)
+      if(done){
+        break;
+      }
+    }
+
+    setLoading(false);
+      
+  }
   return (
-    <main className="flex min-h-screen w-full flex-col gap-10 items-center  p-24">
-      <h1 className="text-5xl font-sans font-bold">
-        AI based chat for your app
-      </h1>
-      <div className="flex justify-center flex-col items-center gap-5">
-        <div className="w-[400px] h-[300px] flex flex-col gap-5 bg-zinc-100">
-          <p>This is response from the server...</p>
-          <p>This is response from the server...</p>
-        </div>
-        <div className="flex gap-5 w-[400px]">
-          <input className="w-full border p-1" type="text" /> <button className="p-2 border">send</button>
-        </div>
-      </div>
+    <main className="w-full h-screen flex flex-col justify-center items-center">
+       <div className="p-5 bg-blue-300 text-black w-[500px]">
+        {res}
+       </div>
+       <form action={handleSubmit}>
+        <input name="message" required className="p-2 w-[400px] text-black" type="text" />
+        <button disabled={loading} className="p-2 w-[120px]">{loading ? "loading..." : "send"}</button>
+       </form>
     </main>
-  );
+  )
 }
