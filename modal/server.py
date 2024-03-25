@@ -21,8 +21,8 @@ def generate_embedding(requestData : Dict):
     from langchain.text_splitter import RecursiveCharacterTextSplitter
     
     embeddings = []  
+    chunks=[]
 
-    
     MODEL = "multi-qa-MiniLM-L6-cos-v1"
     model = SentenceTransformer(MODEL, device="cpu")
 
@@ -32,21 +32,17 @@ def generate_embedding(requestData : Dict):
     for id, item in enumerate(data):
         url = item.get("url", "")
         content = item.get("content", "")
-        
-        
-        text_to_encode = f"{url} {content}"
-
         spilter = RecursiveCharacterTextSplitter(
             separators=['\n\n', '\n', '\n\n\n', '.', '\t'],
             chunk_size=400,
             chunk_overlap=0
         )
-        chunks = spilter.split_text(text_to_encode)
-        embeddings.extend(model.encode(chunks).tolist())
+        chunks.extend([f"{chunk}{url}{clientId}" for chunk in spilter.split_text(content)])
+        embeddings.extend(model.encode(chunks))
 
-    print(f"Generated {len(embeddings)} embeddings.")
+    # print(f"Generated {len(embeddings)} embeddings.")
     
-    print(len(data))
+    # print(len(chunks))
     
     #environmen variables
     upstash_token = os.environ["Token"] 
@@ -55,29 +51,31 @@ def generate_embedding(requestData : Dict):
     index = Index(url=upstash_url, token=upstash_token) #initialize the vector index
 
     upsert_vector = []
-    for id, value in enumerate(data):
+    for id, value in enumerate(chunks):
+        
         vector_with_metadata = {
             "id": f"{clientId}_{str(id)}",
             "vector": embeddings[id],
-            "metadata": {"client_id": clientId, "Data": value}
+            "metadata": {"client_id": clientId, "Data": value,}
         }
         upsert_vector.append(vector_with_metadata)
 
     index.upsert(vectors=upsert_vector)
-    print(f"Generated {len(data)} embeddings.")
+    # print(f"Generated {len(data)} embeddings.")
     
     return {
         "Status": "success",
         "message": "successfully generated embedding...",
     }
     
-@stub.function()
+@stub.function(keep_warm=1)
 @web_endpoint(label="query",method="POST")
 def start_query(requestData : Dict):
     from fastapi.responses import StreamingResponse
     query = requestData["query"]
-    # res = Model.query_data.remote(query)
-    return StreamingResponse(Model.query_data.remote_gen(query), media_type="text/event-stream")
+    client= requestData["client"]
+    #res = Model.query_data.remote(query)
+    return StreamingResponse(Model.query_data.remote_gen(client,query), media_type="text/event-stream")
 
 @stub.cls(secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url"),modal.Secret.from_name("open-ai-key")])
 class Model:
@@ -102,11 +100,12 @@ class Model:
         Make sure to maintain a proffessional flow of conversation."""
         
     @method()
-    def query_data(self,query:str):
+    def query_data(self,client:str,query:str):
         from fastapi.responses import StreamingResponse
+        query=f"{client} {query}"
         encode = self.model.encode(query)
-        answer = self.index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False) 
-        data = f"query : {query} , data: {answer}"    
+        answer = self.index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False)
+        data = f"query : {query} , data: {answer}" 
         for chunk in self.client.chat.completions.create(
                        model="gpt-3.5-turbo",
                        messages=[{"role": "system", "content": self.instructions},{"role": "user", "content": data.replace("\n", "").replace(" ", "").replace("\t", "")}],
