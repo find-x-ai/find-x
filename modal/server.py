@@ -22,23 +22,29 @@ def generate_embedding(requestData : Dict):
     
     embeddings = []  
     chunks=[]
+    text=[]
 
     MODEL = "multi-qa-MiniLM-L6-cos-v1"
     model = SentenceTransformer(MODEL, device="cpu")
 
     data = requestData["data"]  #data is array of dict i.e. [{url: string , content: string }]
     clientId = requestData["client"] #client id is string
+    my_list=[]
     
     for id, item in enumerate(data):
         url = item.get("url", "")
         content = item.get("content", "")
+        
         spilter = RecursiveCharacterTextSplitter(
             separators=['\n\n', '\n', '\n\n\n', '.', '\t'],
             chunk_size=400,
             chunk_overlap=0
         )
-        chunks.extend([f"{chunk}{url}{clientId}" for chunk in spilter.split_text(content)])
-        embeddings.extend(model.encode(chunks))
+        text_to_encode=spilter.split_text(content)
+        chunks.extend([f"{chunk} {url} {clientId}" for chunk in text_to_encode])
+        for chunk in text_to_encode:
+            my_list.append({"content": chunk, "url": url})
+    embeddings=model.encode(chunks)
 
     # print(f"Generated {len(embeddings)} embeddings.")
     
@@ -51,12 +57,11 @@ def generate_embedding(requestData : Dict):
     index = Index(url=upstash_url, token=upstash_token) #initialize the vector index
 
     upsert_vector = []
-    for id, value in enumerate(chunks):
-        
+    for id, value in enumerate(my_list):
         vector_with_metadata = {
             "id": f"{clientId}_{str(id)}",
             "vector": embeddings[id],
-            "metadata": {"client_id": clientId, "Data": value,}
+            "metadata": {"client_id": clientId, "Data": value}
         }
         upsert_vector.append(vector_with_metadata)
 
@@ -68,7 +73,7 @@ def generate_embedding(requestData : Dict):
         "message": "successfully generated embedding...",
     }
     
-@stub.function(keep_warm=1)
+@stub.function()
 @web_endpoint(label="query",method="POST")
 def start_query(requestData : Dict):
     from fastapi.responses import StreamingResponse
