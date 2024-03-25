@@ -74,7 +74,7 @@ def start_query(requestData : Dict):
     from fastapi.responses import StreamingResponse
     query = requestData["query"]
     client= requestData["client"]
-    # res = Model.query_data.remote(query)
+    #res = Model.query_data.remote(query)
     return StreamingResponse(Model.query_data.remote_gen(client,query), media_type="text/event-stream")
 
 @stub.cls(secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url"),modal.Secret.from_name("open-ai-key")])
