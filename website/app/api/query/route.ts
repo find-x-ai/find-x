@@ -1,5 +1,5 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai';
-// Set the runtime to edge for best performance
+
 export const runtime = 'edge';
  
 export async function POST(req: Request) {
@@ -11,10 +11,10 @@ export async function POST(req: Request) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      client: "100",
       query: query
     })
-  }) as any
-  // const stream = OpenAIStream(response);
+  }) as any;
   if (!response.ok) {
     throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
   }

@@ -33,7 +33,7 @@ export default function Home(){
     while(true){
       const { value , done} = await reader.read()
       const text = decoder.decode(value);
-      setRes((prev)=> prev + " " + text)
+      setRes((prev)=> prev + text)
       if(done){
         break;
       }
