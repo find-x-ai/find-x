@@ -11,7 +11,7 @@ export default function Home(){
     setLoading(true);
     setRes("")
       const message = formData.get('message');
-      const response = await fetch("https://findx.vercel.app/api/query", {
+      const response = await fetch("http://localhost:3000/api/query", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

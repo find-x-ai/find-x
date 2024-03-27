@@ -1,40 +1,26 @@
-import { OpenAIStream, StreamingTextResponse } from 'ai';
-import { NextResponse } from 'next/server';
+import { StreamingTextResponse } from "ai";
 
-export const runtime = 'edge';
- 
+export const runtime = "edge";
+
 export async function POST(req: Request) {
-  const origin = req.headers.get('origin');
+  const origin = req.headers.get("origin");
   console.log("origin is " + origin);
   const { query } = await req.json();
 
-  const response = await fetch("https://sahilm416--query.modal.run", {
+  const response = (await fetch("https://sahilm416--query.modal.run", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       client: "100",
-      query: query
-    })
-  }) as any;
+      query: query,
+    }),
+  })) as any;
   if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch: ${response.status} ${response.statusText}`
+    );
   }
-
-  if(req.method === "OPTIONS") {
-    return new NextResponse(null , {
-      status: 200,
-      statusText: "This operation was successful"
-    })
-  }
-  return new StreamingTextResponse(response.body , {
-    headers: {
-      "Access-Control-Allow-Origin" : origin || "*",
-      "Access-Control-Allow-Methods" : "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers" : "Content-Type , Authorization",
-      "Content-Type" : "text/plain"
-    }
-  })
-  
+  return new StreamingTextResponse(response.body);
 }
