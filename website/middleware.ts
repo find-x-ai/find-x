@@ -16,7 +16,7 @@ export function middleware(request: Request) {
   );
 
   // Handle OPTIONS preflight requests
-  if (request.method === "OPTIONS") {
+  if (request.method === "POST") {
     return new Response(null, {
       status: 204,
       headers: response.headers,
@@ -27,5 +27,5 @@ export function middleware(request: Request) {
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: "/api/query",
 };
