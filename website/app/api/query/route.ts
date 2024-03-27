@@ -1,4 +1,5 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai';
+import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
  
@@ -20,11 +21,18 @@ export async function POST(req: Request) {
   if (!response.ok) {
     throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
   }
+
+  if(req.method === "OPTIONS") {
+    return new NextResponse(null , {
+      status: 200,
+      statusText: "This operation was successful"
+    })
+  }
   return new StreamingTextResponse(response.body , {
     headers: {
       "Access-Control-Allow-Origin" : origin || "*",
       "Access-Control-Allow-Methods" : "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers" : "Content-Type",
+      "Access-Control-Allow-Headers" : "Content-Type , Authorization",
       "Content-Type" : "text/plain"
     }
   })
