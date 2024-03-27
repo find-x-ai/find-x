@@ -3,6 +3,8 @@ import { OpenAIStream, StreamingTextResponse } from 'ai';
 export const runtime = 'edge';
  
 export async function POST(req: Request) {
+  const origin = req.headers.get('origin');
+
   const { query } = await req.json();
 
   const response = await fetch("https://sahilm416--query.modal.run", {
@@ -18,8 +20,6 @@ export async function POST(req: Request) {
   if (!response.ok) {
     throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
   }
-
-
-  return new StreamingTextResponse(response.body)
+  return new StreamingTextResponse(response.body).headers.set("Access-Control-Allow-Origin","*")
   
 }
