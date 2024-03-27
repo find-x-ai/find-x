@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export function middleware(request:NextRequest) {
+export function middleware(request: Request) {
   const response = NextResponse.next();
-
+  const origin = request.headers.get('origin');
+  console.log(origin)
   // Add the CORS headers
   response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set(
