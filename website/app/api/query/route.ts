@@ -20,6 +20,6 @@ export async function POST(req: Request) {
   if (!response.ok) {
     throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
   }
-  return new StreamingTextResponse(response.body).headers.set("Access-Control-Allow-Origin","*")
+  return new StreamingTextResponse(response.body)
   
 }
