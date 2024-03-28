@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
 
   if (req.method === "OPTIONS") {
     return new NextResponse(null, { status: 200 }); // Return a 200 OK status for preflight requests
   }
-
+  const res = NextResponse.next();
   res.headers.set("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
   res.headers.set("Access-Control-Allow-Methods", "GET, DELETE, PATCH, POST, PUT");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
