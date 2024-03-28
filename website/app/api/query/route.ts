@@ -1,9 +1,7 @@
 import { StreamingTextResponse } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  runtime: "edge",
-};
+export const runtime = "edge"
 
 export async function POST(req: NextRequest) {
   // Get the origin header from the request
