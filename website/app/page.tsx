@@ -13,6 +13,7 @@ export default function Home(){
       const message = formData.get('message');
       const response = await fetch("https://findx.vercel.app/api/query", {
         method: "POST",
+        mode: "no-cors",
         headers: {
           "Content-Type": "application/json",
         },
