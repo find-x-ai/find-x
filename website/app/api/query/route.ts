@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(null, { status: 200 }); // Return a 200 OK status for preflight requests
   }
   const res = NextResponse.next();
-  res.headers.set("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
+  res.headers.set("Access-Control-Allow-Origin", "http://localhost:3000"); // Allow requests from any origin
   res.headers.set("Access-Control-Allow-Methods", "GET, DELETE, PATCH, POST, PUT");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
