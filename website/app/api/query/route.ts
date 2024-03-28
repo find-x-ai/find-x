@@ -2,7 +2,7 @@ import { StreamingTextResponse } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
+// export const runtime = "edge";
 export async function POST(req: NextRequest) {
   // Get the origin header from the request
   const origin = req.headers.get("Origin");
