@@ -140,10 +140,12 @@ Also you never ever ever include recieved query as it is in question in response
         array_of_context = []
         
         for chunk in answer:
-            temp = {'url': chunk.metadata["Data"]["url"] , 'content': chunk.metadata["Data"]["content"]}
+            if chunk.metadata.get("client_id") == client:
+                temp = {'url': chunk.metadata["Data"]["url"] , 'content': chunk.metadata["Data"]["content"]}
+            else:
+                temp = {'url': "not found" , 'content': "no data available"}
             array_of_context.append(temp)
-            # print(chunk.metadata["Data"]["content"])
-            # # context = context + chunk.metadata[""]
+         
         page1 = [array_of_context[0]["url"] , array_of_context[0]["content"]]
         page2 = [array_of_context[1]["url"] , array_of_context[1]["content"]]
         
