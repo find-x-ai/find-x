@@ -9,13 +9,13 @@ export function middleware(req: NextRequest) {
   // Handle regular requests
   const res = NextResponse.next();
 
-  // Add CORS headers to the response
+//   Add CORS headers to the response
   res.headers.set("Access-Control-Allow-Origin", "*"); // Allow requests from any origin
   res.headers.set("Access-Control-Allow-Methods", "GET, DELETE, PATCH, POST, PUT");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // Optionally, you can allow credentials if needed
-  // res.headers.set("Access-Control-Allow-Credentials", "true");
+//   Optionally, you can allow credentials if needed
+  res.headers.set("Access-Control-Allow-Credentials", "true");
 
   // Return the response with CORS headers
   return res;
