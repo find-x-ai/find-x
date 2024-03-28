@@ -1,8 +1,9 @@
 import { StreamingTextResponse } from "ai";
+import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest, res: NextResponse) {
   const { query } = await req.json();
 
   const response = (await fetch("https://sahilm416--query.modal.run", {
