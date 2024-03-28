@@ -1,7 +1,9 @@
-import next from "next";
-import { NextRequest, NextResponse } from "next/server";
+import { CorsMiddleware } from "nextjs-edge-cors";
 
-export default async function Middleware(req : NextRequest , res : NextResponse){
-    req.headers.delete("origin")
-    console.log("Mid ran")
-}
+export const middleware = CorsMiddleware({
+  origin: "*",
+});
+
+export const config = {
+  matcher: ["/api/cors/:path*"],
+};

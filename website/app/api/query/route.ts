@@ -3,8 +3,7 @@ import { StreamingTextResponse } from "ai";
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const origin = req.headers.get("origin");
-  console.log("origin is " + origin);
+ 
   const { query } = await req.json();
 
   const response = (await fetch("https://sahilm416--query.modal.run", {
