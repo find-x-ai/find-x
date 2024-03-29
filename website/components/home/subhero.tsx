@@ -7,7 +7,7 @@ const subhero = () => {
         We make difference
       </h2>
       <div className="w-full flex sm:flex-row flex-col sm:items-start items-center gap-5 justify-center px-5">
-        <div className="w-full max-w-[400px] border border-[#11132C] p-5 flex flex-col gap-3">
+        <div className="w-full max-w-[400px] border border-[#11132C] p-5 flex flex-col gap-3 rounded-2xl bg-[#000212]">
           <div>
             <h2 className="text-3xl">Faster Response</h2>
           </div>
@@ -19,7 +19,7 @@ const subhero = () => {
             </p>
           </div>
         </div>
-        <div className="w-full max-w-[400px] border border-[#11132C] p-5 flex flex-col gap-3">
+        <div className="w-full max-w-[400px] border border-[#11132C] p-5 flex flex-col gap-3 rounded-2xl bg-[#000212]">
           <div>
             <h2 className="text-3xl">Affordable pricing</h2>
           </div>
@@ -31,7 +31,7 @@ const subhero = () => {
             </p>
           </div>
         </div>
-        <div className="w-full max-w-[400px] border border-[#11132C] p-5 flex flex-col gap-3">
+        <div className="w-full max-w-[400px] border border-[#11132C] p-5 flex flex-col gap-3 rounded-2xl bg-[#000212]">
           <div>
             <h2 className="text-3xl">Free Credits</h2>
           </div>
