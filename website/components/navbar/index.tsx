@@ -9,10 +9,10 @@ const Navbar = () => {
             Find x
           </Link>
         </div>
-        <div className="sm:flex items-center hidden gap-5">
-          <Link href={"/"}>pricing</Link>
-          <Link href={"/"}>about</Link>
-          <Link href={"/"}>team</Link>
+        <div className="flex items-center gap-5">
+          <Link className="sm:block hidden" href={"/"}>pricing</Link>
+          <Link className="sm:block hidden" href={"/"}>about</Link>
+          <Link className="sm:block hidden" href={"/"}>team</Link>
           <SignedIn>
             <UserButton afterSignOutUrl="/"/>
           </SignedIn>
