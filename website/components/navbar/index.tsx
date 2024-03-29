@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { UserButton , SignedIn , SignedOut } from "@clerk/nextjs"
 const Navbar = () => {
   return (
-    <nav className="bg-[#11132c]/50 w-full flex justify-center z-20 items-center h-[50px] backdrop-blur-md sticky top-0 border-b-2 border-[#181a34] px-5">
-      <div className="w-full max-w-[1200px] flex justify-between items-center">
+    <nav className="bg-[#11132c]/50 w-full flex justify-center z-20 items-center h-[50px] backdrop-blur-md sticky top-0 border-b-2 border-[#181a34]">
+      <div className="w-full max-w-[1200px] flex justify-between items-center px-5">
         <div>
           <Link className="text-lg" href={"/"}>
             Find x
@@ -12,9 +13,12 @@ const Navbar = () => {
           <Link href={"/"}>pricing</Link>
           <Link href={"/"}>about</Link>
           <Link href={"/"}>team</Link>
-          <Link className="py-2 px-5 bg-[#5D69D3] rounded-full" href={"/"}>
-            dashboard
-          </Link>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/"/>
+          </SignedIn>
+          <SignedOut>
+          <Link className="py-2 px-5 bg-[#5D69D3] rounded-full" href={"/dashboard"}>login</Link>
+          </SignedOut>
         </div>
       </div>
     </nav>

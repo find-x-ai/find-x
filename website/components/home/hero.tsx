@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const hero = () => {
@@ -14,9 +15,12 @@ const hero = () => {
         budget-friendly, and effortlessly integrated.
       </p>
       <div>
+        <Link href={'/dashboard'}>
         <button className="py-2 px-5 bg-[#5D69D3] rounded-full">
           get started for free
         </button>
+        </Link>
+        
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ const subhero = () => {
           </div>
           <div>
             <p className="text-[#B3BCD0]">
-              Find x is average query response time is <span className="text-white">2x to 3x</span> faster than
+              The average query response time is <span className="text-white">2x to 3x</span> faster than
               available AI assistants. This makes the user experience much
               better for your website users.
             </p>
