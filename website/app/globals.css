@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        @apply bg-gradient-to-b from-[#11132C] bg-no-repeat via-background to-black font-sans text-white
+    }
+}

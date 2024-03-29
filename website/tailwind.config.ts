@@ -13,11 +13,14 @@ const config: Config = {
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      fontFamily: {
+        sans: '"SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Open Sans", "Helvetica Neue", sans-serif',
+      },
+      colors: {
+        background: "#000212",
+      }
     },
   },
-  plugins: [],
-  corePlugins:{
-    preflight: false
-  }
+  plugins: []
 };
 export default config;
