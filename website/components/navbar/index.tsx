@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { UserButton , SignedIn , SignedOut } from "@clerk/nextjs"
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+
 const Navbar = () => {
   return (
     <nav className="bg-[#11132c]/50 w-full flex justify-center z-20 items-center h-[50px] backdrop-blur-md sticky top-0 border-b-2 border-[#181a34]">
@@ -10,14 +11,25 @@ const Navbar = () => {
           </Link>
         </div>
         <div className="flex items-center gap-5">
-          <Link className="sm:block hidden" href={"/"}>pricing</Link>
-          <Link className="sm:block hidden" href={"/"}>about</Link>
-          <Link className="sm:block hidden" href={"/"}>team</Link>
+          <Link className="sm:block hidden" href={"/"}>
+            pricing
+          </Link>
+          <Link className="sm:block hidden" href={"/"}>
+            about
+          </Link>
+          <Link className="sm:block hidden" href={"/"}>
+            team
+          </Link>
           <SignedIn>
-            <UserButton afterSignOutUrl="/"/>
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
-          <Link className="py-2 px-5 bg-[#5D69D3] rounded-full" href={"/dashboard"}>login</Link>
+            <Link
+              className="py-2 px-5 bg-[#5D69D3] rounded-full"
+              href={"/dashboard"}
+            >
+              login
+            </Link>
           </SignedOut>
         </div>
       </div>
