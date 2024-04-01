@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+
 
 const Navbar = () => {
   return (
@@ -20,17 +20,6 @@ const Navbar = () => {
           <Link className="sm:block hidden" href={"/"}>
             team
           </Link>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <SignedOut>
-            <Link
-              className="py-2 px-5 bg-[#5D69D3] rounded-full"
-              href={"/dashboard"}
-            >
-              login
-            </Link>
-          </SignedOut>
         </div>
       </div>
     </nav>

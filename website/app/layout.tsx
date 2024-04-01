@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from '@clerk/themes';
 import {Toaster} from "sonner"
 import Navbar from "@/components/navbar";
@@ -16,14 +15,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-        variables: {
-          colorBackground: "#000212"
-        }
-      }}
-    >
       <html lang="en">
         <body className="font-sans overflow-y-scroll">
           <Navbar />
@@ -33,6 +24,5 @@ export default function RootLayout({
           <Toaster richColors={false}/>
         </body>
       </html>
-    </ClerkProvider>
   );
 }

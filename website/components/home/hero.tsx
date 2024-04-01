@@ -15,7 +15,7 @@ const hero = () => {
         budget-friendly, and effortlessly integrated.
       </p>
       <div>
-        <Link href={'/dashboard'}>
+        <Link href={'/'}>
         <button className="py-2 px-5 bg-[#5D69D3] rounded-full">
           get started for free
         </button>
