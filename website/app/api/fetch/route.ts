@@ -15,11 +15,9 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  // Get the origin header from the request
-  const origin = req.headers.get("origin");
 
   const { url } = await req.json();
-
+ console.log(url)
   try {
     const res = await fetch(url);
 
@@ -45,6 +43,8 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
+
+    console.log(error)
     return NextResponse.json({
       status: false,
       message: "fetch failed",
