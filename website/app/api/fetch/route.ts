@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "edge";
+// export const runtime = "edge";
 
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
@@ -17,7 +17,7 @@ export async function OPTIONS(request: NextRequest) {
 export async function POST(req: NextRequest) {
 
   const { url } = await req.json();
- console.log(url)
+
   try {
     const res = await fetch(url);
 
