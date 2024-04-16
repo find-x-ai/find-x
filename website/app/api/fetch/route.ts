@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// export const runtime = "edge";
+export const runtime = "edge";
 
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
@@ -15,36 +15,35 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-
   const { url } = await req.json();
-
   try {
     const res = await fetch(url);
 
     if (!res.ok) {
-      return NextResponse.json({
-        status: false,
-        message: "URL not valid",
+      return new NextResponse(null,
+        {
+          status: 401,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          },
+        }
+      );
+    }
+
+    return new NextResponse(null,
+      {
+        status: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
-      });
-    }
-
-    return NextResponse.json({
-      status: true,
-      message: "valid URL",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
+      }
+    );
   } catch (error) {
-
-    console.log(error)
+    console.log(error);
     return NextResponse.json({
       status: false,
       message: "fetch failed",
