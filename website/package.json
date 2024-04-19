@@ -16,19 +16,19 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@upstash/redis": "^1.29.0",
     "ai": "^3.0.13",
-    "chrome-aws-lambda": "^10.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.363.0",
     "nanoid": "^5.0.6",
     "next": "14.1.4",
-    "puppeteer-core": "^10.4.0",
+    "puppeteer-core": "10.1.0",
     "react": "^18",
     "react-dom": "^18",
     "sonner": "^1.4.41",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "chrome-aws-lambda":"10.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
