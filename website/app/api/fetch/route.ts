@@ -52,10 +52,24 @@ export async function POST(req: NextRequest) {
     const browser = await getBrowser();
 
     const page = await browser.newPage();
+    const result : [{url: string , content: string}] | [] = [];
 
-    const res = await page.goto(url);
+    url.forEach(async (link : string) => {
+      const res = await page.goto(link);
 
-    const result = await res?.text();
+      const obj = {
+        url: link,
+        content: await res?.text()
+      }
+      //@ts-ignore
+      result.push(obj);
+
+    });
+    // const res = await page.goto(url);
+
+   
+
+    
 
     return NextResponse.json(
       {
