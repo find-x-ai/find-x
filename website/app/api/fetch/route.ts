@@ -3,7 +3,6 @@ import chromium from "@sparticuz/chromium"
 import  Puppeteer  from "puppeteer-core";
 
 
-chromium.setHeadlessMode = true;
 
 // Optional: If you'd like to disable webgl, true is the default.
 chromium.setGraphicsMode = false;
@@ -28,7 +27,7 @@ export async function POST(req: NextRequest) {
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath("/opt/chromium"),
-      headless: chromium.headless,
+      headless: true,
     });
      const page = await browser.newPage();
 
