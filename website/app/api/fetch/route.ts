@@ -4,8 +4,6 @@ import  Puppeteer  from "puppeteer-core";
 
 
 
-// Optional: If you'd like to disable webgl, true is the default.
-chromium.setGraphicsMode = false;
 
 
 export async function OPTIONS(request: NextRequest) {
@@ -26,7 +24,7 @@ export async function POST(req: NextRequest) {
     const browser = await Puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath,
       headless: true,
     });
      const page = await browser.newPage();
