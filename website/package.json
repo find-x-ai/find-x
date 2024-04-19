@@ -15,6 +15,7 @@
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@sparticuz/chromium": "^119.0.2",
+    "@sparticuz/chromium-min": "^123.0.1",
     "@upstash/redis": "^1.29.0",
     "ai": "^3.0.13",
     "class-variance-authority": "^0.7.0",
@@ -38,6 +39,7 @@
     "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.0.1",
     "postcss": "^8",
+    "puppeteer": "^22.6.5",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
