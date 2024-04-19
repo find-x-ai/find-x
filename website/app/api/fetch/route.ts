@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
       args: edgeChromium.args,
       headless: true,
      })
-
      const page = await browser.newPage();
 
      const res = await page.goto(url);
