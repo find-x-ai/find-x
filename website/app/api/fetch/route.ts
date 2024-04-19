@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import edgeChromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium"
 import  Puppeteer  from "puppeteer-core";
+
+
+chromium.setHeadlessMode = true;
+
+// Optional: If you'd like to disable webgl, true is the default.
+chromium.setGraphicsMode = false;
+
 
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
@@ -16,14 +23,13 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const { url } = await req.json();
-
-  const executablePath = await edgeChromium.executablePath;
   try {
-     const browser = await Puppeteer.launch({
-      executablePath,
-      args: edgeChromium.args,
-      headless: true,
-     })
+    const browser = await Puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath("/opt/chromium"),
+      headless: chromium.headless,
+    });
      const page = await browser.newPage();
 
      const res = await page.goto(url);
