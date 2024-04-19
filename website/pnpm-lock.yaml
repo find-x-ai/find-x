@@ -27,8 +27,8 @@ dependencies:
     specifier: ^3.0.13
     version: 3.0.13(react@18.2.0)(solid-js@1.8.16)(svelte@4.2.12)(vue@3.4.21)(zod@3.22.4)
   chrome-aws-lambda:
-    specifier: ^10.1.0
-    version: 10.1.0(puppeteer-core@10.4.0)
+    specifier: 10.1.0
+    version: 10.1.0(puppeteer-core@10.1.0)
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -45,8 +45,8 @@ dependencies:
     specifier: 14.1.4
     version: 14.1.4(react-dom@18.2.0)(react@18.2.0)
   puppeteer-core:
-    specifier: ^10.4.0
-    version: 10.4.0
+    specifier: 10.1.0
+    version: 10.1.0
   react:
     specifier: ^18
     version: 18.2.0
@@ -1204,14 +1204,14 @@ packages:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
     dev: false
 
-  /chrome-aws-lambda@10.1.0(puppeteer-core@10.4.0):
+  /chrome-aws-lambda@10.1.0(puppeteer-core@10.1.0):
     resolution: {integrity: sha512-NZQVf+J4kqG4sVhRm3WNmOfzY0OtTSm+S8rg77pwePa9RCYHzhnzRs8YvNI6L9tALIW6RpmefWiPURt3vURXcw==}
     engines: {node: '>= 10.16'}
     peerDependencies:
       puppeteer-core: ^10.1.0
     dependencies:
       lambdafs: 2.1.1
-      puppeteer-core: 10.4.0
+      puppeteer-core: 10.1.0
     dev: false
 
   /class-variance-authority@0.7.0:
@@ -1326,8 +1326,8 @@ packages:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
     dev: false
 
-  /devtools-protocol@0.0.901419:
-    resolution: {integrity: sha512-4INMPwNm9XRpBukhNbF7OB6fNTTCaI8pzy/fXg0xQzAy5h3zL1P8xT3QazgKqBrb/hAYwIBizqDBZ7GtJE74QQ==}
+  /devtools-protocol@0.0.883894:
+    resolution: {integrity: sha512-33idhm54QJzf3Q7QofMgCvIVSd2o9H3kQPWaKT/fhoZh+digc+WSiMhbkeG3iN79WY4Hwr9G05NpbhEVrsOYAg==}
     dev: false
 
   /didyoumean@1.2.2:
@@ -1975,12 +1975,12 @@ packages:
       once: 1.4.0
     dev: false
 
-  /puppeteer-core@10.4.0:
-    resolution: {integrity: sha512-KU8zyb7AIOqNjLCN3wkrFXxh+EVaG+zrs2P03ATNjc3iwSxHsu5/EvZiREpQ/IJiT9xfQbDVgKcsvRuzLCxglQ==}
+  /puppeteer-core@10.1.0:
+    resolution: {integrity: sha512-x2yDSJI/PRiWhDqAt1jd4rhTotxwjwKzHLIIqD2MlJ+TmzGJfBY9snAGIVXJwkWfKJg+Ef5xupdK0EbHDqBpFw==}
     engines: {node: '>=10.18.1'}
     dependencies:
       debug: 4.3.1
-      devtools-protocol: 0.0.901419
+      devtools-protocol: 0.0.883894
       extract-zip: 2.0.1
       https-proxy-agent: 5.0.0
       node-fetch: 2.6.1
