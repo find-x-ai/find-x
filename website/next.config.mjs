@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
+const config = {
+    // ...
+    
+    experimental: {
+      serverComponentsExternalPackages: [
+        'puppeteer-core',
+        '@sparticuz/chromium-min',
+      ],
+    },
+  };
+  
+  export default config;

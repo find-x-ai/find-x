@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
      const res = await page.goto(url);
 
-     const result = await res.text()
+     const result = await res?.text()
 
     return NextResponse.json(
       {
