@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const browser = await Puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath("/opt/chromium"),
+      executablePath: await chromium.executablePath(),
       headless: true,
     });
      const page = await browser.newPage();
