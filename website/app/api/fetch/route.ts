@@ -42,6 +42,10 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
+     console.log(error)
 
+     return NextResponse.json({
+      message:"failed to fetch data",
+     }, {status: 401})
   }
 }
