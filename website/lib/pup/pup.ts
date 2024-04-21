@@ -1,8 +1,5 @@
-import path from "path";
-
-const CHROMIUM_PATH = path.join(__dirname, "/lib/chromium/chromium.tar");
-
-console.log(CHROMIUM_PATH)
+const CHROMIUM_PATH =
+  "https://vomrghiulbmrfvmhlflk.supabase.co/storage/v1/object/public/chromium-pack/chromium-v123.0.0-pack.tar";
 
 export async function getBrowser() {
   //@ts-ignore
