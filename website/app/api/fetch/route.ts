@@ -22,21 +22,21 @@ class Scraper {
       return page;
     }));
 
-    const data: { url: string; content: string }[] = [];
-    const allLinks = new Set<string>();
+    const scrapingPromises = pages.map(async (page) => {
+      const [info, links] = await Promise.all([
+        this.extractPageInfo(page),
+        this.extractPageLinks(page)
+      ]);
+      await page.close();
+      return { info, links };
+    });
 
-    await Promise.all(
-      pages.map(async (page) => {
-        const info = await this.extractPageInfo(page);
-        const links = await this.extractPageLinks(page);
+    const results = await Promise.all(scrapingPromises);
 
-        links.forEach((l:string) => allLinks.add(l));
-        data.push(info);
-        await page.close();
-      })
-    );
+    const data = results.map(result => result.info);
+    const allLinks = Array.from(new Set<string>(results.flatMap(result => result.links)));
 
-    return { data, links: Array.from(allLinks) };
+    return { data, links: allLinks };
   }
 
   private async extractPageInfo(page: any) {
