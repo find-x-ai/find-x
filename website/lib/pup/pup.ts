@@ -1,6 +1,8 @@
-// import {} from "."
-const CHROMIUM_PATH =
-  "/var/task/website/lib/chromium/chromium.tar";
+import path from "path";
+
+const CHROMIUM_PATH = path.join(__dirname, "/lib/chromium/chromium.tar");
+
+console.log(CHROMIUM_PATH)
 
 export async function getBrowser() {
   //@ts-ignore
