@@ -1,5 +1,6 @@
+// import {} from "."
 const CHROMIUM_PATH =
-  "https://vomrghiulbmrfvmhlflk.supabase.co/storage/v1/object/public/chromium-pack/chromium-v123.0.0-pack.tar";
+  "../chromium/chromium.tar";
 
 export async function getBrowser() {
   //@ts-ignore
