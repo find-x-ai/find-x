@@ -1,6 +1,69 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBrowser } from "@/lib/pup/pup";
 
+class Scraper {
+  private browser: any;
+
+  constructor() {
+    this.browser = null;
+  }
+
+  async initBrowser() {
+    if (!this.browser) {
+      this.browser = await getBrowser();
+    }
+  }
+
+  async scrapePages(urls: string[]) {
+    await this.initBrowser();
+    const pages = await Promise.all(urls.map(async (link) => {
+      const page = await this.browser.newPage();
+      await page.goto(link);
+      return page;
+    }));
+
+    const data: { url: string; content: string }[] = [];
+    const allLinks = new Set<string>();
+
+    await Promise.all(
+      pages.map(async (page) => {
+        const info = await this.extractPageInfo(page);
+        const links = await this.extractPageLinks(page);
+
+        links.forEach((l:string) => allLinks.add(l));
+        data.push(info);
+        await page.close();
+      })
+    );
+
+    return { data, links: Array.from(allLinks) };
+  }
+
+  private async extractPageInfo(page: any) {
+    return await page.evaluate(() => {
+      const content = (document.body?.innerText || "")
+        .replace(/\n/g, " ")
+        .replace(/([a-z])([A-Z])/g, "$1 $2");
+      return { url: document.location.href, content };
+    });
+  }
+
+  private async extractPageLinks(page: any) {
+    return await page.evaluate(() => {
+      return Array.from(document.querySelectorAll("a")).map(
+        (element: HTMLAnchorElement) => element.href
+      );
+    });
+  }
+
+  async closeBrowser() {
+    if (this.browser) {
+      await this.browser.close();
+      this.browser = null;
+    }
+  }
+}
+
 // options request for CORS
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
@@ -17,38 +80,14 @@ export async function OPTIONS(request: NextRequest) {
 // POST Method
 export async function POST(req: NextRequest) {
   const { url } = (await req.json()) as { url: string[] };
+
   try {
-    const browser = await getBrowser();
-    const data: { url: string; content: string }[] = [];
-    let allLinks: string[] = [];
-
-    for (let link of url) {
-      const page = await browser.newPage();
-      await page.goto(link);
-      //@ts-ignore
-      const info = await page.evaluate(() => {
-        const content = (document.querySelector("body")?.innerText || "")
-          .replace(/\n/g, " ") // Replace newline characters with spaces
-          .replace(/([a-z])([A-Z])/g, "$1 $2"); // Insert space before capital letters
-        return { url: document.location.href, content };
-      });
-      //@ts-ignore
-      const links = await page.evaluate(() => {
-        const links = Array.from(document.querySelectorAll("a")).map((element: HTMLAnchorElement) => element.href);
-        return links;
-      });
-
-      allLinks = allLinks.concat(links.filter((l:string) => !allLinks.includes(l)));
-      data.push(info);
-    }
-
-    await browser.close();
+    const scraper = new Scraper();
+    const { data, links } = await scraper.scrapePages(url);
+    await scraper.closeBrowser();
 
     return NextResponse.json(
-      {
-        data,
-        links: allLinks,
-      },
+      { data, links },
       {
         status: 200,
         headers: {
@@ -61,11 +100,8 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.log(error);
-
     return NextResponse.json(
-      {
-        message: "failed to fetch data",
-      },
+      { message: "failed to fetch data" },
       { status: 401 }
     );
   }
