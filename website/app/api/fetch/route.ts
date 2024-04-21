@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBrowser } from "@/lib/pup/pup";
+//runtime configuration
+export const runtime = "edge"
 
+//class based approach for browser initialization
 class Scraper {
   private browser: any;
 
