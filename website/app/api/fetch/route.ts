@@ -1,35 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import { getBrowser } from "@/lib/pup/pup";
 
-const CHROMIUM_PATH =
-  "https://vomrghiulbmrfvmhlflk.supabase.co/storage/v1/object/public/chromium-pack/chromium-v123.0.0-pack.tar";
-
-async function getBrowser() {
-  if (process.env.VERCEL_ENV === "production") {
-    const chromium = await import("@sparticuz/chromium-min").then(
-      (mod) => mod.default
-    );
-    const puppeteerCore = await import("puppeteer-core").then(
-      (mod) => mod.default
-    );
-
-    const executablePath = await chromium.executablePath(CHROMIUM_PATH);
-
-    const browser = await puppeteerCore.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath,
-      headless: true,
-    });
-    return browser;
-  } else {
-    const puppeteer = await import("puppeteer").then((mod) => mod.default);
-
-    const browser = await puppeteer.launch();
-    return browser;
-  }
-}
-
+// options request for CORS
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
@@ -42,30 +14,40 @@ export async function OPTIONS(request: NextRequest) {
   });
 }
 
+// POST Method
 export async function POST(req: NextRequest) {
-  const { url } = await req.json();
+  const { url } = (await req.json()) as { url: string[] };
   try {
     const browser = await getBrowser();
-    const page = await browser.newPage();
-    //@ts-ignore
-    const result = [];
+    const data: { url: string; content: string }[] = [];
+    let allLinks: string[] = [];
 
-    await Promise.all(
-      url.map(async (link:string) => {
-        await page.goto(link);
-        const obj = {
-          url: link,
-          content: await page.content(),
-        };
-        result.push(obj);
-      })
-    );
+    for (let link of url) {
+      const page = await browser.newPage();
+      await page.goto(link);
+      //@ts-ignore
+      const info = await page.evaluate(() => {
+        const content = (document.querySelector("body")?.innerText || "")
+          .replace(/\n/g, " ") // Replace newline characters with spaces
+          .replace(/([a-z])([A-Z])/g, "$1 $2"); // Insert space before capital letters
+        return { url: document.location.href, content };
+      });
+      //@ts-ignore
+      const links = await page.evaluate(() => {
+        const links = Array.from(document.querySelectorAll("a")).map((element: HTMLAnchorElement) => element.href);
+        return links;
+      });
+
+      allLinks = allLinks.concat(links.filter((l:string) => !allLinks.includes(l)));
+      data.push(info);
+    }
 
     await browser.close();
-   
+
     return NextResponse.json(
-      {//@ts-ignore
-        data: result,
+      {
+        data,
+        links: allLinks,
       },
       {
         status: 200,
