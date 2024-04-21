@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import puppeteer from "puppeteer";
 
 const CHROMIUM_PATH =
   "https://vomrghiulbmrfvmhlflk.supabase.co/storage/v1/object/public/chromium-pack/chromium-v123.0.0-pack.tar";
 
 async function getBrowser() {
-  //@ts-ignore
   if (process.env.VERCEL_ENV === "production") {
-    //@ts-ignore
     const chromium = await import("@sparticuz/chromium-min").then(
       (mod) => mod.default
     );
-    //@ts-ignore
     const puppeteerCore = await import("puppeteer-core").then(
       (mod) => mod.default
     );
@@ -26,7 +23,6 @@ async function getBrowser() {
     });
     return browser;
   } else {
-    //@ts-ignore
     const puppeteer = await import("puppeteer").then((mod) => mod.default);
 
     const browser = await puppeteer.launch();
@@ -50,29 +46,25 @@ export async function POST(req: NextRequest) {
   const { url } = await req.json();
   try {
     const browser = await getBrowser();
-
     const page = await browser.newPage();
-    const result : [{url: string , content: string}] | [] = [];
+    //@ts-ignore
+    const result = [];
 
-    url.forEach(async (link : string) => {
-      const res = await page.goto(link);
+    await Promise.all(
+      url.map(async (link:string) => {
+        await page.goto(link);
+        const obj = {
+          url: link,
+          content: await page.content(),
+        };
+        result.push(obj);
+      })
+    );
 
-      const obj = {
-        url: link,
-        content: await res?.text()
-      }
-      //@ts-ignore
-      result.push(obj);
-
-    });
-    // const res = await page.goto(url);
-
+    await browser.close();
    
-
-    
-
     return NextResponse.json(
-      {
+      {//@ts-ignore
         data: result,
       },
       {
