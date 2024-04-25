@@ -1,26 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBrowser } from "@/lib/pup/pup";
+//@ts-ignore
+let globalBrowser = null;
 
-//class based approach for browser initialization
 class Scraper {
   private browser: any;
 
-  constructor() {
-    this.browser = null;
-  }
-
-  async initBrowser() {
-    if (!this.browser) {
-      this.browser = await getBrowser();
-    }
+  constructor(browser: any) {
+    this.browser = browser;
   }
 
   async scrapePages(urls: string[]) {
-    await this.initBrowser();
     const pages = await Promise.all(
       urls.map(async (link) => {
         const page = await this.browser.newPage();
-        await page.goto(link);
+        await page.goto(link, { waitUntil: 'load', timeout: 100000 });
         return page;
       })
     );
@@ -35,12 +29,10 @@ class Scraper {
     });
 
     const results = await Promise.all(scrapingPromises);
-
     const data = results.map((result) => result.info);
     const allLinks = Array.from(
       new Set<string>(results.flatMap((result) => result.links))
     );
-
     return { data, links: allLinks };
   }
 
@@ -60,16 +52,9 @@ class Scraper {
       );
     });
   }
-
-  async closeBrowser() {
-    if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
-    }
-  }
 }
 
-// options request for CORS
+// Options request for CORS
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
@@ -87,10 +72,13 @@ export async function POST(req: NextRequest) {
   const { url } = (await req.json()) as { url: string[] };
 
   try {
-    const scraper = new Scraper();
-    const { data, links } = await scraper.scrapePages(url);
-    await scraper.closeBrowser();
+    //@ts-ignore
+    if (!globalBrowser) {
+      globalBrowser = await getBrowser();
+    }
 
+    const scraper = new Scraper(globalBrowser);
+    const { data, links } = await scraper.scrapePages(url);
     return NextResponse.json(
       { data, links },
       {
@@ -117,5 +105,11 @@ export async function POST(req: NextRequest) {
         },
       }
     );
+  } finally {
+    //@ts-ignore
+    if (globalBrowser) {
+      await globalBrowser.close();
+      globalBrowser = null;
+    }
   }
 }
