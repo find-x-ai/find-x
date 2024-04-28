@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBrowser } from "@/lib/pup/pup";
+
+
+export const runtime = 'edge';
 //@ts-ignore
 let globalBrowser = null;
 
