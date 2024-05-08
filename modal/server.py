@@ -4,7 +4,6 @@ import os
 import modal
 
 image = Image.debian_slim().pip_install(
-    "sentence_transformers",
     "upstash_vector",
     "langchain",
     "openai"
@@ -16,16 +15,13 @@ stub = Stub(name="find-x", image=image)
 @web_endpoint(label="embed",method="POST")
 def generate_embedding(requestData : Dict):
     #imports
-    from sentence_transformers import SentenceTransformer
+    
     from upstash_vector import Index
     from langchain.text_splitter import RecursiveCharacterTextSplitter
     
     embeddings = []  
     chunks=[]
     text=[]
-
-    MODEL = "multi-qa-MiniLM-L6-cos-v1"
-    model = SentenceTransformer(MODEL, device="cpu")
 
     data = requestData["data"]  #data is array of dict i.e. [{url: string , content: string }]
     clientId = requestData["client"] #client id is string
@@ -37,18 +33,13 @@ def generate_embedding(requestData : Dict):
         
         spilter = RecursiveCharacterTextSplitter(
             separators=['\n\n', '\n', '\n\n\n', '.', '\t'],
-            chunk_size=400,
+            chunk_size=500,
             chunk_overlap=0
         )
         text_to_encode=spilter.split_text(content)
-        chunks.extend([f"{chunk} {url} {clientId}" for chunk in text_to_encode])
+        chunks.extend([f"{chunk}" for chunk in text_to_encode])
         for chunk in text_to_encode:
             my_list.append({"content": chunk, "url": url})
-    embeddings=model.encode(chunks)
-
-    # print(f"Generated {len(embeddings)} embeddings.")
-    
-    # print(len(chunks))
     
     #environmen variables
     upstash_token = os.environ["Token"] 
@@ -56,17 +47,13 @@ def generate_embedding(requestData : Dict):
     
     index = Index(url=upstash_url, token=upstash_token) #initialize the vector index
 
-    upsert_vector = []
+    #upserting vector data
     for id, value in enumerate(my_list):
-        vector_with_metadata = {
-            "id": f"{clientId}_{str(id)}",
-            "vector": embeddings[id],
-            "metadata": {"client_id": clientId, "Data": value}
-        }
-        upsert_vector.append(vector_with_metadata)
-
-    index.upsert(vectors=upsert_vector)
-    # print(f"Generated {len(data)} embeddings.")
+        index.upsert(
+            vectors=[
+                    (f"{clientId}_{str(id)}", chunks[id], {"client_id": clientId,"Data": value}),
+                ]
+            )
     
     return {
         "Status": "success",
@@ -87,11 +74,9 @@ class Model:
     @build()
     @enter()
     def start_model(self):
-        from sentence_transformers import SentenceTransformer
+        
         from upstash_vector import Index
         from openai import OpenAI
-        MODEL = "multi-qa-MiniLM-L6-cos-v1"
-        self.model = SentenceTransformer(MODEL, device="cpu")
         upstash_token = os.environ["Token"] 
         upstash_url = os.environ["URL"]
         self.index = Index(url=upstash_url, token=upstash_token)
@@ -133,21 +118,25 @@ Also you never ever ever include recieved query as it is in question in response
     @method()
     def query_data(self,client:str,query:str):
         from fastapi.responses import StreamingResponse
-        query_to_find=f"{client} {query}"
-        
-        encode = self.model.encode(query_to_find)
-        answer = self.index.query(vector=encode, top_k=2, include_metadata=True, include_vectors=False)
+        filter = f"client_id = '{client}'" 
+        result = self.index.query(
+            data=query,
+            filter=filter,
+            top_k=2,
+            include_vectors=False,
+            include_metadata=True
+        ) 
         array_of_context = []
         
-        for chunk in answer:
-            if chunk.metadata.get("client_id") == client:
-                temp = {'url': chunk.metadata["Data"]["url"] , 'content': chunk.metadata["Data"]["content"]}
-            else:
-                temp = {'url': "not found" , 'content': "no data available"}
+        for chunk in result:
+            info=chunk.metadata.get("Data")
+            temp = {'url': info["url"] , 'content': info["content"]}
             array_of_context.append(temp)
+            
          
         page1 = [array_of_context[0]["url"] , array_of_context[0]["content"]]
         page2 = [array_of_context[1]["url"] , array_of_context[1]["content"]]
+
         
         data = f"<message><query>{query}</query><chunks><page><url>{page1[0]}</url><content>{page1[1]}</content></page><page><url>{page2[0]}</url><content>{page2[1]}</content></page></chunks></message>" 
         print(data)
