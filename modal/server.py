@@ -33,7 +33,7 @@ def generate_embedding(requestData : Dict):
         
         spilter = RecursiveCharacterTextSplitter(
             separators=['\n\n', '\n', '\n\n\n', '.', '\t'],
-            chunk_size=500,
+            chunk_size=400,
             chunk_overlap=0
         )
         text_to_encode=spilter.split_text(content)
@@ -122,7 +122,7 @@ Also you never ever ever include recieved query as it is in question in response
         result = self.index.query(
             data=query,
             filter=filter,
-            top_k=2,
+            top_k=5,
             include_vectors=False,
             include_metadata=True
         ) 
