@@ -10,6 +10,9 @@ import { db } from "@/lib/db";
 // import { useRouter } from "next/navigation";
 //@ts-ignore
 import { v4 as uuidv4 } from "uuid";
+import { redis } from "@/lib/redis";
+import Back from "@/components/ui/Back";
+import { approveRequest } from "../actions/requests";
 
 interface LogMessage {
   tag: string;
@@ -84,6 +87,7 @@ export default function Page() {
     url: data[1],
     plan: data[2],
     email: data[3],
+    id: data[4],
   };
 
   const startCrawler = async () => {
@@ -297,7 +301,24 @@ export default function Page() {
             chunks.push(scrapedData.slice(i, i + chunkSize));
           }
 
-          // Send chunks sequentially
+          const key = uuidv4();
+
+          const res = await db
+            .from("clients")
+            .insert([
+              {
+                url: info.url,
+                name: info.name,
+                plan: info.plan,
+                key: key,
+                email: info.email,
+              },
+            ])
+            .select("id");
+
+          console.log(res);
+          //@ts-ignore
+          const id = res.data[0].id as number;
           for (const chunk of chunks) {
             const res = await fetch("https://sohel1807--embed.modal.run/", {
               method: "POST",
@@ -305,7 +326,7 @@ export default function Page() {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                client: "777",
+                client: id,
                 data: chunk,
               }),
             });
@@ -324,21 +345,27 @@ export default function Page() {
               );
             }
           }
-          const key = uuidv4();
-
-          const res = await db.from("clients").insert([
-            {
-              url: info.url,
-              name: info.name,
-              plan: info.plan,
-              key: key,
-              email: info.email,
-            },
-          ]);
 
           if (res) {
             logMessage(
-              `Created client keys successfully`,
+              `Created client successfully`,
+              "[success]",
+              "text-green-500"
+            );
+            if (info.id) {
+              await approveRequest(parseInt(info.id));
+            }
+
+            await redis.set(key, {
+              id: id,
+              name: info.name,
+              email: info.email,
+              plan: info.plan,
+              remaining: parseInt(info.plan),
+            });
+
+            logMessage(
+              `Created API key successfully`,
               "[success]",
               "text-green-500"
             );
@@ -364,7 +391,8 @@ export default function Page() {
 
   return (
     <div className=" w-full h-full flex flex-col">
-      <div className="w-full flex justify-between bg-black p-5">
+      <Back />
+      <div className="w-full flex justify-between bg-black px-5 pt-5">
         <h2 className="text-3xl w-full font-semibold text-white">{data[0]}</h2>
         <div className="flex w-full justify-between items-center">
           <h4 className="text-white">{data[1]}</h4>
@@ -376,7 +404,9 @@ export default function Page() {
               }}
               id="local-mode"
             />
-            <Label htmlFor="local-mode" className="text-white">Local Mode</Label>
+            <Label htmlFor="local-mode" className="text-white">
+              Local Mode
+            </Label>
           </div>
         </div>
       </div>
@@ -389,13 +419,7 @@ export default function Page() {
           <Button
             variant={"destructive"}
             onClick={async () => {
-              // window.location.reload();
-              crawlingAbortController?.abort(); // Abort the ongoing crawling process
-              // logMessage(
-              //   `Cancelled crawling by user`,
-              //   "[USER]",
-              //   "text-red-600"
-              // );
+              crawlingAbortController?.abort();
             }}
           >
             Cancel

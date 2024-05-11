@@ -26,7 +26,7 @@ const Aside = () => {
               ? "text-amber-500 bg-zinc-950"
               : "text-[#fff]"
           }`}
-          href={"/"}
+          href={"/requests"}
         >
           <Radio />
            Requests

@@ -26,6 +26,9 @@ dependencies:
   '@tauri-apps/api':
     specifier: ^1.5.5
     version: 1.5.5
+  '@upstash/redis':
+    specifier: ^1.30.1
+    version: 1.30.1
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -1012,6 +1015,12 @@ packages:
       '@types/node': 20.12.11
     dev: false
 
+  /@upstash/redis@1.30.1:
+    resolution: {integrity: sha512-Cmk2cvm1AcD6mKLg/UFhQDzM+H1HsX/k5ufvNL4Kii8DsMTKmadMJ1rRZEGQ/SM7H51EeOL/YSa6K2EPc1SYPA==}
+    dependencies:
+      crypto-js: 4.2.0
+    dev: false
+
   /ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
@@ -1137,6 +1146,10 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+    dev: false
 
   /cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}

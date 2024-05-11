@@ -17,7 +17,7 @@ type Project = {
 const Clients = ({ clients }: { clients: Project[] }) => {
   const router = useRouter();
   return (
-    <div className="h-full flex flex-col overflow-y-auto">
+    <div className="h-[550px] flex flex-col overflow-y-scroll">
       {clients.length > 0 ? (
         <table className="w-full max-w-[800px] overflow-hidden divide-y divide-gray-900">
           <thead className="border-b border-zinc-900 bg-black">
