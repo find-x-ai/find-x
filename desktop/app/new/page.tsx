@@ -144,12 +144,15 @@ export default function Page() {
     const externalQueue: string[] = [];
     const visited = new Set<string>();
     const scrapedData: ScrapedData[] = [];
-
+   
     while (internalQueue.length > 0) {
       const currentUrl = internalQueue.shift() as string;
+      const arr = currentUrl.split("#");
 
-      if (visited.has(currentUrl)) continue;
-
+      if (visited.has(currentUrl) || visited.has(arr[0]) && !arr[0].endsWith("/")) {
+       
+        continue;
+      }
       try {
         logMessage(`Scraping: ${currentUrl}`, "[INFO]", "text-zinc-100");
 
@@ -182,12 +185,16 @@ export default function Page() {
           "text-green-500"
         );
 
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         const pageData = result.data[0];
 
         if (pageData) {
           scrapedData.push(pageData);
 
           result.links.forEach((link: string) => {
+            // const arr = link.split("#");
+
             if (isInternalLink(link, baseUrl)) {
               const fullUrl = getFullUrl(link, baseUrl);
               if (!visited.has(fullUrl)) {
@@ -371,7 +378,7 @@ export default function Page() {
             );
 
             window.location.href = "/all";
-        
+
             // setTimeout(() => {
             //   window.location.reload();
             // }, 1500);
