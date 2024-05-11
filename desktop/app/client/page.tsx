@@ -9,7 +9,7 @@ const Page = () => {
   const searchParams = useSearchParams();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const router = useRouter();
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -45,20 +45,15 @@ const Page = () => {
     });
     setShowDeleteConfirmation(false);
     setTimeout(() => {
-      window.history.pushState({ page: "home" }, "", "/");
-      window.location.href = "/all";
+      window.history.pushState({ page: "home" }, "", "/deleted");
+      router.push("/all")
     }, 1800);
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 2200);
   };
 
   const cancelDeleteClient = () => {
     setShowDeleteConfirmation(false);
   };
 
-  // window.location.reload();
 
   return (
     <div className="h-full flex flex-col">

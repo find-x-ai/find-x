@@ -371,9 +371,10 @@ export default function Page() {
             );
 
             window.location.href = "/all";
-            setTimeout(() => {
-              window.location.reload();
-            }, 1500);
+        
+            // setTimeout(() => {
+            //   window.location.reload();
+            // }, 1500);
           } else {
             logMessage(`Error creating client keys`, "[ERROR]", "text-red-500");
           }

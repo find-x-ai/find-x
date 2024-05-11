@@ -30,7 +30,7 @@ const RequestsPage = () => {
   return (
     <div className="h-full">
       {loading ? (
-        <div className="w-full h-full flex justify-center items-center text-zinc-600 text-2xl">Loading requests...</div>
+        <div className="w-full h-full overflow-y-scroll flex justify-center items-center text-zinc-600 text-2xl">Loading requests...</div>
       ) : (
         <AllRequests requests={requests} />
       )}

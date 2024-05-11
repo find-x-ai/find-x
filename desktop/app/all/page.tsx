@@ -32,7 +32,7 @@ const ClientsPage = () => {
   return (
     <div className="h-screen flex flex-col">
       {loading ? (
-        <div className="h-full w-full flex flex-col justify-center items-center text-2xl text-zinc-600">
+        <div className="h-full w-full overflow-y-scroll flex flex-col justify-center items-center text-2xl text-zinc-600">
           Loading clients...
         </div>
       ) : (
