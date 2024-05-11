@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -58,7 +58,7 @@ const LogDisplay = ({ logs }: { logs: LogMessage[] }) => {
 
 export default function Page() {
   const searchParams = useSearchParams();
-  // const router = useRouter();
+  const router = useRouter();
   const [scraping, setScraping] = useState<boolean>(false);
   const [logMessages, setLogMessages] = useState<LogMessage[]>([]);
   const [scrapedData, setScrapedData] = useState<ScrapedData[]>([]);
@@ -377,11 +377,10 @@ export default function Page() {
               "text-green-500"
             );
 
-            window.location.href = "/all";
-
-            // setTimeout(() => {
-            //   window.location.reload();
-            // }, 1500);
+    
+            setTimeout(() => {
+               router.push("/all");
+            }, 1500);
           } else {
             logMessage(`Error creating client keys`, "[ERROR]", "text-red-500");
           }

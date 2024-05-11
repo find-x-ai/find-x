@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import AllRequests from "@/components/AllRequests";
 import { getAllRequests } from "../actions/requests";
 import { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 type Project = {
   id: number;
@@ -30,7 +31,9 @@ const RequestsPage = () => {
   return (
     <div className="h-full">
       {loading ? (
-        <div className="w-full h-full overflow-y-scroll flex justify-center items-center text-zinc-600 text-2xl">Loading requests...</div>
+        <div className="w-full h-full overflow-y-scroll flex justify-center items-center text-zinc-600 text-2xl">
+          <Loader2 className="animate-spin duration-500 w-[40px] h-[40px] text-white"/>
+        </div>
       ) : (
         <AllRequests requests={requests} />
       )}
