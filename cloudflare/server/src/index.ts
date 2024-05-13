@@ -29,6 +29,8 @@ type Context = {
 //allow cross origin requests
 app.use(cors());
 
+app.get('/', (c)=> c.text("working fine..."));
+
 //endpoint for query
 app.post('/query', async (c) => {
 	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, OPENAI_API_KEY } = c.env as EnvironmentVariables;
@@ -105,7 +107,7 @@ app.post('/upsert', async (c)=> {
 	if (!client || !data || data.length < 1) {
 		return c.json({ message: 'Missing parameters' }, 400);
 	}
-	
+
 	const index = new Index({
 		url: UPSTASH_VECTOR_REST_URL,
 		token: UPSTASH_VECTOR_REST_TOKEN,
