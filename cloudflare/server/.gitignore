@@ -172,3 +172,5 @@ dist
 .wrangler/
 
 /*.toml
+
+/test/test.js
