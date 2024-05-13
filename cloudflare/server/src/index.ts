@@ -16,7 +16,6 @@ type EnvironmentVariables = {
 type Chunk = {
 	metadata: {
 		client_id: string;
-
 		url: string;
 		content: string;
 	};
