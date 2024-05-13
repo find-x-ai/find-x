@@ -94,4 +94,37 @@ app.post('/query', async (c) => {
 	});
 });
 
+
+
+app.post('/upsert', async (c)=> {
+
+	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL } = c.env as EnvironmentVariables;
+
+	const { client, data } = (await c.req.json()) as { client: string; data: [{ url: string; content: string }] };
+
+	if (!client || !data || data.length < 1) {
+		return c.json({ message: 'Missing parameters' }, 400);
+	}
+	
+	const index = new Index({
+		url: UPSTASH_VECTOR_REST_URL,
+		token: UPSTASH_VECTOR_REST_TOKEN,
+		cache: false,
+	});
+
+	for (let chunk of data) {
+		await index.upsert({
+			id: `${client}_${chunk.url}`,
+			data: chunk.content,
+			metadata: { 
+				client: client,
+				url: chunk.url,
+				content: chunk.content
+			 },
+		});
+	}
+
+	return c.json({ message: 'successfully embedded the chunks' }, 200);
+})
+
 export default app;
