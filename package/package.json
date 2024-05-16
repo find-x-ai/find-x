@@ -1,18 +1,26 @@
 {
   "name": "findx",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "",
   "license": "MIT",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsup src/index.ts --format cjs,esm --dts"
+    "build": "tsup && pnpm build:declarations",
+    "build:declarations": "npx tsc -p tsconfig.declarations.json"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/react": "^18.3.2",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "tsup": "^8.0.2",
     "typescript": "5.4.5"

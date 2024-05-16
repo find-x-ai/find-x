@@ -5,4 +5,8 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  prefix: "fx-",
+  corePlugins: {
+    preflight: false,
+  }
 }
