@@ -5,7 +5,6 @@ import modal
 
 image = Image.debian_slim().pip_install(
     "upstash_vector",
-    "langchain",
     "openai"
 )
 
@@ -17,11 +16,6 @@ def generate_embedding(requestData : Dict):
     #imports
     
     from upstash_vector import Index
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
-    
-    embeddings = []  
-    chunks=[]
-    text=[]
 
     data = requestData["data"]  #data is array of dict i.e. [{url: string , content: string }]
     clientId = requestData["client"] #client id is string
@@ -30,16 +24,7 @@ def generate_embedding(requestData : Dict):
     for id, item in enumerate(data):
         url = item.get("url", "")
         content = item.get("content", "")
-        
-        spilter = RecursiveCharacterTextSplitter(
-            separators=['\n\n', '\n', '\n\n\n', '.', '\t'],
-            chunk_size=400,
-            chunk_overlap=0
-        )
-        text_to_encode=spilter.split_text(content)
-        chunks.extend([f"{chunk}" for chunk in text_to_encode])
-        for chunk in text_to_encode:
-            my_list.append({"content": chunk, "url": url})
+        my_list.append({'content':content,'url':url})
     
     #environmen variables
     upstash_token = os.environ["Token"] 
@@ -51,8 +36,9 @@ def generate_embedding(requestData : Dict):
     for id, value in enumerate(my_list):
         index.upsert(
             vectors=[
-                    (f"{clientId}_{str(id)}", chunks[id], {"client_id": clientId,"Data": value}),
-                ]
+                    (f"{clientId}_{str(id)}", value['content'], {"client_id": clientId,"Data": value}),
+                ],
+            namespace=clientId
             )
     
     return {
@@ -118,11 +104,10 @@ Also you never ever ever include recieved query as it is in question in response
     @method()
     def query_data(self,client:str,query:str):
         from fastapi.responses import StreamingResponse
-        filter = f"client_id = '{client}'" 
         result = self.index.query(
             data=query,
-            filter=filter,
-            top_k=5,
+            top_k=3,
+            namespace=client,
             include_vectors=False,
             include_metadata=True
         ) 
