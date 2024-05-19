@@ -7,6 +7,6 @@ module.exports = {
   plugins: [],
   prefix: "fx-",
   corePlugins: {
-    preflight: true,
+    preflight: false,
   }
 }

@@ -1,5 +1,7 @@
-"use client";
 import React, { FormEvent, useState, useEffect, useRef } from "react";
+import Messages from "./ui/Messages";
+import Loader from "./ui/Loader";
+import { CloseIcon } from "./icons/svgs";
 
 type Messages = {
   role: "system" | "user";
@@ -15,6 +17,7 @@ export default function ChatBox() {
   const [loading, setLoading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -22,15 +25,62 @@ export default function ChatBox() {
     }
   }, [messages]);
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      chatBoxRef.current &&
+      !chatBoxRef.current.contains(event.target as Node)
+    ) {
+      setIsOpen(false);
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      setIsOpen(false);
+    }
+  
+    // Check for Ctrl + F key combination
+    if (event.ctrlKey && event.key === "f") {
+      setIsOpen(true);
+    }
+  };
+  
+
+useEffect(() => {
+  if (isOpen) {
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+  } else {
+    document.removeEventListener("mousedown", handleClickOutside);
+    document.removeEventListener("keydown", handleKeyDown);
+  }
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+    document.removeEventListener("keydown", handleKeyDown);
+  };
+}, [isOpen]);
+
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    if(query.trim().length > 300){
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: "system", content: "Too long query !" },
+      ]);
+      setLoading(false);
+      setIsSubmitting(false);
+      return
+    }
+
     setMessages((prevMessages) => [
       ...prevMessages,
-      { role: "user", content: query },
+      { role: "user", content: query.trim() },
     ]);
     setQuery(""); // Clear the input field after submitting
 
+    
     try {
       setLoading(true); // Set loading state to true before fetching
       const res = await fetch("https://server.find-x.workers.dev/query", {
@@ -40,7 +90,7 @@ export default function ChatBox() {
         },
         body: JSON.stringify({
           client: "59",
-          query: query,
+          query: query.trim(),
         }),
       });
 
@@ -90,116 +140,94 @@ export default function ChatBox() {
   };
 
   return (
-    
-    <div>
-    {isOpen ? (
-      <div className="fx-w-full fx-z-30 fx-h-full fx-top-0 fx-flex fx-justify-center fx-items-center fx-right-0 fx-fixed fx-bg-black/90">
-        <div className="fx-w-full fx-z-50 fx-fixed sm:fx-bottom-10 sm:fx-right-10 fx-h-auto fx-max-h-[600px] fx-max-w-[350px] sm:fx-max-w-[500px] fx-bg-black fx-rounded-md fx-border fx-border-zinc-800">
-          <div className="fx-w-full fx-h-full fx-flex fx-flex-col fx-px-5 fx-pb-5 fx-pt-2">
-            <div className="fx-w-full fx-h-auto fx-flex fx-justify-between fx-items-center fx-mb-5">
-              <h2 className="fx-text-xl fx-font-sans fx-text-blue-600">Find-X</h2>
-              <div onClick={() => setIsOpen(false)} className="fx-p-2 fx-rounded-full fx-sticky fx-top-0 fx-bg-zinc-800 fx-cursor-pointer">
-                <CloseIcon />
-              </div>
-            </div>
-            <div className="fx-flex-grow fx-w-full fx-overflow-y-auto fx-flex fx-flex-col fx-gap-3 fx-scrollbar-hide fx-max-h-[330px]">
-              {messages.map((message, i) => (
+    <div className="fx-papa">
+      {isOpen ? (
+        <div className="fx-w-full fx-z-30 fx-h-full fx-top-0 fx-flex fx-justify-center fx-items-end fx-pb-20 fx-right-0 fx-fixed fx-bg-black/40 fx-backdrop-blur-[5px]">
+          <div
+            ref={chatBoxRef}
+            className="fx-w-full fx-z-50 fx-fixed sm:fx-bottom-10 sm:fx-right-10 fx-h-auto fx-max-h-[600px] fx-max-w-[95vw] sm:fx-max-w-[500px] fx-bg-black fx-rounded-xl fx-chatbox"
+          >
+            <div className="fx-w-full fx-h-full fx-flex fx-flex-col fx-px-5 fx-pb-5 fx-pt-2">
+              <div className="fx-w-full fx-h-auto fx-flex fx-justify-between fx-items-center fx-mb-5">
+                <h2 className="fx-text-xl fx-h2 fx-font-sans fx-bg-gradient-to-r fx-from-indigo-500 fx-via-purple-500 fx-to-pink-500 fx-bg-clip-text fx-text-transparent fx-transition-all fx-duration-1000">
+                  Powered by{" "}
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://findx.vercel.app/"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(to right, #ec4899, #8b5cf6, #6366f1)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      transition: "background-image 0.5s ease",
+                      textDecoration: "none",
+                      outline: "none",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundImage =
+                        "linear-gradient(to right, #6366f1, #8b5cf6, #ec4899)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundImage =
+                        "linear-gradient(to right, #ec4899, #8b5cf6, #6366f1)")
+                    }
+                  >
+                    find-x
+                  </a>
+                </h2>
                 <div
-                  className={`fx-flex fx-gap-2 fx-p-2 fx-rounded-md fx-border fx-border-zinc-800 fx-w-full fx-whitespace-normal ${
-                    message.role === "system" ? "fx-bg-zinc-900" : "fx-bg-zinc-950"
-                  }`}
-                  key={i}
+                  onClick={() => setIsOpen(false)}
+                  className=" fx-cursor-pointer"
                 >
-                  {message.role === "system" ? (
-                    <div className="fx-flex fx-gap-2">
-                      <img
-                        src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpnghive.com%2Fcore%2Fimages%2Ffull%2Fchat-gpt-logo-png-1680405922.png&f=1&nofb=1&ipt=534dbe3f0188a158b909ee727fdc0f72716a1ded58f464a6e2c977c89901fe29&ipo=images"
-                        className="fx-w-[30px] fx-h-[30px] fx-rounded-full"
-                        alt=""
-                      />
-                      <span className="fx-text-lg fx-font-sans fx-text-white">{message.content}</span>
-                    </div>
-                  ) : (
-                    <div className="fx-flex fx-gap-2">
-                      <img
-                        src="https://vercel.com/api/www/avatar/e4HZrj63hu6L3DgyuIE06nf7?&s=64"
-                        className="fx-w-[30px] fx-h-[30px] fx-rounded-full"
-                        alt=""
-                      />
-                      <span className="fx-text-lg">{message.content}</span>
-                    </div>
-                  )}
+                  <CloseIcon />
                 </div>
-              ))}
-              {loading && (
-                <div className="fx-flex fx-gap-2 fx-p-2 fx-rounded-md fx-border fx-border-zinc-800 fx-bg-zinc-900">
-                  <div className="fx-flex fx-gap-2 fx-items-center">
-                    <img
-                      src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fpnghive.com%2Fcore%2Fimages%2Ffull%2Fchat-gpt-logo-png-1680405922.png&f=1&nofb=1&ipt=534dbe3f0188a158b909ee727fdc0f72716a1ded58f464a6e2c977c89901fe29&ipo=images"
-                      className="fx-w-[30px] fx-h-[30px] fx-rounded-full"
-                      alt=""
-                    />
-                    <span className="fx-text-lg fx-animate-pulse">
-                      <span className="fx-relative fx-flex h-3 w-3">
-                        <span className="fx-animate-ping fx-absolute fx-inline-flex fx-h-full fx-w-full fx-rounded-full fx-bg-blue-500 fx-opacity-75"></span>
-                        <span className="fx-relative fx-inline-flex fx-rounded-full fx-h-3 fx-w-3 fx-bg-blue-300"></span>
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef}></div>
-            </div>
-  
-            <div className="fx-w-full fx-mt-2">
-              <form onSubmit={handleSubmit} className="fx-flex fx-w-full">
-                <input
-                  placeholder="Ask anything here..."
-                  required
-                  value={query}
-                  disabled={isSubmitting}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="fx-w-full fx-focus:outline-none fx-rounded-[20px_0px_0px_20px] fx-p-3 fx-bg-[#0c0c0c] fx-border fx-border-zinc-800"
-                  type="text"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="fx-p-2 fx-rounded-[0px_20px_20px_0px] fx-w-[120px] fx-bg-white fx-text-black fx-font-semibold fx-disabled:opacity-50 fx-disabled:cursor-not-allowed"
+              </div>
+              <div className="fx-flex-grow fx-messages fx-w-full fx-overflow-y-auto fx-flex fx-flex-col fx-gap-3 fx-scrollbar-hide fx-max-h-[330px]">
+                <Messages messages={messages}/>
+                {loading && (
+                 <Loader/>
+                )}
+                <div ref={messagesEndRef}></div>
+              </div>
+
+              <div className="fx-w-full fx-mt-2">
+                <form
+                  onSubmit={handleSubmit}
+                  className="fx-flex fx-parent fx-w-full"
                 >
-                  {isSubmitting ? "Sending..." : "Send"}
-                </button>
-              </form>
+                  <input
+                    placeholder="Ask anything here..."
+                    required
+                    autoFocus
+                    value={query}
+                    disabled={isSubmitting}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="fx-w-full fx-focus:outline-none fx-rounded-[20px_0px_0px_20px] fx-p-3 fx-bg-[#0c0c0c] fx-border fx-border-zinc-800"
+                    type="text"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="fx-p-2 fx-rounded-[0px_20px_20px_0px] fx-w-[120px] fx-bg-blue-500 fx-text-white fx-font-semibold fx-disabled:opacity-50 fx-disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? "Sending..." : "Send"}
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    ) : (
-      <div onClick={() => setIsOpen(true)} className="fx-fixed fx-bottom-10 fx-right-10">
-        <div className="fx-bg-[#0c0c0c] fx-cursor-pointer fx-px-10 fx-py-3 fx-border fx-border-blue-500 fx-rounded-full">
-          <span>Ask AI</span>
+      ) : (
+        <div
+          onClick={() => setIsOpen(true)}
+          className="fx-fixed fx-bottom-10 fx-right-10"
+        >
+          <div className="fx-bg-[#0c0c0c] fx-cursor-pointer fx-px-10 fx-py-3 fx-pill fx-rounded-full">
+            <span>Ask AI</span>
+          </div>
         </div>
-      </div>
-    )}
-  </div>
+      )}
+    </div>
   );
 }
-
-
-const CloseIcon = () => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      className="lucide lucide-x fx-w-[30px] fx-h-[30px]"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
-  );
-};

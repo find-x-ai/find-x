@@ -2,10 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-.scrollbar-hide::-webkit-scrollbar {
+.fx-scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.scrollbar-hide {
+.fx-scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.fx-b {
+  border: 1px solid;
+}
+
+.fx-chatbox,
+.fx-msg,
+.fx-parent > input {
+  border: 1px solid #27272a;
+}
+
+.fx-pill {
+  border: 1px solid #3b82f6;
+}
+
+.fx-papa *,
+::after,
+::before {
+  box-sizing: border-box;
+}
+
+.fx-parent > input:focus {
+  outline: 0px;
+  color: white;
+}
+
+.fx-h2 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.fx-parent > input {
+  color: white;
+}
+
+.fx-parent > button {
+   border: 1px solid #3b82f6;
+}
+
+.fx-parent > button,
+.fx-parent > input {
+  font-family: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  font-size: 100%;
+  letter-spacing: inherit;
+}
+
+.fx-parent > button:hover {
+  border: 1px solid transparent;
+}
+
+.fx-h2 {
+  margin: 0;
+}
+
+.fx-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.fx-scrollbar-hide {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
