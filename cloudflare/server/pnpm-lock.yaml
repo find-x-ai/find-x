@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@upstash/redis':
+    specifier: ^1.31.1
+    version: 1.31.1
   '@upstash/vector':
     specifier: ^1.0.7
     version: 1.0.7
@@ -787,6 +790,12 @@ packages:
     dependencies:
       undici-types: 5.26.5
 
+  /@upstash/redis@1.31.1:
+    resolution: {integrity: sha512-lAsOo+kYjD5lpP+lH/nxHfzFYeCkWBwwKsyZZmh0AoOumBA9ZpS52Gorm7c2bmNu3UFijpPiLSFdW/nRdjbRpQ==}
+    dependencies:
+      crypto-js: 4.2.0
+    dev: false
+
   /@upstash/vector@1.0.7:
     resolution: {integrity: sha512-IJlobmXxocxbwSiMsJRbx8VE98GdjRk058hyDqmzXhKmGLJkeAgfoDAEZWkGPuFAtqdNYfpV2qVS+mk/KMk4JQ==}
     dev: false
@@ -993,6 +1002,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+    dev: false
 
   /data-uri-to-buffer@2.0.2:
     resolution: {integrity: sha512-ND9qDTLc6diwj+Xe5cdAgVTbLVdXbtxTJRXRhli8Mowuaan+0EJOtdqJ0QCHNSSPyoXGx9HX2/VMnKeC34AChA==}
