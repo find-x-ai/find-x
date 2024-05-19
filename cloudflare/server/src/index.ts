@@ -65,7 +65,7 @@ app.post('/query', async (c) => {
 	pipeline.get('logs'); //1
 	pipeline.get('average'); //2
 
-	const result = (await pipeline.exec()) as [{ id: number; remaining: number; name: string }, [], { average: number; total: number }];
+	const result = (await pipeline.exec()) as [{ id: number; remaining: number; name: string }, [], { average: number; total: number , time: number }];
 
 	if (!result[0].id) {
 		return c.json({ message: 'Invalid Authorization key' }, 400);
@@ -133,10 +133,11 @@ app.post('/query', async (c) => {
 			]);
 
 			const t1 = performance.now();
-			
+
 			pipeline.set('average', {
 				...result[2],
-				average: (result[2].average + (t1 - t0)) / (result[2].total + 1),
+				time:result[2].time + (t1 - t0),
+				average: (result[2].time + (t1 - t0)) / (result[2].total + 1),
 				total: result[2].total + 1,
 			});
 
