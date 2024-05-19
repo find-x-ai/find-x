@@ -22,7 +22,7 @@ export default function RootLayout({
             <div className="w-full max-w-[1200px]">{children}</div>
           </div>
           <Toaster richColors={false}/>
-          <AiChat/>
+          <AiChat secret={process.env.FINDX_SECRET_KEY!}/>
         </body>
       </html>
   );
