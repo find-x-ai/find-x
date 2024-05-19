@@ -1,12 +1,11 @@
 {
   "name": "find-x-react",
-  "version": "0.0.21",
+  "version": "0.0.31",
   "description": "",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
-
   "scripts": {
     "build": "tsup && pnpm build:declarations",
     "build:declarations": "npx tsc -p tsconfig.declarations.json"

@@ -3,12 +3,13 @@ import Messages from "./ui/Messages";
 import Loader from "./ui/Loader";
 import { CloseIcon } from "./icons/svgs";
 
+
 type Messages = {
   role: "system" | "user";
   content: string;
 };
 
-export default function ChatBox() {
+export default function ChatBox({secret}: {secret: string}) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
   const [messages, setMessages] = useState<Messages[]>([
@@ -38,40 +39,39 @@ export default function ChatBox() {
     if (event.key === "Escape") {
       setIsOpen(false);
     }
-  
+
     // Check for Ctrl + F key combination
     if (event.ctrlKey && event.key === "f") {
       setIsOpen(true);
     }
   };
-  
 
-useEffect(() => {
-  if (isOpen) {
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
-  } else {
-    document.removeEventListener("mousedown", handleClickOutside);
-    document.removeEventListener("keydown", handleKeyDown);
-  }
-  return () => {
-    document.removeEventListener("mousedown", handleClickOutside);
-    document.removeEventListener("keydown", handleKeyDown);
-  };
-}, [isOpen]);
-
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   const handleSubmit = async (e: FormEvent) => {
+    
     e.preventDefault();
     setIsSubmitting(true);
-    if(query.trim().length > 300){
+    if (query.trim().length > 300) {
       setMessages((prevMessages) => [
         ...prevMessages,
         { role: "system", content: "Too long query !" },
       ]);
       setLoading(false);
       setIsSubmitting(false);
-      return
+      return;
     }
 
     setMessages((prevMessages) => [
@@ -80,16 +80,15 @@ useEffect(() => {
     ]);
     setQuery(""); // Clear the input field after submitting
 
-    
     try {
       setLoading(true); // Set loading state to true before fetching
       const res = await fetch("https://server.find-x.workers.dev/query", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${secret}`
         },
         body: JSON.stringify({
-          client: "59",
           query: query.trim(),
         }),
       });
@@ -184,10 +183,8 @@ useEffect(() => {
                 </div>
               </div>
               <div className="fx-flex-grow fx-messages fx-w-full fx-overflow-y-auto fx-flex fx-flex-col fx-gap-3 fx-scrollbar-hide fx-max-h-[330px]">
-                <Messages messages={messages}/>
-                {loading && (
-                 <Loader/>
-                )}
+                <Messages messages={messages} />
+                {loading && <Loader />}
                 <div ref={messagesEndRef}></div>
               </div>
 
