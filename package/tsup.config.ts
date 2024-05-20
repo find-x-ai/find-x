@@ -7,6 +7,7 @@ const common: Options = {
   minify: false,
   sourcemap: true,
   legacyOutput: true,
+  external: ["dotenv"]
 };
 
 const esm: Options = {
@@ -14,12 +15,4 @@ const esm: Options = {
   format:'esm',
 };
 
-const cjs: Options = {
-  ...common,
-  format: 'cjs',
-  outDir: "./dist/cjs"
-};
-
-
-
-export default [esm,cjs];
+export default esm;

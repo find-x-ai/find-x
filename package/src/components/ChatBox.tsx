@@ -1,7 +1,9 @@
+"use client"
 import React, { FormEvent, useState, useEffect, useRef } from "react";
 import Messages from "./ui/Messages";
 import Loader from "./ui/Loader";
 import { CloseIcon } from "./icons/svgs";
+import { getStreamingResponse } from "../actions/stream";
 
 
 type Messages = {
@@ -9,7 +11,7 @@ type Messages = {
   content: string;
 };
 
-export default function ChatBox({secret}: {secret: string}) {
+export default function ChatBox() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
   const [messages, setMessages] = useState<Messages[]>([
@@ -82,16 +84,7 @@ export default function ChatBox({secret}: {secret: string}) {
 
     try {
       setLoading(true); // Set loading state to true before fetching
-      const res = await fetch("https://server.find-x.workers.dev/query", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${secret}`
-        },
-        body: JSON.stringify({
-          query: query.trim(),
-        }),
-      });
+      const res = await getStreamingResponse({query: query});
 
       const decoder = new TextDecoder();
       const reader = res.body?.getReader();
@@ -198,7 +191,7 @@ export default function ChatBox({secret}: {secret: string}) {
                     required
                     autoFocus
                     value={query}
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
                     onChange={(e) => setQuery(e.target.value)}
                     className="fx-w-full fx-focus:outline-none fx-rounded-[20px_0px_0px_20px] fx-p-3 fx-bg-[#0c0c0c] fx-border fx-border-zinc-800"
                     type="text"
