@@ -1,10 +1,9 @@
 "use client"
-import React from 'react'
-import {ChatBox} from "find-x-react";
+import {ChatBox} from "find-x-next";
 
-const AiChat = ({secret}:{secret: string}) => {
+const AiChat = () => {
   return (
-    <ChatBox secret={secret}/>
+    <ChatBox/>
   )
 }
 

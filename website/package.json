@@ -20,7 +20,7 @@
     "ai": "^3.0.13",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "find-x-react": "0.0.31",
+    "find-x-next": "^0.0.42",
     "lucide-react": "^0.363.0",
     "nanoid": "^5.0.6",
     "next": "14.1.4",
