@@ -37,23 +37,28 @@ const Page = () => {
   const confirmDeleteClient = () => {
     // Perform delete operation here
     console.log("Client deleted:", client.name);
-    toast.promise(deleteClient({ id: Number(client.id) }), {
+    toast.promise(deleteClient({ id: Number(client.id), key: client.key }), {
       loading: "deleting client...",
       success: () => {
         return `${client.name} deleted successfully`;
       },
+      finally: () => {
+        
+        window.history.pushState({ page: "home" }, "", "/deleted");
+        router.push("/all");
+      },
     });
+
     setShowDeleteConfirmation(false);
-    setTimeout(() => {
-      window.history.pushState({ page: "home" }, "", "/deleted");
-      router.push("/all")
-    }, 1800);
+
+    // setTimeout(() => {
+
+    // }, 1800);
   };
 
   const cancelDeleteClient = () => {
     setShowDeleteConfirmation(false);
   };
-
 
   return (
     <div className="h-full flex flex-col">

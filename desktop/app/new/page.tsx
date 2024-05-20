@@ -327,10 +327,11 @@ export default function Page() {
           //@ts-ignore
           const id = res.data[0].id as number;
           for (const chunk of chunks) {
-            const res = await fetch("https://sohel1807--embed.modal.run/", {
+            const res = await fetch("https://server.find-x.workers.dev/upsert", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_UPSERT_KEY!}`
               },
               body: JSON.stringify({
                 client: id,
@@ -350,6 +351,8 @@ export default function Page() {
                 "[ERROR]",
                 "text-red-500"
               );
+
+              return
             }
           }
 
@@ -376,11 +379,10 @@ export default function Page() {
               "[success]",
               "text-green-500"
             );
-
-    
             setTimeout(() => {
                router.push("/all");
             }, 1500);
+
           } else {
             logMessage(`Error creating client keys`, "[ERROR]", "text-red-500");
           }

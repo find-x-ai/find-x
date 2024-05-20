@@ -29,6 +29,9 @@ dependencies:
   '@upstash/redis':
     specifier: ^1.30.1
     version: 1.30.1
+  '@upstash/vector':
+    specifier: ^1.1.1
+    version: 1.1.1
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -1019,6 +1022,10 @@ packages:
     resolution: {integrity: sha512-Cmk2cvm1AcD6mKLg/UFhQDzM+H1HsX/k5ufvNL4Kii8DsMTKmadMJ1rRZEGQ/SM7H51EeOL/YSa6K2EPc1SYPA==}
     dependencies:
       crypto-js: 4.2.0
+    dev: false
+
+  /@upstash/vector@1.1.1:
+    resolution: {integrity: sha512-40pRY6BYpNElZ0/BFiDk9p1Pn4D+WUM4qm528yYlJm6ifjcg4xQthwiE8+6j2t9rqr3FtWaNhdpLXTyj1ptNLA==}
     dev: false
 
   /ansi-regex@5.0.1:

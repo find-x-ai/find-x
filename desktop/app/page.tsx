@@ -2,6 +2,7 @@
 import { db } from "@/lib/db";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { redis } from "@/lib/redis";
 
 type Project = {
   id: number;
@@ -15,15 +16,41 @@ type Project = {
 
 export default function Home() {
   const [data, setData] = useState<Project[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [average, setAverage] = useState<number>();
+
+  const [averageLoading, setAverageLoading] = useState<boolean>(true);
+
+  const [clientloading, setClientLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = (await db.from("clients").select("*")) as {
-        data: Project[];
-      };
-      setData(fetchedData.data);
-      setLoading(false);
+      db.from("clients")
+        .select("*")
+        .then((fetchedData) => {
+          
+          if(fetchedData.data){
+            //@ts-ignore
+            setData(fetchedData.data);
+          }
+          
+        });
+
+      setClientLoading(false);
+
+      redis
+        .get("average")
+        .then((analytics) => {
+          if (analytics) {
+            //@ts-ignore
+            setAverage(analytics.average);
+            setAverageLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setAverage(0);
+          setAverageLoading(false);
+        });
     };
 
     fetchData();
@@ -39,7 +66,13 @@ export default function Home() {
         <div className="flex flex-col gap-5 w-[350px]">
           <div className="w-full h-full flex flex-col gap-2 justify-center items-center p-3 border border-zinc-900 rounded-xl bg-black">
             <h1 className="text-3xl font-semibold text-white text-center">
-              1.2 sec
+              {averageLoading ? (
+                <span>
+                  <Loader2 className=" animate-spin w-[28px] h-[28px] duration-300" />
+                </span>
+              ) : (
+                average
+              )}
             </h1>
             <p className="text-zinc-700 text-center text-sm">
               Average response time
@@ -47,7 +80,7 @@ export default function Home() {
           </div>
           <div className="w-full h-full flex flex-col gap-2 justify-center items-center p-3 border border-zinc-900 rounded-xl bg-black">
             <h1 className="text-4xl font-semibold text-white h-[60px] text-center">
-              {loading ? (
+              {clientloading ? (
                 <span>
                   <Loader2 className=" animate-spin w-[28px] h-[28px] duration-300" />
                 </span>
