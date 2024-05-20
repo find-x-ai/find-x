@@ -1,6 +1,6 @@
 {
   "name": "find-x-next",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "description": "",
   "license": "MIT",
   "main": "dist/index.js",
