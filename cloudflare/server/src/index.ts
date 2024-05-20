@@ -187,7 +187,7 @@ app.post('/upsert', async (c) => {
 
 	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
 
-	if (key !== UPSTASH_VECTOR_REST_TOKEN) {
+	if (key !== UPSERT_SECRET_KEY) {
 		return c.json({ mssage: 'Invalid key provided' }, 400);
 	}
 
