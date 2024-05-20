@@ -5,6 +5,7 @@ import { OpenAI } from 'openai';
 import { Index } from '@upstash/vector';
 import { Redis } from '@upstash/redis/cloudflare';
 import { instructions } from '../extra/istructions';
+import { removeStopwords, eng, fra } from 'stopword';
 
 const app = new Hono();
 
@@ -14,6 +15,7 @@ type EnvironmentVariables = {
 	OPENAI_API_KEY: string;
 	UPSTASH_REDIS_REST_URL: string;
 	UPSTASH_REDIS_REST_TOKEN: string;
+	UPSERT_SECRET_KEY: string;
 };
 
 type Chunk = {
@@ -65,7 +67,11 @@ app.post('/query', async (c) => {
 	pipeline.get('logs'); //1
 	pipeline.get('average'); //2
 
-	const result = (await pipeline.exec()) as [{ id: number; remaining: number; name: string }, [], { average: number; total: number , time: number }];
+	const result = (await pipeline.exec()) as [
+		{ id: number; remaining: number; name: string },
+		[],
+		{ average: number; total: number; time: number }
+	];
 
 	if (!result[0].id) {
 		return c.json({ message: 'Invalid Authorization key' }, 400);
@@ -78,10 +84,14 @@ app.post('/query', async (c) => {
 			token: UPSTASH_VECTOR_REST_TOKEN,
 			cache: false,
 		});
+		const namespace = index.namespace(result[0].id.toString());
 
-		const res = (await index.query({
-			data: query,
-			filter: `client = ${result[0].id}`,
+		let old_query = query.split(' ');
+
+		const new_query = removeStopwords(old_query);
+
+		const res = (await namespace.query({
+			data: new_query.join(' '),
 			topK: 5,
 			includeVectors: false,
 			includeMetadata: true,
@@ -136,23 +146,21 @@ app.post('/query', async (c) => {
 
 			pipeline.set('average', {
 				...result[2],
-				time:result[2].time + (t1 - t0),
+				time: result[2].time + (t1 - t0),
 				average: (result[2].time + (t1 - t0)) / (result[2].total + 1),
 				total: result[2].total + 1,
 			});
-
-			
-
+            let oneTime = 0;
 			for await (const chunk of openaiStream) {
 				const content = chunk.choices[0].delta.content;
 				if (content) {
+					if(oneTime === 0){
+						await pipeline.exec();
+						oneTime=1
+					}
 					await stream.write(content);
-				}else{
-					await pipeline.exec();
 				}
 			}
-            
-
 		});
 	} catch (error) {
 		pipeline.set('logs', [
@@ -169,9 +177,21 @@ app.post('/query', async (c) => {
 });
 
 app.post('/upsert', async (c) => {
-	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL } = c.env as EnvironmentVariables;
+	const token = c.req.header('Authorization') as string;
 
-	const { client, data } = (await c.req.json()) as { client: string; data: [{ url: string; content: string }] };
+	const key = token.split('Bearer ')[1];
+
+	if (!key || !token) {
+		return c.json({ mssage: 'No authorization key provided' }, 400);
+	}
+
+	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
+
+	if (key !== UPSTASH_VECTOR_REST_TOKEN) {
+		return c.json({ mssage: 'Invalid key provided' }, 400);
+	}
+
+	const { client, data } = (await c.req.json()) as { client: number; data: [{ url: string; content: string }] };
 
 	if (!client || !data || data.length < 1) {
 		return c.json({ message: 'Missing parameters' }, 400);
@@ -183,10 +203,18 @@ app.post('/upsert', async (c) => {
 		cache: false,
 	});
 
+	const namespace = index.namespace(client.toString());
+
 	for (let chunk of data) {
-		await index.upsert({
+		let old_content = chunk.content.split(' ');
+
+		const new_content = removeStopwords(old_content);
+
+		// console.log(new_content.join(' '));
+
+		await namespace.upsert({
 			id: `${client}_${chunk.url}`,
-			data: chunk.content,
+			data: new_content.join(' '),
 			metadata: {
 				client: client,
 				url: chunk.url,
