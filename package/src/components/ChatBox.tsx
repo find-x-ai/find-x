@@ -65,6 +65,9 @@ export default function ChatBox() {
   const handleSubmit = async (e: FormEvent) => {
     
     e.preventDefault();
+    if(isSubmitting){
+      return
+    }
     setIsSubmitting(true);
     if (query.trim().length > 300) {
       setMessages((prevMessages) => [
