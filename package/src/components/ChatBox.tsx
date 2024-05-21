@@ -201,7 +201,6 @@ export default function ChatBox({token}: {token: string}) {
                     required
                     autoFocus
                     value={query}
-                    disabled={isSubmitting}
                     onChange={(e) => setQuery(e.target.value)}
                     className="fx-w-full fx-focus:outline-none fx-rounded-[20px_0px_0px_20px] fx-p-3 fx-bg-[#0c0c0c] fx-border fx-border-zinc-800"
                     type="text"
