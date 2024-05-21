@@ -1,4 +1,3 @@
-"use server"
 export const getStreamingResponse = async ({ query }: { query: string }) => {
   const res = await fetch("https://server.find-x.workers.dev/query", {
     method: "POST",

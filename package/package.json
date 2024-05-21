@@ -1,6 +1,6 @@
 {
-  "name": "find-x-next",
-  "version": "0.0.42",
+  "name": "find-x-react",
+  "version": "0.0.46",
   "description": "",
   "license": "MIT",
   "main": "dist/index.js",
@@ -31,7 +31,6 @@
   "keywords": [],
   "author": "sahil",
   "dependencies": {
-    "dotenv": "^16.4.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }
