@@ -1,10 +1,8 @@
-"use client"
-import {ChatBox} from "find-x-react";
+"use client";
+import { ChatBox } from "find-x-react";
 
-const AiChat = () => {
-  return (
-    <ChatBox api="/api/chat"/>
-  )
-}
+const AiChat = ({ token }: { token: string }) => {
+  return <ChatBox token={token} />;
+};
 
-export default AiChat
+export default AiChat;

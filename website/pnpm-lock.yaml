@@ -39,8 +39,8 @@ dependencies:
     specifier: ^2.1.0
     version: 2.1.0
   find-x-react:
-    specifier: ^0.0.43
-    version: 0.0.43
+    specifier: ^0.0.46
+    version: 0.0.46
   lucide-react:
     specifier: ^0.363.0
     version: 0.363.0(react@18.2.0)
@@ -1679,8 +1679,8 @@ packages:
     dependencies:
       to-regex-range: 5.0.1
 
-  /find-x-react@0.0.43:
-    resolution: {integrity: sha512-1mhE6Kl9zscpVL8OvPRJyLUDyMXZVMEODY6+qnhP2svFjStVIJitW9J+Dl4vwLdLHBsuSp0z5HXX4mWGLre/vg==}
+  /find-x-react@0.0.46:
+    resolution: {integrity: sha512-4Er0BjwuyqV1Hzn1TEsZ2Gvwyi6zm3NA4GLeHjJbwwswq2ySWSs+uB29wvUUnOACPXLgDjhu692wY70Ipuiivg==}
     dependencies:
       dotenv: 16.4.5
       react: 18.3.1
