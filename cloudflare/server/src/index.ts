@@ -92,7 +92,7 @@ app.post('/query', async (c) => {
 
 		const res = (await namespace.query({
 			data: new_query.join(' '),
-			topK: 5,
+			topK: 3,
 			includeVectors: false,
 			includeMetadata: true,
 		})) as Chunk[];
