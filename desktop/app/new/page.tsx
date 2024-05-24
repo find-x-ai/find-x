@@ -35,7 +35,7 @@ const LogDisplay = ({ logs }: { logs: LogMessage[] }) => {
   }, [logs]);
 
   return (
-    <div className="w-[100%] h-1 flex-grow overflow-x-hidden overflow-y-scroll border border-zinc-900 rounded-xl bg-black text-white">
+    <div className="w-[100%] h-1 flex-grow overflow-x-hidden overflow-y-scroll scrollbar-hide border border-zinc-900 rounded-xl bg-black text-white">
       <ul className="p-2">
         {logs.map((log, index) => (
           <li
@@ -401,7 +401,7 @@ export default function Page() {
   return (
     <div className=" w-full h-full flex flex-col">
       <Back />
-      <div className="w-full flex justify-between bg-black px-5 pt-5">
+      <div className="w-full flex justify-between items-center bg-black px-5 pt-3 pb-3">
         <h2 className="text-3xl w-full font-semibold text-white">{data[0]}</h2>
         <div className="flex w-full justify-between items-center">
           <h4 className="text-white">{data[1]}</h4>
