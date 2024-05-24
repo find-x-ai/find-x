@@ -147,7 +147,7 @@ app.post('/query', async (c) => {
 			pipeline.set('average', {
 				...result[2],
 				time: result[2].time + (t1 - t0),
-				average: (result[2].time + (t1 - t0)) / (result[2].total + 1),
+				average: (result[2].average + (t1 - t0)) / 2,
 				total: result[2].total + 1,
 			});
             let oneTime = 0;
