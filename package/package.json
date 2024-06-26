@@ -1,37 +1,19 @@
 {
-  "name": "find-x-react",
-  "version": "0.0.47",
-  "description": "",
-  "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "name": "package",
+  "private": true,
   "scripts": {
-    "build": "tsup && pnpm build:declarations",
-    "build:declarations": "npx tsc -p tsconfig.declarations.json"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
-  "exports": {
-    ".": {
-      "import": "./dist/esm/index.js",
-      "types": "./dist/types/index.d.ts"
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
-    "@types/react": "^18.3.2",
-    "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3",
-    "tsup": "^8.0.2",
-    "typescript": "5.4.5"
+    "prettier": "^3.2.5",
+    "turbo": "^2.0.5",
+    "typescript": "^5.4.5"
   },
-  "keywords": [],
-  "author": "sahil",
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+  "packageManager": "pnpm@8.15.6",
+  "engines": {
+    "node": ">=18"
   }
 }
