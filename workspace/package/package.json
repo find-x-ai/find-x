@@ -1,0 +1,37 @@
+{
+  "name": "find-x",
+  "version": "0.0.47",
+  "description": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup && pnpm build:declarations",
+    "dev": "tsup --watch && pnpm build:declarations",
+    "build:declarations": "npx tsc -p tsconfig.declarations.json"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/react": "^18.3.2",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "tsup": "^8.0.2",
+    "typescript": "5.4.5"
+  },
+  "keywords": [],
+  "author": "sahil",
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
