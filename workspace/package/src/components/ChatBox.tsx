@@ -188,11 +188,8 @@ const ChatBox = () => {
             onClick={() => {
               setIsOpen(true);
             }}
-            className=" f-bg-zinc-950 f-p-4 f-border f-border-zinc-700 f-rounded-full"
+            className=" f-bg-zinc-950 f-p-4 f-border f-border-zinc-700 hover:f-border-blue-600 f-transition-color f-duration-300 f-rounded-full"
           >
-            {/* <span className=" f-opacity-0 f-hidden f-overflow-hidden f-text-white sm:group-hover:f-opacity-100 sm:group-hover:f-block f-ml-2 f-transition-all f-duration-1000 f-ease-in-out">
-              ask ai
-            </span> */}
             <SparkleIcon />
           </button>
         </div>
