@@ -147,9 +147,15 @@ const ChatBox = () => {
                 />
               </form>
               <div className="f-flex f-justify-center f-items-center f-px-2">
-                <div className="f-py-1 f-px-2 f-zn f-rounded-md f-text-zinc-400">
+                <button
+                  onClick={async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 0));
+                    setIsOpen(false);
+                  }}
+                  className="f-py-1 f-px-2 f-zn f-rounded-md f-text-zinc-400 hover:f-border-red-500 f-transition-colors f-duration-200 f-cursor-pointer"
+                >
                   Esc
-                </div>
+                </button>
               </div>
             </div>
             <div className="f-w-full f-flex f-justify-center">
