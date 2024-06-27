@@ -180,9 +180,12 @@ const ChatBox = () => {
                     )}
                   </div>
                 )}
-                {!isLoading && referenceLinks.length > 0 && (
-                  <ReferenceLinks links={referenceLinks} />
-                )}
+                <div className="f-flex f-justify-between f-items-center">
+                  {!isLoading && referenceLinks.length > 0 && (
+                    <ReferenceLinks links={referenceLinks} />
+                  )}
+                  <span className="f-px-5 f-text-sm f-ml-auto f-text-zinc-500">Powered by <a href="https://findx.vercel.app/" className=" f-underline">find-x</a></span>
+                </div>
               </div>
             </div>
           </div>
