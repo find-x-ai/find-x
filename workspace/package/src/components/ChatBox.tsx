@@ -114,7 +114,7 @@ const ChatBox = () => {
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="f-px-3 f-py-1 f-bg-zinc-900 f-text-zinc-200 f-rounded-full f-border f-border-zinc-700 f-text-sm hover:f-bg-zinc-800 f-transition-colors"
+          className="f-px-2 f-text-xs f-py-1 f-bg-zinc-900 f-text-zinc-200 f-rounded-full f-border f-border-zinc-700 hover:f-bg-zinc-800 f-transition-colors"
         >
           {index + 1}
         </a>
