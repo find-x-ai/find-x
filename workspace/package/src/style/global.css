@@ -2,18 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-.fx-scrollbar-hide::-webkit-scrollbar {
+.f-scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-.fx-scrollbar-hide {
+.f-scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
 
-.fx-b {
-  border: 1px solid;
+.f-bl {
+  border: 1px solid #3b82f6;
 }
 
+.f-zn {
+  border: 1px solid #52525b;
+}
+
+
+/* 
 .fx-chatbox,
 .fx-msg,
 .fx-parent > input {
@@ -28,47 +34,4 @@
 ::after,
 ::before {
   box-sizing: border-box;
-}
-
-.fx-parent > input:focus {
-  outline: 0px;
-  color: white;
-}
-
-.fx-h2 {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-.fx-parent > input {
-  color: white;
-}
-
-.fx-parent > button {
-   border: 1px solid #3b82f6;
-}
-
-.fx-parent > button,
-.fx-parent > input {
-  font-family: inherit;
-  font-feature-settings: inherit;
-  font-variation-settings: inherit;
-  font-size: 100%;
-  letter-spacing: inherit;
-}
-
-.fx-parent > button:hover {
-  border: 1px solid transparent;
-}
-
-.fx-h2 {
-  margin: 0;
-}
-
-.fx-scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.fx-scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
+} */

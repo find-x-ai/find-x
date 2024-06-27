@@ -5,7 +5,7 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-  prefix: "fx-",
+  prefix: "f-",
   corePlugins: {
     preflight: false,
   }
