@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SearchIcon, SparkleIcon } from "./icons/svgs";
 import { getStreamingResponse } from "../actions/stream";
 
@@ -9,6 +9,7 @@ const ChatBox = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
+  const uiRef = useRef<HTMLDivElement>(null);
 
   const handleKeydown = (event: KeyboardEvent) => {
     // Check if the 'Escape' key is pressed
@@ -98,10 +99,18 @@ const ChatBox = () => {
   };
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (uiRef.current && !uiRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+  
     document.addEventListener("keydown", handleKeydown);
-
+    document.addEventListener('mousedown', handleClickOutside);
+  
     return () => {
       document.removeEventListener("keydown", handleKeydown);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -125,11 +134,14 @@ const ChatBox = () => {
   return (
     <div className="f-absolute f-w-full f-h-full f-bg-red-700/5 f-flex f-justify-end f-items-end f-top-0">
       {isOpen ? (
-        <div className="f-w-full f-h-full f-flex f-justify-center f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/20 f-backdrop-blur-[4px]">
-          <div className="f-w-full f-flex f-flex-col f-items-center f-pt-12">
+        <div className="f-w-full  f-h-full  f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/20 f-backdrop-blur-[4px]">
+          <div
+            ref={uiRef}
+            className="f-w-full f-h-auto f-max-h-[350px] f-mx-auto f-max-w-[700px] f-relative f-top-10 "
+          >
             <div
               onClick={() => setIsOpen(true)}
-              className={`f-flex f-w-full f-max-w-[700px] f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-600`}
+              className={`f-flex f-w-full f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-600`}
             >
               <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
                 <SearchIcon />
@@ -184,7 +196,15 @@ const ChatBox = () => {
                   {!isLoading && referenceLinks.length > 0 && (
                     <ReferenceLinks links={referenceLinks} />
                   )}
-                  <span className="f-px-5 f-text-sm f-ml-auto f-text-zinc-500">Powered by <a href="https://findx.vercel.app/" className=" f-underline">find-x</a></span>
+                  <span className="f-px-5 f-text-sm f-ml-auto f-text-zinc-500">
+                    Powered by{" "}
+                    <a
+                      href="https://findx.vercel.app/"
+                      className=" f-underline"
+                    >
+                      find-x
+                    </a>
+                  </span>
                 </div>
               </div>
             </div>
