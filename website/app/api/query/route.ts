@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
     generationConfig: generationConfig,
   });
 
-  const res = await model.generateContentStream(query);
+  const res = await model.generateContent(query);
 
-  const stream = GoogleGenerativeAIStream(res);
 
-  return new StreamingTextResponse(stream, {
+
+  return NextResponse.json({ answer: res.response.text() }, {
     status: 200,
     headers: {
       "Access-Control-Allow-Origin": "*",
