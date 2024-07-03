@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
   // Get the origin header from the request
   const { query } = await req.json();
 
+  const key = req.headers.get("Authorization") as string;
+
   const generationConfig = {
     temperature: 1,
     topP: 0.95,
@@ -47,7 +49,7 @@ export async function POST(req: NextRequest) {
     responseMimeType: "text/plain",
   };
 
-  const genAI = new GoogleGenerativeAI(process.env.AI_API_KEY!);
+  const genAI = new GoogleGenerativeAI(key);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction: instructions,
