@@ -48,8 +48,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
       find-x-ai:
-        specifier: ^0.0.52
-        version: 0.0.52
+        specifier: ^0.0.53
+        version: 0.0.53
       find-x-react:
         specifier: ^0.0.47
         version: 0.0.47
@@ -1078,8 +1078,8 @@ packages:
     resolution: {integrity: sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==}
     engines: {node: '>=8'}
 
-  find-x-ai@0.0.52:
-    resolution: {integrity: sha512-ZDKkLM9mszjcoIAdorOIk0Fz+bg8DOFt1cCaoEKzULSNpWPoUtngf7CQO1CCmHKoYY1xBkpZ5Jh/8OMHGABp3g==}
+  find-x-ai@0.0.53:
+    resolution: {integrity: sha512-uG9kXAtU6Evoey874NZu3oiLY3F5ZPPKFCDbL8+pse2WvrAVLzTTcFf1gjnFK7ZKcjM1ALcz6iek6HRwMP0F+A==}
 
   find-x-react@0.0.47:
     resolution: {integrity: sha512-5cR0uix1ZLvTE9M8JN8HwNJwnpHqdXDm7giIEIMwRn59ptXIwq8G40YrSMi+QbgDpHu/DwKZQhlGgNm8sw4zMw==}
@@ -2882,7 +2882,7 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  find-x-ai@0.0.52:
+  find-x-ai@0.0.53:
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
