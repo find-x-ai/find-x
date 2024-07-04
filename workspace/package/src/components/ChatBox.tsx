@@ -22,11 +22,11 @@ const ChatBox = () => {
     }
   };
 
-  const typeEffect = async (text: string) => {
-    const words = text.split(" ");
+  const typeEffect = async (text: string, startIndex: number) => {
+    const words = text.slice(startIndex).split(" ");
     for (let i = 0; i < words.length; i++) {
-      setResponse(words.slice(0, i + 1).join(" "));
-      await new Promise((resolve) => setTimeout(resolve, 30)); 
+      setResponse((prev) => prev + (i === 0 ? " " : " ") + words[i]);
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Adjust delay as needed
     }
   };
 
@@ -65,22 +65,23 @@ const ChatBox = () => {
     }
 
     let wholeResponse = "";
+    setResponse("");
+    let lastTypedIndex = 0;
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
       const chunk = decoder.decode(value, { stream: true });
       wholeResponse += chunk;
-      await typeEffect(wholeResponse);
+      await typeEffect(wholeResponse, lastTypedIndex);
+      lastTypedIndex = wholeResponse.length;
     }
 
     // Extract the response and reference links
-    const [responseText, linksText] = wholeResponse.split("<#$#>");
+    const linksText = wholeResponse.split("<#$#>")[1];
     const links = linksText
       ? linksText.split(",").map((link) => link.trim())
       : [];
 
-    // Update states
-    setResponse(responseText.trim());
     setReferenceLinks(links);
 
     setIsLoading(false);
