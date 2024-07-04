@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import Navbar from "@/components/navbar";
 import AiChat from "@/components/AiChat";
+import { ChatBox } from "find-x-ai";
 
 export const metadata: Metadata = {
   title: "findx - ai",
@@ -22,7 +23,7 @@ export default function RootLayout({
           <div className="w-full max-w-[1200px]">{children}</div>
         </div>
         <Toaster richColors={false} />
-        <AiChat token={process.env.FINDX_SECRET_KEY!} />
+        <ChatBox />
       </body>
     </html>
   );
