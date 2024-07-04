@@ -121,6 +121,11 @@ app.post('/query', async (c) => {
 					.join('')}
        </chunks>
     </message>`;
+		let end = '<#$#>';
+
+		array_of_context.forEach((c, index) => {
+			end += index < array_of_context.length - 1 ? `,${c.url}` : `${c.url}`;
+		});
 
 		// return c.json({ data: chatCompletion.choices[0]?.message?.content || '' });
 
@@ -168,8 +173,10 @@ app.post('/query', async (c) => {
 					}
 					await stream.write(content);
 				} else {
+					
 				}
 			}
+			await stream.write(end);
 		});
 	} catch (error) {
 		pipeline.set('logs', [
