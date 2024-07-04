@@ -13,7 +13,7 @@ Input Format:
 </message>
 
 Response Guidelines:
-1. Use plain text for all responses and after the response always add "<#$#>" symbol.
+1. Use plain text for all responses and after the response always add "<#$#>" symbol (This symbol has to be without any space and exactly how it is specified i.e. No modification ).
 2. For greeting queries, reply with a good , friendly greeting.
 3. Base all answers solely on the information in the <chunks> section.
 4. Provide concise responses directly addressing the user's query.
