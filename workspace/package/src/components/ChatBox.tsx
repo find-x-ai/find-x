@@ -123,16 +123,16 @@ const ChatBox = () => {
   );
 
   return (
-    <div className="f-absolute f-w-full f-h-full f-bg-red-700/5 f-flex f-justify-end f-items-end f-top-0">
+    <div>
       {isOpen ? (
-        <div className="f-w-full  f-h-full  f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/20 f-backdrop-blur-[4px]">
+        <div className="f-w-full f-fixed  f-h-full  f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 f-backdrop-blur-[4px] f-z-[100]">
           <div
             ref={uiRef}
             className="f-w-full f-h-auto f-max-h-[350px] f-mx-auto f-max-w-[700px] f-relative f-top-10 "
           >
             <div
               onClick={() => setIsOpen(true)}
-              className={`f-flex f-w-full f-h-14 f-bg-gradient-to-r f-from-zinc-900 f-via-zinc-950 f-to-black f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-600`}
+              className={`f-flex f-w-full f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-800/90`}
             >
               <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
                 <SearchIcon />
@@ -162,7 +162,7 @@ const ChatBox = () => {
             </div>
             <div className="f-w-full f-flex f-justify-center">
               <div
-                className={`f-w-full f-mt-2 f-scrollbar-hide f-rounded-md f-max-w-[700px] f-zn f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
+                className={`f-w-full f-mt-2 f-scrollbar-hide f-rounded-md f-max-w-[700px] f-border f-border-zinc-800/90 f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
                   isLoading || response
                     ? "f-min-h-[80px] f-max-h-[500px] sm:f-p-3 f-p-2 f-block"
                     : "f-h-0 f-hidden"
@@ -202,7 +202,7 @@ const ChatBox = () => {
           </div>
         </div>
       ) : (
-        <div className="f-p-5 f-group ">
+        <div className="f-p-5 f-group f-fixed f-bottom-2 f-right-2">
           <button
             title="ctrl + k"
             onClick={() => {
