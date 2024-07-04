@@ -1,11 +1,10 @@
 {
   "name": "find-x-ai",
-  "version": "0.0.48",
+  "version": "0.0.49",
   "description": "",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "build": "tsup && pnpm build:declarations",
     "dev": "tsup --watch && pnpm build:declarations",
