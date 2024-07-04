@@ -1,18 +1,18 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { streamText } from 'hono/streaming';
-import { OpenAI } from 'openai';
 import { Index } from '@upstash/vector';
 import { Redis } from '@upstash/redis/cloudflare';
 import { instructions } from '../extra/istructions';
 import { removeStopwords, eng, fra } from 'stopword';
+import Groq from 'groq-sdk';
 
 const app = new Hono();
 
 type EnvironmentVariables = {
 	UPSTASH_VECTOR_REST_TOKEN: string;
 	UPSTASH_VECTOR_REST_URL: string;
-	OPENAI_API_KEY: string;
+	AI_API_KEY: string;
 	UPSTASH_REDIS_REST_URL: string;
 	UPSTASH_REDIS_REST_TOKEN: string;
 	UPSERT_SECRET_KEY: string;
@@ -39,7 +39,7 @@ app.get('/', (c) => c.text('working fine...'));
 //endpoint for query
 app.post('/query', async (c) => {
 	const t0 = performance.now();
-	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, OPENAI_API_KEY, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } =
+	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, AI_API_KEY, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } =
 		c.env as EnvironmentVariables;
 
 	const secret = c.req.header('Authorization') as string;
@@ -77,7 +77,7 @@ app.post('/query', async (c) => {
 		return c.json({ message: 'Invalid Authorization key' }, 400);
 	}
 	try {
-		const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+		const groq = new Groq({ apiKey: AI_API_KEY });
 
 		const index = new Index({
 			url: UPSTASH_VECTOR_REST_URL,
@@ -122,43 +122,52 @@ app.post('/query', async (c) => {
        </chunks>
     </message>`;
 
+		// return c.json({ data: chatCompletion.choices[0]?.message?.content || '' });
+
+		pipeline.set(key, { ...result[0], remaining: parseFloat((result[0].remaining - 0.02).toFixed(3)) });
+		pipeline.set('logs', [
+			...result[1],
+			{
+				status: 200,
+				client: result[0].name,
+				time: Date.now(),
+			},
+		]);
+
+		const t1 = performance.now();
+
+		pipeline.set('average', {
+			...result[2],
+			time: result[2].time + (t1 - t0),
+			average: (result[2].average + (t1 - t0)) / 2,
+			total: result[2].total + 1,
+		});
+
 		return streamText(c, async (stream) => {
-			const openaiStream = await openai.chat.completions.create({
-				model: 'gpt-3.5-turbo',
+			const chatCompletion = await groq.chat.completions.create({
 				messages: [
-					{ role: 'system', content: instructions },
-					{ role: 'user', content: data },
+					{
+						role: 'system',
+						content: instructions,
+					},
+					{
+						role: 'user',
+						content: data,
+					},
 				],
+				model: 'llama3-8b-8192',
 				stream: true,
 			});
-
-			pipeline.set(key, { ...result[0], remaining: parseFloat((result[0].remaining - 0.02).toFixed(3)) });
-			pipeline.set('logs', [
-				...result[1],
-				{
-					status: 200,
-					client: result[0].name,
-					time: Date.now(),
-				},
-			]);
-
-			const t1 = performance.now();
-
-			pipeline.set('average', {
-				...result[2],
-				time: result[2].time + (t1 - t0),
-				average: (result[2].average + (t1 - t0)) / 2,
-				total: result[2].total + 1,
-			});
-            let oneTime = 0;
-			for await (const chunk of openaiStream) {
+			let oneTime = 0;
+			for await (const chunk of chatCompletion) {
 				const content = chunk.choices[0].delta.content;
 				if (content) {
-					if(oneTime === 0){
+					if (oneTime === 0) {
 						await pipeline.exec();
-						oneTime=1
+						oneTime = 1;
 					}
 					await stream.write(content);
+				} else {
 				}
 			}
 		});
@@ -173,6 +182,9 @@ app.post('/query', async (c) => {
 		]);
 
 		await pipeline.exec();
+
+		console.log(error);
+		c.json({ success: false, answer: 'Something went wrong!!!' }, 500);
 	}
 });
 
