@@ -2,100 +2,91 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { SearchIcon, SparkleIcon } from "./icons/svgs";
-import { getStreamingResponse } from "../actions/stream";
+import { getEnvSecret } from "../actions/stream";
 
 const ChatBox = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
+  const [isTyping, setIsTyping] = useState<boolean>(false);
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
+
   const uiRef = useRef<HTMLDivElement>(null);
 
   const handleKeydown = (event: KeyboardEvent) => {
-    // Check if the 'Escape' key is pressed
     if (event.key === "Escape") {
       setIsOpen(false);
     }
-
-    // Check if 'Ctrl + K' is pressed
     if (event.ctrlKey && event.key.toLowerCase() === "k") {
-      event.preventDefault(); // Prevent the default browser behavior
+      event.preventDefault();
       setIsOpen(true);
     }
   };
 
-  const simulateStreamingResponse = async (query: string): Promise<string> => {
-    const fullResponse = `This is a simulated response to your query: "${query}". It will be displayed gradually to mimic a real-time AI response. The text will appear as if it's being streamed in chunks, creating a more realistic chat completion effect similar to popular language models.<-$#$->https://example.com/link1,https://example.com/link2,https://example.com/link3`;
-
-    const encoder = new TextEncoder();
-    const decoder = new TextDecoder();
-
-    const stream = new ReadableStream({
-      start(controller) {
-        const encodedResponse = encoder.encode(fullResponse);
-        let i = 0;
-        const pushChunk = () => {
-          if (i < encodedResponse.length) {
-            const chunkSize = Math.floor(Math.random() * 5) + 1;
-            const chunk = encodedResponse.slice(i, i + chunkSize);
-            controller.enqueue(chunk);
-            i += chunkSize;
-            setTimeout(pushChunk, Math.random() * 25 + 15);
-          } else {
-            controller.close();
-          }
-        };
-        pushChunk();
-      },
-    });
-
-    const reader = stream.getReader();
-    let result = "";
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const decodedChunk = decoder.decode(value, { stream: true });
-        result += decodedChunk;
-        setResponse((prev) => prev + decodedChunk);
-      }
-    } finally {
-      reader.releaseLock();
+  const typeEffect = async (text: string) => {
+    const delay = 2; // Adjust this value to control typing speed
+    setIsTyping(true);
+    for (let i = 0; i <= text.length; i++) {
+      setResponse(text.slice(0, i));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
-
-    return result;
+    setIsTyping(false);
   };
 
   const handleSubmit = async (formData: FormData) => {
     const search = formData.get("search") as string;
     if (!search.trim() || isLoading) return;
     await new Promise((resolve) => setTimeout(resolve, 0));
-
     setIsLoading(true);
     setResponse("Loading...");
     setReferenceLinks([]);
 
-    await new Promise((resolve) => setTimeout(resolve, 1300));
-    setResponse("");
-    try {
-      await getStreamingResponse({ query: search });
-      const fullResponse = await simulateStreamingResponse(search);
+    const res = await fetch("https://server.find-x.workers.dev/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${await getEnvSecret()}`,
+      },
+      body: JSON.stringify({
+        query: search,
+      }),
+    });
 
-      // Parse the response to extract links
-      const parts = fullResponse.split("<-$#$->");
-      if (parts.length > 1) {
-        setResponse(parts[0]);
-        const extractedLinks = parts[1].split(",");
-        setReferenceLinks(extractedLinks);
-      } else {
-        setResponse(fullResponse);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
+    if (!res.body) {
       setIsLoading(false);
+      setResponse("Failed to load response!");
+      return;
     }
+
+    const decoder = new TextDecoder();
+    const reader = res.body.getReader();
+
+    if (!reader) {
+      setIsLoading(false);
+      setResponse("Failed to load response!");
+      return;
+    }
+
+    let wholeResponse = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      wholeResponse += chunk;
+      await typeEffect(wholeResponse);
+    }
+
+    // Extract the response and reference links
+    const [responseText, linksText] = wholeResponse.split("<#$#>");
+    const links = linksText
+      ? linksText.split(",").map((link) => link.trim())
+      : [];
+
+    // Update states
+    setResponse(responseText.trim());
+    setReferenceLinks(links);
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -104,13 +95,13 @@ const ChatBox = () => {
         setIsOpen(false);
       }
     };
-  
+
     document.addEventListener("keydown", handleKeydown);
-    document.addEventListener('mousedown', handleClickOutside);
-  
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("keydown", handleKeydown);
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -141,7 +132,7 @@ const ChatBox = () => {
           >
             <div
               onClick={() => setIsOpen(true)}
-              className={`f-flex f-w-full f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-600`}
+              className={`f-flex f-w-full f-h-14 f-bg-gradient-to-r f-from-zinc-900 f-via-zinc-950 f-to-black f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-600`}
             >
               <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
                 <SearchIcon />
@@ -152,10 +143,9 @@ const ChatBox = () => {
                   autoFocus={true}
                   autoComplete="off"
                   placeholder="Ask anything"
-                  className="f-w-full f-h-full f-transition-all f-duration-300 f-outline-none f-bg-zinc-950 fh-full f-p-3 f-text-white"
+                  className="f-w-full f-h-full f-transition-all f-duration-300 f-outline-none f-bg-transparent fh-full f-p-3 f-text-white"
                   type="text"
                   name="search"
-                  style={{ opacity: isOpen ? 1 : 0 }}
                 />
               </form>
               <div className="f-flex f-justify-center f-items-center f-px-2">
@@ -172,9 +162,9 @@ const ChatBox = () => {
             </div>
             <div className="f-w-full f-flex f-justify-center">
               <div
-                className={`f-w-full f-mt-2 f-rounded-md f-max-w-[700px] f-zn f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
+                className={`f-w-full f-mt-2 f-scrollbar-hide f-rounded-md f-max-w-[700px] f-zn f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
                   isLoading || response
-                    ? "f-min-h-[80px] f-max-h-[400px] sm:f-p-3 f-p-2 f-block"
+                    ? "f-min-h-[80px] f-max-h-[500px] sm:f-p-3 f-p-2 f-block"
                     : "f-h-0 f-hidden"
                 }`}
               >
@@ -183,12 +173,12 @@ const ChatBox = () => {
                     className={`f-rounded-lg f-p-3 f-leading-7 f-font-sans f-flex-grow ${
                       response === "Loading..."
                         ? "f-text-zinc-400"
-                        : "f-text-zinc-400"
+                        : "f-text-zinc-200"
                     }`}
                   >
-                    {response.split("<-$#$->")[0]}
-                    {isLoading && (
-                      <span className="f-inline-block f-w-2 f-h-4 f-bg-white f-ml-1"></span>
+                    {response.split("<#$#>")[0]}
+                    {(isLoading || isTyping) && (
+                      <span className="f-inline-block f-w-2 f-h-4 f-bg-white f-ml-1 f-animate-blink"></span>
                     )}
                   </div>
                 )}
@@ -199,6 +189,7 @@ const ChatBox = () => {
                   <span className="f-px-5 f-text-sm f-ml-auto f-text-zinc-500">
                     Powered by{" "}
                     <a
+                      target="blanc"
                       href="https://findx.vercel.app/"
                       className=" f-underline"
                     >
