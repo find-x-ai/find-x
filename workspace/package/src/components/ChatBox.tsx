@@ -8,7 +8,6 @@ const ChatBox = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-  const [isTyping, setIsTyping] = useState<boolean>(false);
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
 
   const uiRef = useRef<HTMLDivElement>(null);
@@ -24,13 +23,11 @@ const ChatBox = () => {
   };
 
   const typeEffect = async (text: string) => {
-    const delay = 2; // Adjust this value to control typing speed
-    setIsTyping(true);
-    for (let i = 0; i <= text.length; i++) {
-      setResponse(text.slice(0, i));
-      await new Promise((resolve) => setTimeout(resolve, delay));
+    const words = text.split(" ");
+    for (let i = 0; i < words.length; i++) {
+      setResponse(words.slice(0, i + 1).join(" "));
+      await new Promise((resolve) => setTimeout(resolve, 30)); 
     }
-    setIsTyping(false);
   };
 
   const handleSubmit = async (formData: FormData) => {
@@ -177,7 +174,7 @@ const ChatBox = () => {
                     }`}
                   >
                     {response.split("<#$#>")[0]}
-                    {(isLoading || isTyping) && (
+                    {isLoading && (
                       <span className="f-inline-block f-w-2 f-h-4 f-bg-white f-ml-1 f-animate-blink"></span>
                     )}
                   </div>
