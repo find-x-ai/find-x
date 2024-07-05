@@ -25,7 +25,7 @@ const ChatBox = () => {
   const typeEffect = async (text: string, startIndex: number) => {
     const words = text.slice(startIndex).split(" ");
     for (let i = 0; i < words.length; i++) {
-      setResponse((prev) => prev + (i === 0 ? " " : " ") + words[i]);
+      setResponse((prev) => prev + (i === 0 ? "" : " ") + words[i]);
       await new Promise((resolve) => setTimeout(resolve, 10)); // Adjust delay as needed
     }
   };
@@ -35,56 +35,66 @@ const ChatBox = () => {
     if (!search.trim() || isLoading) return;
     await new Promise((resolve) => setTimeout(resolve, 0));
     setIsLoading(true);
-    setResponse("Loading...");
+    setResponse("Searching");
     setReferenceLinks([]);
 
-    const res = await fetch("https://server.find-x.workers.dev/query", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${await getEnvSecret()}`,
-      },
-      body: JSON.stringify({
-        query: search,
-      }),
-    });
+    try {
+      const res = await fetch("https://server.find-x.workers.dev/query", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await getEnvSecret()}`,
+        },
+        body: JSON.stringify({
+          query: search,
+        }),
+      });
 
-    if (!res.body) {
+      if (!res.body) {
+        setIsLoading(false);
+        setResponse("Failed to load response!");
+        return;
+      }
+
+      const decoder = new TextDecoder();
+      const reader = res.body.getReader();
+
+      if (!reader) {
+        setIsLoading(false);
+        setResponse("Failed to load response!");
+        return;
+      }
+
+      let wholeResponse = "";
+      setResponse("Analyzing");
+      let first = true;
+      let lastTypedIndex = 0;
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        wholeResponse += chunk;
+        if (first) {
+          setResponse("");
+          first = false;
+        }
+        await typeEffect(wholeResponse, lastTypedIndex);
+        lastTypedIndex = wholeResponse.length;
+      }
+
+      // Extract the response and reference links
+      const linksText = wholeResponse.split("<#$#>")[1];
+      const links = linksText
+        ? linksText.split(",").map((link) => link.trim())
+        : [];
+
+      setReferenceLinks(links);
+    } catch (error) {
+      console.log(error);
+      setResponse("Failed to fetch response!");
+    } finally {
       setIsLoading(false);
-      setResponse("Failed to load response!");
-      return;
     }
-
-    const decoder = new TextDecoder();
-    const reader = res.body.getReader();
-
-    if (!reader) {
-      setIsLoading(false);
-      setResponse("Failed to load response!");
-      return;
-    }
-
-    let wholeResponse = "";
-    setResponse("");
-    let lastTypedIndex = 0;
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      wholeResponse += chunk;
-      await typeEffect(wholeResponse, lastTypedIndex);
-      lastTypedIndex = wholeResponse.length;
-    }
-
-    // Extract the response and reference links
-    const linksText = wholeResponse.split("<#$#>")[1];
-    const links = linksText
-      ? linksText.split(",").map((link) => link.trim())
-      : [];
-
-    setReferenceLinks(links);
-
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -105,18 +115,20 @@ const ChatBox = () => {
 
   const ReferenceLinks = ({ links }: { links: string[] }) => (
     <div className="f-mt-2 f-px-2 f-flex f-flex-wrap f-gap-2">
-      {links.map((link, index) => (
-        <a
-          title={link}
-          key={index}
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="f-px-2 f-w-[25px] f-h-[25px] f-flex f-justify-center f-items-center f-text-xs f-py-1 f-bg-zinc-900 f-text-zinc-200 f-rounded-full f-border f-border-zinc-700 hover:f-bg-zinc-800 f-transition-colors"
-        >
-          {index + 1}
-        </a>
-      ))}
+      {links
+        .filter((link) => link.trim() !== "")
+        .map((link, index) => (
+          <a
+            title={link}
+            key={index}
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="f-px-2 f-w-[25px] f-h-[25px] f-flex f-justify-center f-items-center f-text-xs f-py-1 f-bg-zinc-900 f-text-zinc-200 f-rounded-full f-border f-border-zinc-700 hover:f-bg-zinc-800 f-transition-colors"
+          >
+            {index + 1}
+          </a>
+        ))}
     </div>
   );
 
@@ -158,7 +170,7 @@ const ChatBox = () => {
                 </button>
               </div>
             </div>
-            <div className="f-w-full f-flex f-justify-center">
+            <div className="f-w-full f-flex f-justify-center ">
               <div
                 className={`f-w-full f-mt-2 f-scrollbar-hide f-rounded-md f-max-w-[700px] f-border f-border-zinc-800/90 f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
                   isLoading || response
@@ -169,15 +181,28 @@ const ChatBox = () => {
                 {(isLoading || response) && (
                   <div
                     className={`f-rounded-lg f-p-3 f-leading-7 f-font-sans f-flex-grow ${
-                      response === "Loading..."
-                        ? "f-text-zinc-400"
+                      response === "Searching" || "Analyzing"
+                        ? "f-text-zinc-400 f-flex f-gap-7 f-items-center"
                         : "f-text-zinc-200"
                     }`}
                   >
+                    <div
+                      className={`lds-grid ${
+                        response === "Analyzing" || response === "Searching"
+                          ? "f-block f-pl-3"
+                          : "f-hidden"
+                      }`}
+                    >
+                      <span
+                        className={`loader f-scale-95 f-transition-colors f-duration-300 ${
+                          response == "Searching"
+                            ? "f-text-blue-500"
+                            : "f-text-amber-400"
+                        }`}
+                      ></span>
+                    </div>
+
                     {response.split("<#$#>")[0]}
-                    {isLoading && (
-                      <span className="f-inline-block f-w-2 f-h-4 f-bg-white f-ml-1 f-animate-blink"></span>
-                    )}
                   </div>
                 )}
                 <div className="f-flex f-justify-between f-items-center">
