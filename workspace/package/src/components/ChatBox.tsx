@@ -142,7 +142,7 @@ const ChatBox = () => {
             className="f-w-full f-h-auto f-mx-auto f-max-w-[750px] f-relative f-top-10 "
           >
             <div
-              className={`f-flex f-w-full f-h-14 f-sticky f-top-5 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-800/90`}
+              className={`f-flex f-w-full f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-800/90`}
             >
               <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
                 <SearchIcon />
