@@ -13,7 +13,6 @@ const ChatBox = () => {
   const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
   
   const uiRef = useRef<HTMLDivElement>(null);
-  const endOfResponseRef = useRef<HTMLDivElement>(null);
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -132,11 +131,7 @@ const ChatBox = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (endOfResponseRef.current) {
-      endOfResponseRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [response]);
+  
 
   return (
     <div>
@@ -147,7 +142,7 @@ const ChatBox = () => {
             className="f-w-full f-h-auto f-mx-auto f-max-w-[750px] f-relative f-top-10 "
           >
             <div
-              className={`f-flex f-w-full f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-800/90`}
+              className={`f-flex f-w-full f-h-14 f-sticky f-top-5 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-800/90`}
             >
               <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
                 <SearchIcon />
@@ -210,7 +205,6 @@ const ChatBox = () => {
                       text={response.split("<#$#>")[0]}
                       snippets={codeSnippets}
                     />
-                    <div ref={endOfResponseRef} />
                   </div>
                 )}
                 <div className="f-flex f-justify-between f-items-center f-sticky f-bottom-[-1px] f-z-20 f-right-0 f-bg-zinc-950 sm:f-p-3 f-p-2 f-h-[50px]">
