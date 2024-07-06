@@ -3,14 +3,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { SearchIcon, SparkleIcon } from "./icons/svgs";
 import { getEnvSecret } from "../actions/stream";
+import { ReferenceLinks, ResponseWithCodeSnippets } from "./ui";
 
 const ChatBox = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
-
+  const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
+  
   const uiRef = useRef<HTMLDivElement>(null);
+  const endOfResponseRef = useRef<HTMLDivElement>(null);
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -30,6 +33,17 @@ const ChatBox = () => {
     }
   };
 
+  const extractCodeSnippets = (text: string) => {
+    const regex = /```(?:\w*\n)?([\s\S]*?)```/g;
+    const snippets: string[] = [];
+    let index = 0;
+    const processedText = text.replace(regex, (_match, code) => {
+      snippets.push(code.trim());
+      return `<CODE_SNIPPET_${index++}>`;
+    });
+    return { snippets, processedText };
+  };
+
   const handleSubmit = async (formData: FormData) => {
     const search = formData.get("search") as string;
     if (!search.trim() || isLoading) return;
@@ -37,6 +51,7 @@ const ChatBox = () => {
     setIsLoading(true);
     setResponse("Searching");
     setReferenceLinks([]);
+    setCodeSnippets([]);
 
     try {
       const res = await fetch("https://server.find-x.workers.dev/query", {
@@ -82,12 +97,16 @@ const ChatBox = () => {
         lastTypedIndex = wholeResponse.length;
       }
 
-      // Extract the response and reference links
-      const linksText = wholeResponse.split("<#$#>")[1];
+      // Extract code snippets and process the response
+      const { snippets, processedText } = extractCodeSnippets(wholeResponse);
+      setCodeSnippets(snippets);
+      setResponse(processedText);
+
+      // Extract reference links from processedText
+      const linksText = processedText.split("<#$#>")[1];
       const links = linksText
         ? linksText.split(",").map((link) => link.trim())
         : [];
-
       setReferenceLinks(links);
     } catch (error) {
       console.log(error);
@@ -113,35 +132,21 @@ const ChatBox = () => {
     };
   }, []);
 
-  const ReferenceLinks = ({ links }: { links: string[] }) => (
-    <div className="f-mt-2 f-px-2 f-flex f-flex-wrap f-gap-2">
-      {links
-        .filter((link) => link.trim() !== "")
-        .map((link, index) => (
-          <a
-            title={link}
-            key={index}
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="f-px-2 f-w-[25px] f-h-[25px] f-flex f-justify-center f-items-center f-text-xs f-py-1 f-bg-zinc-900 f-text-zinc-200 f-rounded-full f-border f-border-zinc-700 hover:f-bg-zinc-800 f-transition-colors"
-          >
-            {index + 1}
-          </a>
-        ))}
-    </div>
-  );
+  useEffect(() => {
+    if (endOfResponseRef.current) {
+      endOfResponseRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [response]);
 
   return (
     <div>
       {isOpen ? (
-        <div className="f-w-full f-fixed  f-h-full  f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 f-backdrop-blur-[4px] f-z-[100]">
+        <div className="f-w-full f-fixed  f-h-full  f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 .f-backdrop-blur-[4px] f-z-[100]">
           <div
             ref={uiRef}
-            className="f-w-full f-h-auto f-max-h-[350px] f-mx-auto f-max-w-[700px] f-relative f-top-10 "
+            className="f-w-full f-h-auto f-mx-auto f-max-w-[750px] f-relative f-top-10 "
           >
             <div
-              onClick={() => setIsOpen(true)}
               className={`f-flex f-w-full f-h-14 f-bg-zinc-950 f-rounded-md f-overflow-hidden f-z-10 f-border f-border-zinc-800/90`}
             >
               <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
@@ -170,18 +175,18 @@ const ChatBox = () => {
                 </button>
               </div>
             </div>
-            <div className="f-w-full f-flex f-justify-center ">
+            <div className="f-w-full f-flex f-justify-center f-relative">
               <div
-                className={`f-w-full f-mt-2 f-scrollbar-hide f-rounded-md f-max-w-[700px] f-border f-border-zinc-800/90 f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
+                className={`f-w-full f-mt-2 f-scrollbar-hide f-rounded-md f-max-w-[750px] f-border f-border-zinc-800/90 f-bg-zinc-950 f-overflow-y-auto f-transition-all f-duration-500 f-ease-in-out ${
                   isLoading || response
-                    ? "f-min-h-[80px] f-max-h-[500px] sm:f-p-3 f-p-2 f-block"
+                    ? "f-min-h-[80px] sm:f-max-h-[550px] f-max-h-[450px] f-block"
                     : "f-h-0 f-hidden"
                 }`}
               >
                 {(isLoading || response) && (
                   <div
-                    className={`f-rounded-lg f-p-3 f-leading-7 f-font-sans f-flex-grow ${
-                      response === "Searching" || "Analyzing"
+                    className={`f-rounded-lg f-p-5 f-leading-7 f-font-sans f-flex-grow ${
+                      response === "Searching" || response === "Analyzing"
                         ? "f-text-zinc-400 f-flex f-gap-7 f-items-center"
                         : "f-text-zinc-200"
                     }`}
@@ -195,21 +200,24 @@ const ChatBox = () => {
                     >
                       <span
                         className={`loader f-scale-95 f-transition-colors f-duration-300 ${
-                          response == "Searching"
+                          response === "Searching"
                             ? "f-text-blue-500"
                             : "f-text-amber-400"
                         }`}
                       ></span>
                     </div>
-
-                    {response.split("<#$#>")[0]}
+                    <ResponseWithCodeSnippets
+                      text={response.split("<#$#>")[0]}
+                      snippets={codeSnippets}
+                    />
+                    <div ref={endOfResponseRef} />
                   </div>
                 )}
-                <div className="f-flex f-justify-between f-items-center">
+                <div className="f-flex f-justify-between f-items-center f-sticky f-bottom-[-1px] f-z-20 f-right-0 f-bg-zinc-950 sm:f-p-3 f-p-2 f-h-[50px]">
                   {!isLoading && referenceLinks.length > 0 && (
                     <ReferenceLinks links={referenceLinks} />
                   )}
-                  <span className="f-px-5 f-text-sm f-ml-auto f-text-zinc-500">
+                  <span className="f-px-5 f-text-sm f-text-zinc-500 f-ml-auto">
                     Powered by{" "}
                     <a
                       target="blanc"

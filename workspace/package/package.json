@@ -1,6 +1,6 @@
 {
   "name": "find-x-ai",
-  "version": "0.0.57",
+  "version": "0.0.58",
   "description": "",
   "license": "MIT",
   "main": "dist/esm/index.js",
@@ -31,6 +31,7 @@
   "keywords": [],
   "author": "sahil",
   "dependencies": {
+    "dompurify": "^3.1.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }
