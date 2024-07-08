@@ -6,7 +6,7 @@ import { Redis } from '@upstash/redis/cloudflare';
 import { instructions } from '../extra/istructions';
 import { removeStopwords, eng, fra } from 'stopword';
 import Groq from 'groq-sdk';
-
+import { cache } from 'hono/cache';
 const app = new Hono();
 
 type EnvironmentVariables = {
@@ -31,82 +31,80 @@ type Context = {
 	content: string;
 };
 
+type Data = {
+	id: string;
+	requests: number;
+	name: string;
+	remaining: number;
+};
+
 //allow cross origin requests
 app.use(cors());
 
 app.get('/', (c) => c.text('working fine...'));
 
 //endpoint for query
-app.post('/query', async (c) => {
-	const t0 = performance.now();
-	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, AI_API_KEY, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } =
-		c.env as EnvironmentVariables;
+app.post(
+	'/query',
+	async (c) => {
+		const t0 = performance.now();
+		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, AI_API_KEY, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } =
+			c.env as EnvironmentVariables;
 
-	const secret = c.req.header('Authorization') as string;
+		const secret = c.req.header('Authorization') as string;
 
-	if (!secret) {
-		return c.json({ message: 'Missing authorization header' }, 401);
-	}
-
-	const key = secret.split('Bearer ')[1];
-
-	const { query } = await c.req.json();
-
-	if (!query) {
-		return c.json({ message: 'Missing parameters' }, 400);
-	}
-
-	const redis = new Redis({
-		url: UPSTASH_REDIS_REST_URL,
-		token: UPSTASH_REDIS_REST_TOKEN,
-	});
-
-	const pipeline = redis.pipeline();
-
-	pipeline.get(key); //0
-	pipeline.get('logs'); //1
-	pipeline.get('average'); //2
-
-	const result = (await pipeline.exec()) as [
-		{ id: number; remaining: number; name: string },
-		[],
-		{ average: number; total: number; time: number }
-	];
-
-	if (!result[0].id) {
-		return c.json({ message: 'Invalid Authorization key' }, 400);
-	}
-	try {
-		const groq = new Groq({ apiKey: AI_API_KEY });
-
-		const index = new Index({
-			url: UPSTASH_VECTOR_REST_URL,
-			token: UPSTASH_VECTOR_REST_TOKEN,
-			cache: false,
-		});
-		const namespace = index.namespace(result[0].id.toString());
-
-		let old_query = query.split(' ');
-
-		const new_query = removeStopwords(old_query);
-
-		const res = (await namespace.query({
-			data: new_query.join(' '),
-			topK: 3,
-			includeVectors: false,
-			includeMetadata: true,
-		})) as Chunk[];
-
-		let array_of_context: Context[] = [];
-
-		for (const chunk of res) {
-			array_of_context.push({
-				url: chunk.metadata.url,
-				content: chunk.metadata.content,
-			});
+		if (!secret) {
+			return c.json({ message: 'Missing authorization header' }, 401);
 		}
 
-		const data = `
+		const key = secret.split('Bearer ')[1];
+
+		const { query } = await c.req.json();
+
+		if (!query) {
+			return c.json({ message: 'Missing parameters' }, 400);
+		}
+
+		const redis = new Redis({
+			url: UPSTASH_REDIS_REST_URL,
+			token: UPSTASH_REDIS_REST_TOKEN,
+		});
+		const info = (await redis.get(key)) as Data;
+
+		if (!info.id) {
+			return c.json({ message: 'Invalid Authorization key' }, 400);
+		}
+		try {
+			const groq = new Groq({ apiKey: AI_API_KEY });
+
+			const index = new Index({
+				url: UPSTASH_VECTOR_REST_URL,
+				token: UPSTASH_VECTOR_REST_TOKEN,
+				cache: false,
+			});
+			const namespace = index.namespace(info.id);
+
+			let old_query = query.split(' ');
+
+			const new_query = removeStopwords(old_query);
+
+			const res = (await namespace.query({
+				data: new_query.join(' '),
+				topK: 3,
+				includeVectors: false,
+				includeMetadata: true,
+			})) as Chunk[];
+
+			let array_of_context: Context[] = [];
+
+			for (const chunk of res) {
+				array_of_context.push({
+					url: chunk.metadata.url,
+					content: chunk.metadata.content,
+				});
+			}
+
+			const data = `
     <message>
       <query>${query}</query>
       <chunks>
@@ -121,79 +119,75 @@ app.post('/query', async (c) => {
 					.join('')}
        </chunks>
     </message>`;
-		let end = '<#$#>';
+			let end = '<#$#>';
 
-		array_of_context.forEach((c, index) => {
-			end += index < array_of_context.length - 1 ? `,${c.url}` : `${c.url}`;
-		});
-
-		// return c.json({ data: chatCompletion.choices[0]?.message?.content || '' });
-
-		pipeline.set(key, { ...result[0], remaining: parseFloat((result[0].remaining - 0.02).toFixed(3)) });
-		pipeline.set('logs', [
-			...result[1],
-			{
-				status: 200,
-				client: result[0].name,
-				time: Date.now(),
-			},
-		]);
-
-		const t1 = performance.now();
-
-		pipeline.set('average', {
-			...result[2],
-			time: result[2].time + (t1 - t0),
-			average: (result[2].average + (t1 - t0)) / 2,
-			total: result[2].total + 1,
-		});
-
-		return streamText(c, async (stream) => {
-			const chatCompletion = await groq.chat.completions.create({
-				messages: [
-					{
-						role: 'system',
-						content: instructions,
-					},
-					{
-						role: 'user',
-						content: data,
-					},
-				],
-				model: 'llama3-70b-8192',
-				stream: true,
+			array_of_context.forEach((c, index) => {
+				end += c.url + ',';
 			});
-			let oneTime = 0;
-			for await (const chunk of chatCompletion) {
-				const content = chunk.choices[0].delta.content;
-				if (content) {
-					if (oneTime === 0) {
-						await pipeline.exec();
-						oneTime = 1;
+
+			const t1 = performance.now();
+
+			return streamText(c, async (stream) => {
+				const chatCompletion = await groq.chat.completions.create({
+					messages: [
+						{
+							role: 'system',
+							content: instructions,
+						},
+						{
+							role: 'user',
+							content: data,
+						},
+					],
+					model: 'llama3-70b-8192',
+					stream: true,
+				});
+				let oneTime = 0;
+				for await (const chunk of chatCompletion) {
+					const content = chunk.choices[0].delta.content;
+					if (content) {
+						if (oneTime === 0) {
+							redis.set(key, { ...info, requests: info.requests + 1, remaining: parseFloat((info.remaining - 0.02).toFixed(2)) }).then(() => {
+								oneTime = 1;
+							});
+						}
+						await stream.write(content);
 					}
-					await stream.write(content);
-				} else {
-					
 				}
-			}
-			await stream.write(end);
-		});
-	} catch (error) {
-		pipeline.set('logs', [
-			...result[1],
-			{
-				status: 500,
-				client: result[0].name,
-				time: Date.now(),
-			},
-		]);
+				await stream.write(end);
 
-		await pipeline.exec();
+				// const logs = (await redis.get('logs')) as [];
+				// await redis.set('logs', [
+				// 	...logs,
+				// 	{
+				// 		client: info.name,
+				// 		status: 200,
+				// 		time: performance.now(),
+				// 	},
+				// ]);
 
-		console.log(error);
-		c.json({ success: false, answer: 'Something went wrong!!!' }, 500);
-	}
-});
+				await stream.close();
+			});
+		} catch (error) {
+			const logs = (await redis.get('logs')) as [];
+			await redis.set('logs', [
+				...logs,
+				{
+					status: 500,
+					client: info.name,
+					time: Date.now(),
+				},
+			]);
+
+			console.log(error);
+			c.json({ success: false, answer: 'Something went wrong!!!' }, 500);
+		}
+	},
+	cache({
+		cacheName: 'fx',
+		cacheControl: 'max-age=3600',
+	})
+);
 
 app.post('/upsert', async (c) => {
 	const token = c.req.header('Authorization') as string;
@@ -228,8 +222,6 @@ app.post('/upsert', async (c) => {
 		let old_content = chunk.content.split(' ');
 
 		const new_content = removeStopwords(old_content);
-
-		// console.log(new_content.join(' '));
 
 		await namespace.upsert({
 			id: `${client}_${chunk.url}`,
