@@ -1,12 +1,6 @@
-import {Loader2} from "lucide-react"
+import Loader from "@/components/Loader";
 const loading = () => {
-  return (
-    <div className="w-full h-full overflow-y-scroll flex justify-center items-center">
-        <div>
-           <Loader2 className=" animate-spin duration-300 w-[40px] h-[40px] text-white"/>
-        </div>
-    </div>
-  )
-}
+  return <Loader />;
+};
 
 export default loading;
