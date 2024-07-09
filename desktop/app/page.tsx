@@ -61,7 +61,7 @@ export default function Home() {
       const analytics = await redis.get("average");
       if (analytics) {
         //@ts-ignore
-        setAverage(analytics.average);
+        setAverage(analytics.total);
         setAverageLoading(false);
       }
     } catch (err) {
@@ -145,11 +145,11 @@ export default function Home() {
                     <Loader2 className="animate-spin w-[28px] h-[28px] duration-300" />
                   </span>
                 ) : (
-                  average?.toFixed(0) + " ms"
+                  average?.toFixed(0)
                 )}
               </h1>
               <p className="text-zinc-400 text-center text-sm z-20">
-                Average response time
+                Total queries till date
               </p>
             </div>
           </div>

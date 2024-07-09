@@ -100,7 +100,7 @@ const NewApp = () => {
                 <SelectTrigger className="bg-zinc-950 border-zinc-800">
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-600">
+                <SelectContent className="bg-zinc-950 border-zinc-800 text-zinc-400">
                   <SelectGroup>
                     <SelectLabel>Plan</SelectLabel>
                     <SelectItem value={"10"}>Free (10 $)</SelectItem>

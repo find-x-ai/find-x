@@ -88,6 +88,7 @@ export default function Page() {
     plan: data[2],
     email: data[3],
     id: data[4],
+    update: data[5],
   };
 
   const startCrawler = async () => {
@@ -309,94 +310,143 @@ export default function Page() {
           for (let i = 0; i < scrapedData.length; i += chunkSize) {
             chunks.push(scrapedData.slice(i, i + chunkSize));
           }
-           const check = await db(`SELECT * FROM CLIENT WHERE url = $1`, [
+          const check = await db(`SELECT * FROM CLIENT WHERE url = $1`, [
             info.url,
-          ])
+          ]);
 
-          if(check.length > 0){
+          if (check.length > 0 && !info?.update) {
             logMessage(
               `The URL of website already exists!`,
               "[ERROR]",
               "text-red-500"
             );
 
-            return
+            return;
           }
-          const key = uuidv4();
 
-          const res = await db(
-            `INSERT INTO client (name, email, api_key, plan, url) VALUES($1,$2,$3,$4,$5)`,
-            [info.name, info.email, key, parseInt(info.plan), info.url]
-          );
+          if (info?.update) {
+            logMessage(`Updating the website...`, "[INFO]", "text-white");
+            if (info.id) {
+              const id = info.id;
+              for (const chunk of chunks) {
+                const res = await fetch(
+                  "https://server.find-x.workers.dev/upsert",
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${process.env
+                        .NEXT_PUBLIC_UPSERT_KEY!}`,
+                    },
+                    body: JSON.stringify({
+                      client: id,
+                      data: chunk,
+                    }),
+                  }
+                );
 
-          const client = (await db(`SELECT * FROM CLIENT WHERE url = $1`, [
-            info.url,
-          ])) as [{ id: number }];
-
-          console.log(res);
-          //@ts-ignore
-          const id = client[0].id;
-          for (const chunk of chunks) {
-            const res = await fetch(
-              "https://server.find-x.workers.dev/upsert",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${process.env
-                    .NEXT_PUBLIC_UPSERT_KEY!}`,
-                },
-                body: JSON.stringify({
-                  client: id,
-                  data: chunk,
-                }),
+                if (res.ok) {
+                  logMessage(
+                    `Successfully generated vector embeddings for chunk`,
+                    "[SUCCESS]",
+                    "text-green-500"
+                  );
+                } else {
+                  logMessage(
+                    `Error generating vector embeddings for chunk`,
+                    "[ERROR]",
+                    "text-red-500"
+                  );
+                }
               }
-            );
-
-            if (res.ok) {
               logMessage(
-                `Successfully generated vector embeddings for chunk`,
-                "[SUCCESS]",
+                `Successfully updated website data`,
+                `[SUCCESS]`,
                 "text-green-500"
-              );
-            } else {
-              logMessage(
-                `Error generating vector embeddings for chunk`,
-                "[ERROR]",
-                "text-red-500"
               );
 
               return;
             }
-          }
+          } else {
+            const key = uuidv4();
 
-          if (res) {
-            logMessage(
-              `Created client successfully`,
-              "[success]",
-              "text-green-500"
+            const res = await db(
+              `INSERT INTO client (name, email, api_key, plan, url) VALUES($1,$2,$3,$4,$5)`,
+              [info.name, info.email, key, parseInt(info.plan), info.url]
             );
-            if (info.id) {
-              await approveRequest(parseInt(info.id));
+
+            const client = (await db(`SELECT * FROM CLIENT WHERE url = $1`, [
+              info.url,
+            ])) as [{ id: number }];
+
+            //@ts-ignore
+            const id = client[0].id;
+            for (const chunk of chunks) {
+              const res = await fetch(
+                "https://server.find-x.workers.dev/upsert",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env
+                      .NEXT_PUBLIC_UPSERT_KEY!}`,
+                  },
+                  body: JSON.stringify({
+                    client: id,
+                    data: chunk,
+                  }),
+                }
+              );
+
+              if (res.ok) {
+                logMessage(
+                  `Successfully generated vector embeddings for chunk`,
+                  "[SUCCESS]",
+                  "text-green-500"
+                );
+              } else {
+                logMessage(
+                  `Error generating vector embeddings for chunk`,
+                  "[ERROR]",
+                  "text-red-500"
+                );
+
+                return;
+              }
             }
 
-            await redis.set(key, {
-              id: id,
-              name: info.name,
-              requests: 0,
-              remaining: parseInt(info.plan),
-            });
+            if (res) {
+              logMessage(
+                `Created client successfully`,
+                "[success]",
+                "text-green-500"
+              );
+              if (info.id) {
+                await approveRequest(parseInt(info.id));
+              }
 
-            logMessage(
-              `Created API key successfully`,
-              "[success]",
-              "text-green-500"
-            );
-            setTimeout(() => {
-              router.push("/all");
-            }, 1500);
-          } else {
-            logMessage(`Error creating client keys`, "[ERROR]", "text-red-500");
+              await redis.set(key, {
+                id: id,
+                name: info.name,
+                requests: 0,
+                remaining: parseInt(info.plan),
+              });
+
+              logMessage(
+                `Created API key successfully`,
+                "[success]",
+                "text-green-500"
+              );
+              setTimeout(() => {
+                router.push("/all");
+              }, 1500);
+            } else {
+              logMessage(
+                `Error creating client keys`,
+                "[ERROR]",
+                "text-red-500"
+              );
+            }
           }
         } catch (error) {
           console.log(error);
