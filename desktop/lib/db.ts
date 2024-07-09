@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
+import { neon } from "@neondatabase/serverless";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL! as string;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! as string
-export const db = createClient(supabaseUrl, supabaseKey);
+const conn = neon(process.env.NEXT_PUBLIC_DB_SECRET!);
+
+export const db = conn;

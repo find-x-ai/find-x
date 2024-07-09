@@ -10,7 +10,7 @@ type Project = {
   url: string;
   name: string;
   plan: string;
-  key: string;
+  api_key: string;
   email: string;
 };
 
@@ -20,10 +20,8 @@ const ClientsPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = (await db.from("clients").select("*")) as {
-        data: Project[];
-      };
-      setClients(data.data);
+      const data = (await db(`SELECT * FROM client`)) as Project[]
+      setClients(data);
       setLoading(false);
     };
 

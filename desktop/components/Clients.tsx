@@ -9,7 +9,7 @@ type Project = {
   url: string;
   name: string;
   plan: string;
-  key: string;
+  api_key: string;
   email: string;
 };
 
@@ -51,7 +51,7 @@ const Clients = ({ clients }: { clients: Project[] }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Link
-                    href={`/client?id=${c.id}*${c.joined_at}*${c.url}*${c.name}*${c.plan}*${c.key}*${c.email}`}
+                    href={`/client?id=${c.id}*${c.joined_at}*${c.url}*${c.name}*${c.plan}*${c.api_key}*${c.email}`}
                   >
                     <Button
                       className="text-white hover:text-white bg-black hover:bg-black border-zinc-700"

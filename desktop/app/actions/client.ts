@@ -9,7 +9,7 @@ export const deleteClient = async ({
   id: number;
   key: string;
 }) => {
-  const res = await db.from("clients").delete().eq("id", id);
+  const res = await db(`DELETE FROM CLIENT WHERE id = $1`, [id]);
 
   await redis.del(key);
 

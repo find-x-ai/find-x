@@ -7,12 +7,12 @@ import { Switch } from "@/components/ui/switch";
 import CustomDialog from "@/components/CustomDialog";
 import { Loader2 } from "lucide-react";
 import { db } from "@/lib/db";
-// import { useRouter } from "next/navigation";
 //@ts-ignore
 import { v4 as uuidv4 } from "uuid";
 import { redis } from "@/lib/redis";
 import Back from "@/components/ui/Back";
 import { approveRequest } from "../actions/requests";
+// import { approveRequest } from "../actions/requests";
 
 interface LogMessage {
   tag: string;
@@ -144,13 +144,15 @@ export default function Page() {
     const externalQueue: string[] = [];
     const visited = new Set<string>();
     const scrapedData: ScrapedData[] = [];
-   
+
     while (internalQueue.length > 0) {
       const currentUrl = internalQueue.shift() as string;
       const arr = currentUrl.split("#");
 
-      if (visited.has(currentUrl) || visited.has(arr[0]) && !arr[0].endsWith("/")) {
-       
+      if (
+        visited.has(currentUrl) ||
+        (visited.has(arr[0]) && !arr[0].endsWith("/"))
+      ) {
         continue;
       }
       try {
@@ -165,7 +167,7 @@ export default function Page() {
         const response = await fetch(
           localMode
             ? "http://localhost:8001/api/fetch"
-            : "https://sohel1807--scrape.modal.run",
+            : "https://sahilm416--scrape.modal.run",
           {
             method: "POST",
             headers: {
@@ -185,7 +187,7 @@ export default function Page() {
           "text-green-500"
         );
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const pageData = result.data[0];
 
@@ -307,37 +309,49 @@ export default function Page() {
           for (let i = 0; i < scrapedData.length; i += chunkSize) {
             chunks.push(scrapedData.slice(i, i + chunkSize));
           }
+           const check = await db(`SELECT * FROM CLIENT WHERE url = $1`, [
+            info.url,
+          ])
 
+          if(check.length > 0){
+            logMessage(
+              `The URL of website already exists!`,
+              "[ERROR]",
+              "text-red-500"
+            );
+
+            return
+          }
           const key = uuidv4();
 
-          const res = await db
-            .from("clients")
-            .insert([
-              {
-                url: info.url,
-                name: info.name,
-                plan: info.plan,
-                key: key,
-                email: info.email,
-              },
-            ])
-            .select("id");
+          const res = await db(
+            `INSERT INTO client (name, email, api_key, plan, url) VALUES($1,$2,$3,$4,$5)`,
+            [info.name, info.email, key, parseInt(info.plan), info.url]
+          );
+
+          const client = (await db(`SELECT * FROM CLIENT WHERE url = $1`, [
+            info.url,
+          ])) as [{ id: number }];
 
           console.log(res);
           //@ts-ignore
-          const id = res.data[0].id as number;
+          const id = client[0].id;
           for (const chunk of chunks) {
-            const res = await fetch("https://server.find-x.workers.dev/upsert", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.NEXT_PUBLIC_UPSERT_KEY!}`
-              },
-              body: JSON.stringify({
-                client: id,
-                data: chunk,
-              }),
-            });
+            const res = await fetch(
+              "https://server.find-x.workers.dev/upsert",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${process.env
+                    .NEXT_PUBLIC_UPSERT_KEY!}`,
+                },
+                body: JSON.stringify({
+                  client: id,
+                  data: chunk,
+                }),
+              }
+            );
 
             if (res.ok) {
               logMessage(
@@ -352,7 +366,7 @@ export default function Page() {
                 "text-red-500"
               );
 
-              return
+              return;
             }
           }
 
@@ -368,9 +382,7 @@ export default function Page() {
 
             await redis.set(key, {
               id: id,
-              name: info.name,
-              email: info.email,
-              plan: info.plan,
+              requests: 0,
               remaining: parseInt(info.plan),
             });
 
@@ -380,9 +392,8 @@ export default function Page() {
               "text-green-500"
             );
             setTimeout(() => {
-               router.push("/all");
+              router.push("/all");
             }, 1500);
-
           } else {
             logMessage(`Error creating client keys`, "[ERROR]", "text-red-500");
           }
@@ -452,7 +463,8 @@ export default function Page() {
         </Button>
         {isEmbedding ? (
           <Button
-            onClick={() => {
+            onClick={async () => {
+              await new Promise((res) => setTimeout(res, 0));
               setIsEmbedding(false);
               abortController?.abort(); // Abort the ongoing operation
             }}

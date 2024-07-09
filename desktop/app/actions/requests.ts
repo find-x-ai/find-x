@@ -1,16 +1,20 @@
 import { db } from "@/lib/db";
 
-export const getAllRequests = async ()=>{
-   const res = await db.from("requests").select("*");
-   return res.data
-}
-
-
-export const rejectRequest = async (id: number) => {
-    const res = await db.from("requests").update({ status: "rejected" }).eq("id", id);
+export const getAllRequests = async () => {
+  const res = await db(`SELECT * FROM requests`);
+  return res;
 };
 
+export const rejectRequest = async (id: number) => {
+  const res = await db(
+    `UPDATE requests SET status = 'rejeceted' WHERE id = $1`,
+    [id]
+  );
+};
 
 export const approveRequest = async (id: number) => {
-    const res = await db.from("requests").update({ status: "running" }).eq("id", id);
+  const res = await db(
+    `UPDATE requests SET status = 'running' WHERE id = $1`,
+    [id]
+  );
 };

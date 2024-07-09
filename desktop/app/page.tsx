@@ -75,14 +75,12 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      db.from("clients")
-        .select("*")
-        .then((fetchedData) => {
-          if (fetchedData.data) {
-            //@ts-ignore
-            setData(fetchedData.data);
-          }
-        });
+      db(`SELECT * FROM client`).then((fetchedData) => {
+        if (fetchedData) {
+          //@ts-ignore
+          setData(fetchedData);
+        }
+      });
 
       setClientLoading(false);
 
@@ -128,9 +126,12 @@ export default function Home() {
         </div>
         <div className="flex gap-3 text-white items-center">
           <Label>GO live</Label>
-          <Switch checked={isLive} onCheckedChange={(s) => {
-            setIsLive(s);
-          }} />
+          <Switch
+            checked={isLive}
+            onCheckedChange={(s) => {
+              setIsLive(s);
+            }}
+          />
         </div>
       </div>
       <div className="p-5 h-full flex gap-5">
@@ -196,12 +197,25 @@ export default function Home() {
               </div>
             ) : (
               logs.map((log, i) => (
-                <div key={i} className={`flex justify-between border-b border-zinc-800 px-5 py-2 ${i % 2 === 0 && "bg-zinc-950"}`}>
+                <div
+                  key={i}
+                  className={`flex justify-between border-b border-zinc-800 px-5 py-2 ${
+                    i % 2 === 0 && "bg-zinc-950"
+                  }`}
+                >
                   <span className="text-sm p-1 rounded-md border border-zinc-800 text-blue-600">
                     {new Date(log.time).toDateString().slice(4, 20)}
                   </span>
                   <span className="text-start w-[200px]">{log.client}</span>
-                  <span className={`text-sm rounded-md p-1 ${log.status === 200 ? "bg-green-500/10 text-green-500 border border-green-500" : log.status === 500 ? "bg-red-500/10 text-red-500 border border-red-500" : "bg-amber-500/10 text-amber-500 border border-amber-500"}`}>
+                  <span
+                    className={`text-sm rounded-md p-1 ${
+                      log.status === 200
+                        ? "bg-green-500/10 text-green-500 border border-green-500"
+                        : log.status === 500
+                        ? "bg-red-500/10 text-red-500 border border-red-500"
+                        : "bg-amber-500/10 text-amber-500 border border-amber-500"
+                    }`}
+                  >
                     {log.status}
                   </span>
                 </div>
