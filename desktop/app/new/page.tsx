@@ -382,6 +382,7 @@ export default function Page() {
 
             await redis.set(key, {
               id: id,
+              name: info.name,
               requests: 0,
               remaining: parseInt(info.plan),
             });
