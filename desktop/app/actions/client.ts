@@ -9,14 +9,18 @@ export const deleteClient = async ({
   id: number;
   key: string;
 }) => {
-  const res = await db(`DELETE FROM CLIENT WHERE id = $1`, [id]);
+  try {
+    const res = await db(`DELETE FROM CLIENT WHERE id = $1`, [id]);
 
-  await redis.del(key);
+    await redis.del(key);
 
-  const index = new Index({
-    url: process.env.NEXT_PUBLIC_UPSTASH_VECTOR_REST_URL!,
-    token: process.env.NEXT_PUBLIC_UPSTASH_VECTOR_REST_TOKEN!,
-    cache: false,
-  });
-  await index.deleteNamespace(id.toString());
+    const index = new Index({
+      url: process.env.NEXT_PUBLIC_UPSTASH_VECTOR_REST_URL!,
+      token: process.env.NEXT_PUBLIC_UPSTASH_VECTOR_REST_TOKEN!,
+      cache: false,
+    });
+    await index.deleteNamespace(id.toString());
+  } catch (error) {
+    console.log(error);
+  }
 };
