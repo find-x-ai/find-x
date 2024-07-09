@@ -8,8 +8,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "apt-get install -y software-properties-common",
     "apt-add-repository non-free",
     "apt-add-repository contrib",
-    "apt-get install -y libxml2-dev libxslt1-dev python3-dev",
-    "pip install playwright==1.30.0 readability-lxml lxml[html_clean] bs4",
+    "pip install playwright==1.30.0",
     "playwright install-deps chromium",
     "playwright install chromium",
 )
@@ -20,28 +19,80 @@ stub = Stub(name="link-scraper", image=playwright_image)
 @web_endpoint(label="scrape", method="POST")
 async def get_links(request: Dict):
     from playwright.async_api import async_playwright
-    from readability.readability import Document
-    from bs4 import BeautifulSoup
-
     async with async_playwright() as p:
         cur_url = request['url']
         browser = await p.chromium.launch()
         page = await browser.new_page()
         await page.goto(cur_url)
-
-        html = await page.content()
-        doc = Document(html)
-        body_html = doc.summary()
-
-        # Use BeautifulSoup to clean the HTML tags
-        soup = BeautifulSoup(body_html, 'html.parser')
-        body_text = soup.get_text(separator=' ')
-
+        
         links = await page.eval_on_selector_all("a[href]", "elements => elements.map(element => element.href)")
+        
         unique_links = list(set(links))
 
-        data = {cur_url: body_text}
-
+        data = {}
+        
+        body_text = await page.evaluate("""
+            () => {
+                const excludeTags = ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED'];
+                const excludeClasses = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu'];
+                
+                function isExcluded(element) {
+                    if (excludeTags.includes(element.tagName)) return true;
+                    if (element.className && typeof element.className === 'string') {
+                        for (const className of excludeClasses) {
+                            if (element.className.toLowerCase().includes(className)) return true;
+                        }
+                    }
+                    return false;
+                }
+                
+                function getCleanText(node) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        return node.textContent.trim();
+                    }
+                    
+                    if (node.nodeType !== Node.ELEMENT_NODE || isExcluded(node)) return '';
+                    
+                    let text = '';
+                    for (const child of node.childNodes) {
+                        text += ' ' + getCleanText(child);
+                    }
+                    
+                    return text.trim();
+                }
+                
+                function findMainContent() {
+                    const possibleContentSelectors = [
+                        'main',
+                        '#main',
+                        '#content',
+                        '.main',
+                        '.content',
+                        'article',
+                        '.post',
+                        '#post'
+                    ];
+                    
+                    for (const selector of possibleContentSelectors) {
+                        const element = document.querySelector(selector);
+                        if (element) return element;
+                    }
+                    
+                    return document.body;  // fallback to body if no main content area found
+                }
+                
+                const mainContent = findMainContent();
+                let cleanText = getCleanText(mainContent);
+                
+                // Remove extra whitespace
+                cleanText = cleanText.replace(/\\s+/g, ' ').trim();
+                
+                return cleanText;
+            }
+        """)
+        
+        data[cur_url] = body_text
+        
         await browser.close()
 
-        return {"data": [{"url": url, "content": content} for url, content in data.items()], "links": unique_links}
+        return {"data": [{"url": cur_url, "content": data[cur_url]}], "links": unique_links}
