@@ -12,7 +12,8 @@ export const Hero = () => {
       </div>
       <div className="absolute right-[-8px] bottom-[-8px]">
         <video
-          style={{ transform: "rotate(180deg);", mixBlendMode: "lighten" }}
+          width={500}
+          style={{ transform: "rotate(180deg)", mixBlendMode: "lighten" }}
           loop={true}
           autoPlay={true}
           muted
