@@ -7,7 +7,7 @@ export const getAllRequests = async () => {
 
 export const rejectRequest = async (id: number) => {
   const res = await db(
-    `UPDATE requests SET status = 'rejeceted' WHERE id = $1`,
+    `DELETE FROM requests WHERE id = $1`,
     [id]
   );
 };
