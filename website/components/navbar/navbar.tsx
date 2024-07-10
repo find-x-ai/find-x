@@ -1,16 +1,15 @@
 import Link from "next/link";
 
 const links = [
-  { name: "about", url: "/about", target: "self" },
-  { name: "contact", url: "https://twitter.com/Find_X_AI", target: "blanc" },
-  { name: "team", url: "/team", target: "self" },
-  { name: "pricing", url: "/pricing", target: "self" },
+  { name: "docs", url: "/docs", target: "_self" },
+  { name: "team", url: "/team", target: "_self" },
+  { name: "contact", url: "https://twitter.com/Find_X_AI", target: "_blanc" },
 ];
 
 export const Navbar = () => {
   return (
-    <nav className="w-full h-[60px] z-20 bg-zinc-950 border-b border-zinc-800 text-white sticky top-0 flex justify-center items-center px-3">
-      <div className="w-full max-w-[1200px] flex justify-between items-center">
+    <nav className="w-full h-[70px] z-20 bg-zinc-950 border-b border-zinc-800 text-white sticky top-0 flex justify-center items-center px-3">
+      <div className="w-full max-w-[1200px] sm:px-0 px-5 flex justify-between items-center">
         <div className="w-full">
           <Link href={"/"} className="text-xl">
             FindX

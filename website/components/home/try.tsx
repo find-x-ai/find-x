@@ -51,12 +51,12 @@ export const Try = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br rounded-lg from-zinc-900 via-zinc-950 to-black border border-zinc-800 py-8 md:py-10 flex flex-col gap-10 md:gap-20 justify-center items-center text-white p-4 md:p-5">
-      <div>
-        <h2 className="text-3xl md:text-4xl text-start">Try it yourself.</h2>
-      </div>
+    <div className="bg-zinc-950 text-white flex flex-col gap-10 p-10 rounded-lg">
       <div className="w-full max-w-[500px]">
-        <form className="flex flex-col gap-5 w-full" action={handleSubmit}>
+        <form
+          className="flex flex-col gap-5 w-full text-zinc-400"
+          action={handleSubmit}
+        >
           <div className="flex flex-col md:flex-row gap-5 w-full">
             <div className="flex flex-col gap-2 w-full">
               <label htmlFor="name">Name</label>
@@ -92,13 +92,15 @@ export const Try = () => {
               placeholder="https://example.com/"
             />
           </div>
-          <button className="p-2 flex justify-center items-center w-full rounded-md bg-blue-600 border border-zinc-800 hover:bg-blue-800 transition-colors">
-            {loading ? (
-              <Loader2 className=" animate-spin duration-300 w-[25px] h-[25px] text-white" />
-            ) : (
-              "Submit"
-            )}
-          </button>
+          <div className="flex gap-5 mt-5">
+            <button className="p-2 flex justify-center items-center w-full rounded-md bg-blue-600 border border-zinc-800 hover:bg-blue-800 transition-colors">
+              {loading ? (
+                <Loader2 className=" animate-spin duration-300 w-[25px] h-[25px] text-white" />
+              ) : (
+                "Submit"
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

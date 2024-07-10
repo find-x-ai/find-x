@@ -4,7 +4,7 @@ const features = [
     bullets: [
       "Uses top-tier vector search technology",
       "Handles complex website data",
-      "Matches queries with relevant information",
+      "Matches queries with relevant info",
     ],
   },
   {
@@ -26,20 +26,23 @@ const features = [
 ];
 export const Features = () => {
   return (
-    <div className="w-full text-zinc-200 space-y-16">
+    <div className="w-full text-zinc-200 space-y-16 pb-20">
       <div className="text-center">
         <h2 className="text-4xl">How it differs ?</h2>
       </div>
       <div className="flex sm:flex-row flex-col gap-5 text- leading-8">
-        {features.map((feat,i) => {
+        {features.map((feat, i) => {
           return (
-            <div key={i} className="flex flex-col gap-5 w-full bg-blue-600 p-3 rounded-lg">
+            <div
+              key={i}
+              className="flex flex-col gap-5 w-full p-5 bg-blue-700 rounded-lg"
+            >
               <div>
                 <h3 className="text-3xl">{feat.name}</h3>
               </div>
               <div>
                 <ul className="list-inside list-disc">
-                  {feat.bullets.map((bullet,i) => {
+                  {feat.bullets.map((bullet, i) => {
                     return <li key={i}>{bullet}</li>;
                   })}
                 </ul>
