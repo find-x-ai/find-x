@@ -1,13 +1,62 @@
-import React from "react";
+"use client";
+import { z } from "zod";
+import { requestUsage } from "@/actions/request";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+
+const formSchema = z.object({
+  name: z.string().min(2, "Name is required").max(20, "Name is too long"),
+  email: z.string().email("Invalid email address"),
+  url: z.string().url("Invalid URL"),
+});
 
 export const Try = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleSubmit = async (formData: FormData) => {
+    await new Promise((res) => setTimeout(res, 0));
+    setLoading(true);
+    try {
+      const validatedData = formSchema.parse({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        url: formData.get("url"),
+      });
+
+      const { name, email, url } = validatedData;
+
+      const res = await requestUsage({ email: email, name: name, url: url });
+
+      if (res.success) {
+        toast.success(res.message);
+        return;
+      }
+
+      toast.error(res.message);
+
+      console.log("Form submitted successfully", validatedData);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        console.error("Validation failed", error);
+      } else {
+        // Handle other errors
+        console.error("An unexpected error occurred", error);
+      }
+
+      toast.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-gradient-to-br rounded-lg from-zinc-900 via-zinc-950 to-black border border-zinc-800 py-8 md:py-10 flex flex-col gap-10 md:gap-20 justify-center items-center text-white p-4 md:p-5">
       <div>
         <h2 className="text-3xl md:text-4xl text-start">Try it yourself.</h2>
       </div>
       <div className="w-full max-w-[500px]">
-        <form className="flex flex-col gap-5 w-full" action="">
+        <form className="flex flex-col gap-5 w-full" action={handleSubmit}>
           <div className="flex flex-col md:flex-row gap-5 w-full">
             <div className="flex flex-col gap-2 w-full">
               <label htmlFor="name">Name</label>
@@ -43,8 +92,12 @@ export const Try = () => {
               placeholder="https://example.com/"
             />
           </div>
-          <button className="p-2 w-full rounded-md bg-blue-600 border border-zinc-800 hover:bg-blue-800 transition-colors">
-            Submit
+          <button className="p-2 flex justify-center items-center w-full rounded-md bg-blue-600 border border-zinc-800 hover:bg-blue-800 transition-colors">
+            {loading ? (
+              <Loader2 className=" animate-spin duration-300 w-[25px] h-[25px] text-white" />
+            ) : (
+              "Submit"
+            )}
           </button>
         </form>
       </div>
