@@ -12,17 +12,14 @@ importers:
         specifier: ^1.31.1
         version: 1.31.1
       '@upstash/vector':
-        specifier: ^1.1.1
-        version: 1.1.1
+        specifier: ^1.1.4
+        version: 1.1.4
       groq-sdk:
         specifier: ^0.5.0
         version: 0.5.0
       hono:
         specifier: ^4.3.6
         version: 4.3.6
-      stopword:
-        specifier: ^3.0.1
-        version: 3.0.1
     devDependencies:
       '@cloudflare/vitest-pool-workers':
         specifier: ^0.1.0
@@ -30,9 +27,6 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20240512.0
         version: 4.20240512.0
-      '@types/stopword':
-        specifier: ^2.0.3
-        version: 2.0.3
       typescript:
         specifier: ^5.0.4
         version: 5.4.5
@@ -525,14 +519,11 @@ packages:
   '@types/node@20.12.11':
     resolution: {integrity: sha512-vDg9PZ/zi+Nqp6boSOT7plNuthRugEKixDv5sFTIpkE89MmNtEArAShI4mxuX2+UrLEe9pxC1vm2cjm9YlWbJw==}
 
-  '@types/stopword@2.0.3':
-    resolution: {integrity: sha512-hioMj0lOvISM+EDevf7ijG8EMbU+J3pj4SstCyfQC1t39uPYpAe7beSfBdU6c1d9jeECTQQtR3UJWtVoUO8Weg==}
-
   '@upstash/redis@1.31.1':
     resolution: {integrity: sha512-lAsOo+kYjD5lpP+lH/nxHfzFYeCkWBwwKsyZZmh0AoOumBA9ZpS52Gorm7c2bmNu3UFijpPiLSFdW/nRdjbRpQ==}
 
-  '@upstash/vector@1.1.1':
-    resolution: {integrity: sha512-40pRY6BYpNElZ0/BFiDk9p1Pn4D+WUM4qm528yYlJm6ifjcg4xQthwiE8+6j2t9rqr3FtWaNhdpLXTyj1ptNLA==}
+  '@upstash/vector@1.1.4':
+    resolution: {integrity: sha512-8SHwugy8rr1LEe3gNoh17yihTnEUsfQw2ZTsaceyo6heWNYnpDoSG6wQ75ARTpkNvWKMosJYQap15gIKr8Z1Tw==}
 
   '@vitest/expect@1.3.0':
     resolution: {integrity: sha512-7bWt0vBTZj08B+Ikv70AnLRicohYwFgzNjFqo9SxxqHHxSlUJGSXmCRORhOnRMisiUryKMdvsi1n27Bc6jL9DQ==}
@@ -1027,9 +1018,6 @@ packages:
     resolution: {integrity: sha512-KXDYZ9dszj6bzvnEMRYvxgeTHU74QBFL54XKtP3nyMuJ81CFYtABZ3bAzL2EdFUaEwJOBOgENyFj3R7oTzDyyw==}
     engines: {node: '>=4', npm: '>=6'}
 
-  stopword@3.0.1:
-    resolution: {integrity: sha512-pz2XNVtoApA7eSX1viol5ybGGG2Re2bI7/+8TfeaMb09C9NEWgabr7HHf4DbqgrmEuI62sH2BcAEHVAlreCmrQ==}
-
   strip-final-newline@3.0.0:
     resolution: {integrity: sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw==}
     engines: {node: '>=12'}
@@ -1521,13 +1509,11 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
-  '@types/stopword@2.0.3': {}
-
   '@upstash/redis@1.31.1':
     dependencies:
       crypto-js: 4.2.0
 
-  '@upstash/vector@1.1.1': {}
+  '@upstash/vector@1.1.4': {}
 
   '@vitest/expect@1.3.0':
     dependencies:
@@ -2079,8 +2065,6 @@ snapshots:
   std-env@3.7.0: {}
 
   stoppable@1.1.0: {}
-
-  stopword@3.0.1: {}
 
   strip-final-newline@3.0.0: {}
 

@@ -4,9 +4,10 @@ import { streamText } from 'hono/streaming';
 import { Index } from '@upstash/vector';
 import { Redis } from '@upstash/redis/cloudflare';
 import { instructions } from '../extra/istructions';
-import { removeStopwords, eng, fra } from 'stopword';
 import Groq from 'groq-sdk';
 import { cache } from 'hono/cache';
+import { splitText } from './methods/split';
+
 const app = new Hono();
 
 type EnvironmentVariables = {
@@ -19,11 +20,13 @@ type EnvironmentVariables = {
 };
 
 type Chunk = {
+	id: string;
 	metadata: {
 		client_id: string;
 		url: string;
 		content: string;
 	};
+	data: string;
 };
 
 type Context = {
@@ -84,26 +87,25 @@ app.post(
 			});
 			const namespace = index.namespace(info.id);
 
-			let old_query = query.split(' ');
-
-			const new_query = removeStopwords(old_query);
-
 			const res = (await namespace.query({
-				data: new_query.join(' '),
+				data: query,
 				topK: 3,
 				includeVectors: false,
 				includeMetadata: true,
+				includeData: true,
 			})) as Chunk[];
 
-			let array_of_context: Context[] = [];
+			console.log(res);
 
+			let array_of_context: Context[] = [];
+			let ids = [];
 			for (const chunk of res) {
+				ids.push(chunk.id);
 				array_of_context.push({
 					url: chunk.metadata.url,
-					content: chunk.metadata.content,
+					content: chunk.data,
 				});
 			}
-
 			const data = `
     <message>
       <query>${query}</query>
@@ -124,9 +126,7 @@ app.post(
 			array_of_context.forEach((c, index) => {
 				end += c.url + ',';
 			});
-
 			const t1 = performance.now();
-
 			return streamText(c, async (stream) => {
 				const chatCompletion = await groq.chat.completions.create({
 					messages: [
@@ -147,9 +147,11 @@ app.post(
 					const content = chunk.choices[0].delta.content;
 					if (content) {
 						if (oneTime === 0) {
-							redis.set(key, { ...info, requests: info.requests + 1, remaining: parseFloat((info.remaining - 0.02).toFixed(2)) }).then(() => {
-								oneTime = 1;
-							});
+							redis
+								.set(key, { ...info, requests: info.requests + 1, remaining: parseFloat((info.remaining - 0.02).toFixed(2)) })
+								.then(() => {
+									oneTime = 1;
+								});
 						}
 						await stream.write(content);
 					}
@@ -198,43 +200,60 @@ app.post('/upsert', async (c) => {
 		return c.json({ mssage: 'No authorization key provided' }, 400);
 	}
 
-	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
+	try {
+		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
 
-	if (key !== UPSERT_SECRET_KEY) {
-		return c.json({ mssage: 'Invalid key provided' }, 400);
-	}
+		if (key !== UPSERT_SECRET_KEY) {
+			return c.json({ mssage: 'Invalid key provided' }, 400);
+		}
 
-	const { client, data } = (await c.req.json()) as { client: number; data: [{ url: string; content: string }] };
+		const { client, data } = (await c.req.json()) as { client: number; data: [{ url: string; content: string }] };
 
-	if (!client || !data || data.length < 1) {
-		return c.json({ message: 'Missing parameters' }, 400);
-	}
+		if (!client || !data || data.length < 1) {
+			return c.json({ message: 'Missing parameters' }, 400);
+		}
 
-	const index = new Index({
-		url: UPSTASH_VECTOR_REST_URL,
-		token: UPSTASH_VECTOR_REST_TOKEN,
-		cache: false,
-	});
-
-	const namespace = index.namespace(client.toString());
-
-	for (let chunk of data) {
-		let old_content = chunk.content.split(' ');
-
-		const new_content = removeStopwords(old_content);
-
-		await namespace.upsert({
-			id: `${client}_${chunk.url}`,
-			data: new_content.join(' '),
-			metadata: {
-				client: client,
-				url: chunk.url,
-				content: chunk.content,
-			},
+		const index = new Index({
+			url: UPSTASH_VECTOR_REST_URL,
+			token: UPSTASH_VECTOR_REST_TOKEN,
+			cache: false,
 		});
-	}
 
-	return c.json({ message: 'successfully embedded the chunks' }, 200);
+		const namespace = index.namespace(client.toString());
+
+		for (let chunk of data) {
+			if (chunk.content.length > 1000) {
+				const splitted_chunks = splitText(chunk.content);
+				console.log('Total length', splitted_chunks.length);
+
+				for (let i = 0; i < splitted_chunks.length; i++) {
+					await namespace.upsert({
+						id: `${chunk.url}_${i + 1}`,
+						data: splitted_chunks[i],
+						metadata: {
+							client: client,
+							url: chunk.url,
+							content: splitted_chunks[i],
+						},
+					});
+				}
+			} else {
+				await namespace.upsert({
+					id: `${chunk.url}`,
+					data: chunk.content,
+					metadata: {
+						client: client,
+						url: chunk.url,
+						content: chunk.content,
+					},
+				});
+			}
+		}
+		return c.json({ message: 'successfully embedded the chunks' }, 200);
+	} catch (error) {
+		console.log(error);
+		return c.json({ message: 'Something went wrong' }, 500);
+	}
 });
 
 export default app;
