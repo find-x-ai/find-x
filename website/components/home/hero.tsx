@@ -3,32 +3,16 @@ import Link from "next/link";
 
 export const Hero = () => {
   return (
-    <div className="flex shadow-lg relative overflow-hidden z-10 flex-col gap-3 justify-center bg-blue-700 sm:px-16 p-5 rounded-lg h-[500px]">
-      <div className="">
-        <h1 className="sm:text-8xl md:text-7xl text-6xl sm:font-bold font-semibold space-x-4 text-white">
-          The ultimate AI search <br /> for web apps.
+    <div className="flex flex-col gap-5 justify-center items-center h-[calc(100vh-70px)] sm:max-h-[500px] max-h-[400px] p-5">
+      <div className="flex flex-col items-center gap-5">
+        <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium">
+          The most comprehensive AI search for web
         </h1>
+        <p>Search for anything, anywhere, instantly.</p>
       </div>
-      <div className="text-white">
-        <p className="text-md">Search for anything, anywhere, instantly.</p>
-      </div>
-      <div className="absolute right-[-8px] bottom-[-8px]">
-        <video
-          width={500}
-          style={{ transform: "rotate(180deg)", mixBlendMode: "lighten" }}
-          autoPlay={true}
-          loop
-          muted
-          src="/hero.mp4"
-        ></video>
-      </div>
-      <div className="flex gap-5 pt-3 z-10">
-        <Link
-          href={"/request"}
-          className="text-white py-4 px-5 bg-zinc-950 rounded-full flex gap-3 shadow-2xl"
-        >
-          Get started <Sparkles className="text-zinc-300" />
-        </Link>
+      <div className="flex gap-5">
+        <button className="p-3 w-[120px] bg-zinc-800 hover:bg-zinc-900 text-white rounded-full">Get started</button>
+        <button className="p-3 w-[120px] bg-zinc-100 hover:bg-zinc-200 border border-zinc-800  rounded-full">Pricing</button>
       </div>
     </div>
   );

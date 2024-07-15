@@ -28,7 +28,7 @@ export const Features = () => {
   return (
     <div className="w-full text-zinc-200 space-y-16 pb-20">
       <div className="text-center">
-        <h2 className="text-4xl">How it differs ?</h2>
+        <h2 className="text-4xl text-zinc-800">How it differs ?</h2>
       </div>
       <div className="flex sm:flex-row flex-col gap-5 text- leading-8">
         {features.map((feat, i) => {

@@ -3,8 +3,8 @@ export default function Home() {
   return (
     <div className="p-5 flex flex-col gap-10">
       <Hero />
-      <Video />
-      <Features />
+      {/* <Video />
+      <Features /> */}
     </div>
   );
 }

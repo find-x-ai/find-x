@@ -31,11 +31,11 @@ export const Video = () => {
           ></iframe>
         </div>
       </div>
-      <div className="w-full flex flex-col gap-5 text-white leading-8 transition-all duration-200">
+      <div className="w-full flex flex-col gap-5 leading-8 transition-all duration-200">
         <div>
           <h2 className="text-3xl sm:text-start text-center">Demo for web</h2>
         </div>
-        <div className="text-zinc-400">{text}</div>
+        <div className="text-zinc-600">{text}</div>
       </div>
     </div>
   );

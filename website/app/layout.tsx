@@ -19,13 +19,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className + " bg-zinc-950"}>
+      <body className={inter.className + " bg-zinc-100"}>
         <Navbar />
         <div className="w-full max-w-[1200px] flex flex-col mx-auto">
           <div className="">{children}</div>
         </div>
         <Toaster richColors={false} />
-        <Footer />
+        {/* <Footer /> */}
       </body>
     </html>
   );
