@@ -12,9 +12,10 @@ export const Hero = () => {
     >
       <Link
         href={"/docs"}
-        className="py-2 px-3 cursor-pointer rounded-full bg-green-500 text-white text-sm hover:shadow-sm hover:shadow-green-500 transition-shadow duration-500"
+        className="py-1 group px-3 cursor-pointer rounded-full border bg-zinc-200 border-zinc-800 text-zinc-800 text-sm"
       >
-        Just released beta -{">"}
+        Just released beta{" "}
+        <span className="relative group-hover:left-1">-{">"}</span>
       </Link>
       <div className="flex flex-col items-center gap-5">
         <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium">
