@@ -6,6 +6,7 @@ import Menu from "./menu";
 const links = [
   { name: "docs", url: "/docs", target: "_self" },
   { name: "team", url: "/team", target: "_self" },
+  { name: "blogs", url: "/blogs", target: "_self" },
   { name: "contact", url: "/contact", target: "_self" },
 ];
 
@@ -23,7 +24,7 @@ export const Navbar = () => {
           </Link>
         </div>
         <div className="md:block hidden">
-          <ul className="flex gap-6 py-2 px-2 items-center">
+          <ul className="flex gap-3 py-2 px-2 items-center">
             {links.map((link, i) => (
               <Link
                 key={i}
