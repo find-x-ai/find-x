@@ -95,8 +95,6 @@ app.post(
 				includeData: true,
 			})) as Chunk[];
 
-			console.log(res);
-
 			let array_of_context: Context[] = [];
 			let ids = [];
 			for (const chunk of res) {
@@ -222,9 +220,8 @@ app.post('/upsert', async (c) => {
 		const namespace = index.namespace(client.toString());
 
 		for (let chunk of data) {
-			if (chunk.content.length > 1000) {
+			if (chunk.content.length > 2043) {
 				const splitted_chunks = splitText(chunk.content);
-				console.log('Total length', splitted_chunks.length);
 
 				for (let i = 0; i < splitted_chunks.length; i++) {
 					await namespace.upsert({

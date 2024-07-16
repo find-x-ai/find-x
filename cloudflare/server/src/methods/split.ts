@@ -1,4 +1,4 @@
-export function splitText(text: string, maxLength: number = 1000, overlap: number = 50): string[] {
+export function splitText(text: string, maxLength: number = 2042, overlap: number = 50): string[] {
 	if (text.length <= maxLength) {
 		return [text];
 	}
