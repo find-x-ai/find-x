@@ -3,8 +3,9 @@ import { motion } from "framer-motion";
 export const Video = () => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10, filter: "blur(5px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={{ opacity: 0, y: -10, filter: "blur(5px)", scale: 0.7 }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
+      exit={{scale:0.8}}
     >
       <div className="w-full">
         <div className="relative w-full pt-[56.25%]">
