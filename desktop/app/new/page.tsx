@@ -358,6 +358,7 @@ export default function Page() {
                     "[ERROR]",
                     "text-red-500"
                   );
+                  return;
                 }
               }
               logMessage(
@@ -384,7 +385,7 @@ export default function Page() {
             const id = client[0].id;
             for (const chunk of chunks) {
               const res = await fetch(
-                "https://server.find-x.workers.dev/upsert",
+                process.env.NEXT_PUBLIC_UPSERT_URL!,
                 {
                   method: "POST",
                   headers: {
@@ -395,6 +396,7 @@ export default function Page() {
                   body: JSON.stringify({
                     client: id,
                     data: chunk,
+                    secret_key: process.env.NEXT_PUBLIC_UPSERT_KEY!
                   }),
                 }
               );

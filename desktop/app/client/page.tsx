@@ -204,7 +204,7 @@ const ClientPage: React.FC = () => {
                   className="text-green-600"
                   duration={1.5}
                   start={0.0}
-                  end={apiData.remaining}
+                  end={apiData?.remaining}
                   decimal="."
                   decimals={2}
                 />
@@ -217,7 +217,7 @@ const ClientPage: React.FC = () => {
                 <CountUp
                   duration={1.5}
                   start={0}
-                  end={apiData.requests}
+                  end={apiData?.requests}
                 />
               </div>
             </div>
