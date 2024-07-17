@@ -1,6 +1,5 @@
 import modal
-from modal import Stub, build, enter, method, web_endpoint, Image
-import asyncio
+from modal import Stub, web_endpoint
 from typing import Dict
 
 playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
