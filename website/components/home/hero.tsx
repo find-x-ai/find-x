@@ -8,6 +8,7 @@ export const Hero = () => {
     <motion.div
       initial={{ opacity: 0, y: -10, filter: "blur(5px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{once: true}}
       className="flex flex-col gap-5 justify-center items-center h-[calc(100vh-70px)] sm:max-h-[500px] max-h-[400px]"
     >
       <Link
