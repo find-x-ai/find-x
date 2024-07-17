@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { ChevronsUp, Route, TextSearch } from "lucide-react";
 export const Features = () => {
   return (
     <motion.div
@@ -22,14 +23,14 @@ export const Features = () => {
         </p>
       </div>
       <div className="flex md:flex-row flex-col gap-3 text-zinc-800">
-        <div className="w-full text-center p-10 cursor-default border bg-zinc-50 shadow-sm rounded-lg">
-          <h2 className="text-lg">Faster response time</h2>
+        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-200 shadow-sm rounded-lg flex justify-between items-center">
+          <h2 className="text-lg tracking-wider">Faster response time</h2> <ChevronsUp className="w-[30px] h-[30px] text-zinc-700" />
         </div>
-        <div className="w-full text-center p-10 cursor-default border bg-zinc-50 shadow-sm rounded-lg">
-          <h2 className="text-lg">Efficient search</h2>
+        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-200 shadow-sm rounded-lg flex justify-between items-center">
+          <h2 className="text-lg tracking-wider">Efficient search</h2> <TextSearch className="w-[30px] h-[30px] text-zinc-700" />
         </div>
-        <div className="w-full text-center p-10 cursor-default border bg-zinc-50 shadow-sm rounded-lg">
-          <h2 className="text-lg">Easy integration</h2>
+        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-200 shadow-sm rounded-lg flex justify-between items-center">
+          <h2 className="text-lg tracking-wider">Easy integration</h2> <Route className="w-[30px] h-[30px] text-zinc-700" />
         </div>
       </div>
     </motion.div>
