@@ -174,8 +174,11 @@ export default function Page() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ url: currentUrl }),
-            signal: fetchController.signal, // Pass the AbortSignal to the fetch request
+            body: JSON.stringify({
+              url: currentUrl,
+              secret_key: process.env.NEXT_PUBLIC_SCRAPING_KEY!,
+            }),
+            signal: fetchController.signal,
           }
         );
 
@@ -339,6 +342,7 @@ export default function Page() {
                   body: JSON.stringify({
                     client: id,
                     data: chunk,
+                    secret_key: process.env.NEXT_PUBLIC_UPSERT_KEY!,
                   }),
                 });
 
