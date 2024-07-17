@@ -329,21 +329,18 @@ export default function Page() {
             if (info.id) {
               const id = info.id;
               for (const chunk of chunks) {
-                const res = await fetch(
-                  "https://server.find-x.workers.dev/upsert",
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${process.env
-                        .NEXT_PUBLIC_UPSERT_KEY!}`,
-                    },
-                    body: JSON.stringify({
-                      client: id,
-                      data: chunk,
-                    }),
-                  }
-                );
+                const res = await fetch(process.env.NEXT_PUBLIC_UPSERT_URL!, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env
+                      .NEXT_PUBLIC_UPSERT_KEY!}`,
+                  },
+                  body: JSON.stringify({
+                    client: id,
+                    data: chunk,
+                  }),
+                });
 
                 if (res.ok) {
                   logMessage(
