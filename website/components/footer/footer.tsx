@@ -1,6 +1,6 @@
 export const Footer = () => {
   return (
-    <div className="border-t border-zinc-300 bg-zinc-200/50 h-auto mt-10 flex justify-center">
+    <div className="border-t border-zinc-300 bg-zinc-200/30 h-auto mt-10 flex justify-center p-5">
       <div className="w-full max-w-[1200px] flex flex-col lg:flex-row p-5">
         <div className="mb-5 lg:mb-0 lg:w-1/4">
           <h2 className="text-xl mb-2">Find-X</h2>
