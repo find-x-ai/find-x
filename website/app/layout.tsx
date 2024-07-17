@@ -8,8 +8,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FindX search",
-  description: "The ai search engine.",
+  title: "Find-X",
+  description: "The most comprehensive ai search for web",
 };
 
 export default function RootLayout({
