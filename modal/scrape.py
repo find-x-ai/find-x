@@ -33,7 +33,7 @@ async def get_links(request: Dict):
         
         body_text = await page.evaluate("""
             () => {
-                const excludeTags = ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED'];
+                const excludeTags = ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'NAV' , 'ASIDE' , 'FOOTER'];
                 const excludeClasses = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu'];
                 
                 function isExcluded(element) {
