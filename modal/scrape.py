@@ -1,3 +1,4 @@
+import os
 import modal
 from modal import Stub, web_endpoint
 from typing import Dict
@@ -14,7 +15,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
 
 stub = Stub(name="link-scraper", image=playwright_image)
 
-@stub.function()
+@stub.function(secrets=[modal.Secret.from_name("secret_key")])
 @web_endpoint(label="scrape", method="POST")
 async def get_links(request: Dict):
     from playwright.async_api import async_playwright, Error as PlaywrightError
@@ -22,6 +23,10 @@ async def get_links(request: Dict):
     try:
         async with async_playwright() as p:
             cur_url = request.get('url')
+            key = request.get('secret_key')
+            secret_key = os.environ["secret_key"]
+            if(key != secret_key):
+                raise ValueError("Missing secret key")
             if not cur_url:
                 raise ValueError("URL is missing in the request")
 
