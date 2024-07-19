@@ -122,7 +122,7 @@ app.post(
 			let end = '<#$#>';
 
 			array_of_context.forEach((c, index) => {
-				end += c.url + ',';
+				end += c.url + '#' + c.content + '<*$*>';
 			});
 			const t1 = performance.now();
 			return streamText(c, async (stream) => {
