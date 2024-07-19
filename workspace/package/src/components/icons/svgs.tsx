@@ -84,3 +84,35 @@ export const TickMarkIcon = () => {
     </svg>
   );
 };
+
+export const ShevronDownIcon = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      className={` f-stroke-2 f-w-[30px] f-h-[30px] ${className}`}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+};
+
+export const TextIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      className="f-stroke-2 f-w-[25px] f-h-[25px] f-stroke-amber-400"
+    >
+      <path d="M17 6.1H3" />
+      <path d="M21 12.1H3" />
+      <path d="M15.1 18H3" />
+    </svg>
+  );
+};

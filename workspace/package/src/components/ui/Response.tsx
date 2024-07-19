@@ -41,37 +41,54 @@ const ResponseWithCodeSnippets = ({
 
   const parts = text.split(/(<CODE_SNIPPET_\d+>)/);
   return (
-    <div className="f-whitespace-pre-wrap f-break-words f-font-sans">
-      {parts.map((part, index) => {
-        if (part.startsWith("<CODE_SNIPPET_")) {
-          const snippetIndex = parseInt(part.match(/\d+/)?.[0] || "0", 10);
-          return (
-            <div
-              key={`${index}`}
-              className="f-my-2 f-p-2 f-bg-zinc-900/40 f-rounded-md f-border f-border-zinc-800 f-relative"
-            >
+    <>
+      {text.length > 8 ? (
+        <div className="f-whitespace-pre-wrap f-break-words f-font-sans">
+          {parts.map((part, index) => {
+            if (part.startsWith("<CODE_SNIPPET_")) {
+              const snippetIndex = parseInt(part.match(/\d+/)?.[0] || "0", 10);
+              return (
+                <div
+                  key={`${index}`}
+                  className="f-my-2 f-p-2 f-min-h-[45px] f-bg-zinc-950/40 f-rounded-md f-border f-border-zinc-800 f-relative"
+                >
+                  <div
+                    onClick={() =>
+                      copyToClipBoard(snippets[snippetIndex], snippetIndex)
+                    }
+                    className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-zinc-950 f-rounded-md f-border f-border-zinc-800 f-cursor-pointer"
+                  >
+                    {copiedStates[snippetIndex] ? (
+                      <TickMarkIcon />
+                    ) : (
+                      <CopyIcon />
+                    )}
+                  </div>
+                  <pre className="f-text-sm f-text-zinc-200 f-whitespace-pre-wrap f-break-words">
+                    <code>{snippets[snippetIndex]}</code>
+                  </pre>
+                </div>
+              );
+            }
+            return <span key={`${index}`}>{part}</span>;
+          })}
+          <div ref={endOfResponseRef} className="sm:f-block f-hidden" />
+        </div>
+      ) : (
+        <>
+          <div className=" f-flex f-flex-col f-gap-2">
+            {" "}
+            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-zinc-950/40 f-animate-pulse"></div>{" "}
+            {[...Array(3)].map((_ele, i) => (
               <div
-                onClick={() =>
-                  copyToClipBoard(snippets[snippetIndex], snippetIndex)
-                }
-                className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-zinc-950 f-rounded-md f-border f-border-zinc-800 f-cursor-pointer"
-              >
-                {copiedStates[snippetIndex] ? <TickMarkIcon /> : <CopyIcon />}
-              </div>
-              <pre className="f-text-sm f-text-zinc-200 f-whitespace-pre-wrap f-break-words">
-                <code>{snippets[snippetIndex]}</code>
-              </pre>
-            </div>
-          );
-        }
-        return (
-          <span key={`${index}`}>
-            {part}
-          </span>
-        );
-      })}
-      <div ref={endOfResponseRef} className="sm:f-block f-hidden"/>
-    </div>
+                key={i}
+                className="f-w-full f-h-4 f-rounded-full f-bg-zinc-950/40 f-animate-pulse"
+              ></div>
+            ))}
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
