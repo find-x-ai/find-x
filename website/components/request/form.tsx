@@ -46,10 +46,11 @@ export const RequestForm = () => {
       toast.error(res.message);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        console.error("Validation failed", error.message);
-      } else {
-        console.error("An unexpected error occurred", error);
+        console.error("Invalid input !", error);
+        toast.error("Invalid input provided!");
+        return;
       }
+      console.error("An unexpected error occurred", error.message);
 
       toast.error(error.message || "An error occurred");
     } finally {
