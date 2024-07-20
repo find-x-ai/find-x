@@ -3,19 +3,20 @@ import Link from "next/link";
 
 import { motion } from "framer-motion";
 
-export const Hero = () => {
+export const Hero = ({ version }: { version: string }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10, filter: "blur(5px)" }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{once: true}}
+      viewport={{ once: true }}
       className="flex flex-col gap-5 justify-center items-center h-[calc(100vh-70px)] sm:max-h-[500px] max-h-[400px]"
     >
       <Link
-        href={"/docs"}
+        target="_blanc"
+        href={"https://npmjs.org/find-x-ai"}
         className="py-1 group px-3 cursor-pointer rounded-full border bg-zinc-200 border-zinc-800 text-zinc-800 text-sm"
       >
-        Just released beta{" "}
+        Just released {version}{" "}
         <span className="relative group-hover:left-1">-{">"}</span>
       </Link>
       <div className="flex flex-col items-center gap-5">

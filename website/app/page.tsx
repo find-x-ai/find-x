@@ -1,11 +1,16 @@
 import { Hero, Video, Features, WeMakeDifference } from "@/components/home";
-export default function Home() {
+export default async function Home() {
+  const res = await fetch("https://registry.npmjs.org/find-x-ai", {
+    next: { revalidate: 100 },
+  });
+  const package_info = await res.json();
+  const version = package_info["dist-tags"].latest;
   return (
     <div className="px-5 flex flex-col gap-5">
-      <Hero />
+      <Hero version={version} />
       <Video />
       <Features />
-      <WeMakeDifference/>
+      <WeMakeDifference />
     </div>
   );
 }
