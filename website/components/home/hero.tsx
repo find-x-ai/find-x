@@ -26,12 +26,18 @@ export const Hero = ({ version }: { version: string }) => {
         <p>Search for anything, anywhere, instantly.</p>
       </div>
       <div className="flex gap-5">
-        <button className="p-3 w-[120px] bg-zinc-800 hover:bg-zinc-900 text-white rounded-full">
+        <Link
+          href={"/request"}
+          className="p-3 w-[120px] bg-zinc-800 hover:bg-zinc-900 text-white rounded-full text-center"
+        >
           Get started
-        </button>
-        <button className="p-3 w-[120px] bg-zinc-100 hover:bg-zinc-200 border border-zinc-800  rounded-full">
+        </Link>
+        <Link
+          href={"/pricing"}
+          className="p-3 w-[120px] bg-zinc-100 hover:bg-zinc-200 border border-zinc-800  rounded-full text-center"
+        >
           Pricing
-        </button>
+        </Link>
       </div>
     </motion.div>
   );

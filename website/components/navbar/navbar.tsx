@@ -7,7 +7,6 @@ const links = [
   { name: "docs", url: "/docs", target: "_self" },
   { name: "team", url: "/team", target: "_self" },
   { name: "blogs", url: "/blogs", target: "_self" },
-  { name: "contact", url: "/contact", target: "_self" },
 ];
 
 export const Navbar = () => {
@@ -42,12 +41,24 @@ export const Navbar = () => {
           </ul>
         </div>
         <div className="md:flex hidden items-center">
-          <button className="text-white bg-zinc-800 p-2 w-[120px] rounded-md">
-            login
-          </button>
+          <Link
+            href={"mailto:findx.org@gmail.com"}
+            className="text-white bg-zinc-800 p-2 w-[120px] rounded-md text-center"
+          >
+            contact
+          </Link>
         </div>
         <div className="md:hidden">
-          <Menu links={links} />
+          <Menu
+            links={[
+              ...links,
+              {
+                name: "contact",
+                url: "mailto:findx.org@gmail.com",
+                target: "_self",
+              },
+            ]}
+          />
         </div>
       </div>
     </nav>

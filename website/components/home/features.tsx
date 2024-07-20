@@ -6,6 +6,7 @@ export const Features = () => {
     <motion.div
       initial={{ opacity: 0, filter: "blur(5px)", y: 10 }}
       whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+      viewport={{ once: true }}
       className="py-5 flex flex-col gap-5 rounded-lg"
     >
       <div className="text-center">

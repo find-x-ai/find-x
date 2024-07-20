@@ -5,7 +5,7 @@ export const Video = () => {
     <motion.div
       initial={{ opacity: 0, y: -10, filter: "blur(5px)", scale: 0.7 }}
       whileInView={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
-      exit={{scale:0.8}}
+      viewport={{ once: true }}
     >
       <div className="w-full">
         <div className="relative w-full pt-[56.25%] overflow-hidden rounded-lg">
