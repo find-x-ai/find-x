@@ -1,14 +1,11 @@
+import { Members } from "@/components/team";
 
 const page = () => {
-    return (
-      <div className=" h-[calc(100vh-270px)] flex justify-center items-center">
-        <div>
-            <div>
-               Updating soon 
-            </div>
-        </div>
-      </div>
-    )
-  }
-  
-  export default page
+  return (
+    <div className="w-full h-[calc(100vh-70px)]">
+      <Members />
+    </div>
+  );
+};
+
+export default page;
