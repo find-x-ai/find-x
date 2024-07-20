@@ -10,7 +10,7 @@ import Link from "next/link";
 const formSchema = z.object({
   name: z.string().min(2, "Name is required").max(20, "Name is too long"),
   email: z.string().email("Invalid email address"),
-  url: z.string().url("Invalid URL"),
+  url: z.string().url("Invalid URL").max(40, "Too long url"),
   agreePrivacyPolicy: z.boolean().refine((val) => val === true, {
     message: "You must agree to the privacy policy",
   }),
@@ -117,7 +117,12 @@ export const RequestForm = () => {
                 <label htmlFor="agreePrivacyPolicy" className="text-sm">
                   I agree to the privacy policy
                 </label>
-                <Link className="text-sm text-blue-600 underline" href={'/policy'}>(read)</Link>
+                <Link
+                  className="text-sm text-blue-600 underline"
+                  href={"/policy"}
+                >
+                  (read)
+                </Link>
               </div>
               <div className="flex items-center gap-2">
                 <input
