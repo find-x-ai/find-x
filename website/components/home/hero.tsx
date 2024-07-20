@@ -20,7 +20,7 @@ export const Hero = () => {
       </Link>
       <div className="flex flex-col items-center gap-5">
         <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium">
-          The most comprehensive AI search for web
+          The most comprehensive <br /> AI search for web
         </h1>
         <p>Search for anything, anywhere, instantly.</p>
       </div>
