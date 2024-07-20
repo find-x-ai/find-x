@@ -23,6 +23,9 @@ export const RequestForm = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (formData: FormData) => {
+    if (loading) {
+      return;
+    }
     await new Promise((res) => setTimeout(res, 0));
     setLoading(true);
     try {
