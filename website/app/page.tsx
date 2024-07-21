@@ -6,7 +6,7 @@ export default async function Home() {
   const package_info = await res.json();
   const version = package_info["dist-tags"].latest;
   return (
-    <div className="px-5 flex flex-col gap-5">
+    <div className="px-5 flex flex-col gap-5 pb-10">
       <Hero version={version} />
       <Video />
       <Features />

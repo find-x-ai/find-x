@@ -57,7 +57,7 @@ export const Members: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-[calc(100vh-60px)]">
+    <div className="flex flex-col md:flex-row w-full h-[calc(100vh-70px)]">
       <motion.div
         className={`w-full md:w-1/3 h-full sticky top-[70px] md:border-x border-zinc-300 overflow-y-auto ${
           showMemberList ? "block" : "hidden md:block"
