@@ -49,7 +49,10 @@ const Menu = ({ links }: { links: LinksArray[] }) => {
                 whileInView={{ x: 0, opacity: 1 }}
               >
                 <Link
-                  onClick={() => setIsOpen(false)}
+                  onClick={async () => {
+                    await new Promise((res) => setTimeout(res, 300));
+                    setIsOpen(false);
+                  }}
                   href={link.url}
                   target={link.target}
                 >
