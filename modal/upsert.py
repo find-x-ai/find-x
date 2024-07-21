@@ -58,7 +58,7 @@ def generate_embedding(requestData: Dict):
                 for chunk_id, doc in enumerate(docs):
                     index.upsert(
                         vectors=[
-                            (f"{url}_{client_id}", doc.page_content, {"client_id": client_id, "url": url, "Data": doc.page_content}),
+                            (f"{url}_{client_id}_{chunk_id}", doc.page_content, {"client_id": client_id, "url": url, "Data": doc.page_content}),
                         ],
                         namespace=client_id
                     )

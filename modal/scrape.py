@@ -35,9 +35,29 @@ async def get_links(request: Dict):
                 page = await browser.new_page()
                 await page.goto(cur_url, timeout=30000)
                 
-                links = await page.eval_on_selector_all("a[href]", "elements => elements.map(element => element.href)")
-                
-                unique_links = list(set(links))
+                # Extracting absolute links only and avoiding duplicates
+                links = await page.eval_on_selector_all("a[href]", """
+                    (baseUrl) => {
+                        const uniqueLinks = new Set();
+                        const base = new URL(baseUrl);
+
+                        for (const element of document.querySelectorAll('a[href]')) {
+                            const href = element.href;
+
+                            // Check if the link is absolute and not the same as the main URL
+                            if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
+                                // Normalize the URL by removing fragments and trailing slashes
+                                const normalizedHref = href.split('#')[0].replace(/\/+$/, '').toLowerCase();
+                                uniqueLinks.add(normalizedHref);  // Add to the Set to ensure uniqueness
+                            }
+                        }
+
+                        // Convert the Set back to an array and return
+                        return Array.from(uniqueLinks);
+                    }
+                """, cur_url)  # Pass the current URL as the base URL
+
+                unique_links = list(links)  # Convert to a list if needed
 
                 data = {}
                 
@@ -79,6 +99,8 @@ async def get_links(request: Dict):
                         return cleanText;
                     }
                 """)
+                body_text=body_text.replace('. ','.')
+                body_text=body_text.replace(' .','.')
                 
                 if len(body_text) < 20:
                     raise ValueError("Insufficient content found on the page")
