@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import { ShevronDownIcon } from "../icons/svgs";
 
@@ -10,32 +9,32 @@ export const Sources = ({ links }: { links: string[] }) => {
         <>
           {links.length > 0 ? (
             <div
-              className={`f-bg-zinc-950/40 f-w-full f-group ${
+              className={`f-bg-[#f2f3ed] f-w-full f-group ${
                 isOpen
-                  ? "sm:f-h-[205px] f-h-[130px]"
-                  : "f-h-[60px] hover:f-border-zinc-900"
-              } f-border f-border-zinc-800 f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden`}
+                  ? "f-h-[205px] "
+                  : "f-h-[60px]"
+              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden f-border f-border-[#273734]/10`}
             >
-              <button
+              <div
                 onClick={() => {
                   setIsOpen(!isOpen);
                 }}
-                className="f-flex f-cursor-pointer"
+                className="f-flex f-cursor-pointer f-select-none"
               >
                 <div className="f-w-full f-h-[60px] f-flex f-justify-start f-items-center f-p-3">
-                  <h2 className="f-p-2">Sources</h2>
+                  <h2 className="f-p-2 f-text-[#132121] f-font-medium">Sources</h2>
                 </div>
 
                 <div className="f-w-full f-h-[60px] f-flex f-justify-end f-items-center f-p-3">
                   <ShevronDownIcon
-                    className={`f-stroke-zinc-700 group-hover:f-stroke-zinc-500 ${
+                    className={`f-stroke-[#273734]/80 group-hover:f-stroke-[#273734] ${
                       isOpen && "f-transform f-rotate-180"
                     } f-transition-transform f-duration-300`}
                   />
                 </div>
-              </button>
+              </div>
 
-              <div className={`f-p-3 f-flex f-gap-5 f-h-full`}>
+              <div className={`f-p-3 f-flex f-flex-row f-gap-5 f-h-full sm:f-overflow-hidden f-overflow-x-scroll f-overflow-y-hidden f-scrollbar-hide`}>
                 {links
                   .filter((link) => link.trim() !== "")
                   .map((link, i) => {
@@ -46,11 +45,11 @@ export const Sources = ({ links }: { links: string[] }) => {
                     return (
                       <div
                         key={i}
-                        className="f-flex f-relative f-gap-1 f-text-sm f-flex-col sm:f-justify-start f-justify-center f-items-center sm:f-items-start f-border sm:f-border-zinc-900 f-border-zinc-800 f-w-full sm:f-h-[120px] md:f-h-[120px] f-h-[40px] f-overflow-hidden f-p-2 f-text-zinc-400 f-rounded-md"
+                      className="f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm f-text-[#1f2e29] border f-flex-col f-items-start md:f-w-full f-w-[200px] f-h-[120px] f-overflow-hidden f-bg-[#e7e8e2] f-px-4 f-py-2 f-rounded-md"
                       >
                         <a
                           target="_blanc"
-                          className="f-text-zinc-200"
+                          className="f-text-[#273734] f-font-medium"
                           href={url}
                         >
                           {title}
@@ -58,13 +57,13 @@ export const Sources = ({ links }: { links: string[] }) => {
                         {content && (
                           <div className="f-group">
                             <a
-                              className="sm:f-block f-hidden"
                               href={url}
                               target="_blank"
                               rel="noopener noreferrer"
+                              className=" f-flex-wrap"
                             >
                               {content.length > 80
-                                ? `${content.slice(0, 80)}...`
+                                ? `${content.slice(0, 70)}...`
                                 : content}
                             </a>
                           </div>
@@ -75,7 +74,7 @@ export const Sources = ({ links }: { links: string[] }) => {
               </div>
             </div>
           ) : (
-            <div className="f-w-full f-h-[60px] f-bg-zinc-950/40 f-rounded-lg f-animate-pulse f-border-zinc-800"></div>
+            <div className="f-w-full f-h-[60px] f-bg-[#e7e8e2] f-rounded-lg f-animate-pulse f-border-[#273734]/10"></div>
           )}
         </>
       )}

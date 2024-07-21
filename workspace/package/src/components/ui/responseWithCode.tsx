@@ -42,7 +42,7 @@ const ResponseWithCodeSnippets = ({
   const parts = text.split(/(<CODE_SNIPPET_\d+>)/);
   return (
     <>
-      {text.length > 8 ? (
+      {text?.length > 0 ? (
         <div className="f-whitespace-pre-wrap f-break-words f-font-sans">
           {parts.map((part, index) => {
             if (part.startsWith("<CODE_SNIPPET_")) {
@@ -50,13 +50,13 @@ const ResponseWithCodeSnippets = ({
               return (
                 <div
                   key={`${index}`}
-                  className="f-my-2 f-p-2 f-min-h-[45px] f-bg-zinc-950/40 f-rounded-md f-border f-border-zinc-800 f-relative"
+                  className="f-my-2 f-p-2 f-min-h-[45px] f-bg-[#f2f3ed] f-rounded-md f-border f-border-[#273734]/10 f-relative"
                 >
                   <div
                     onClick={() =>
                       copyToClipBoard(snippets[snippetIndex], snippetIndex)
                     }
-                    className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-zinc-950 f-rounded-md f-border f-border-zinc-800 f-cursor-pointer"
+                    className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-[#fcfdf8] f-rounded-md f-border f-border-[#273734]/10 f-cursor-pointer"
                   >
                     {copiedStates[snippetIndex] ? (
                       <TickMarkIcon />
@@ -64,13 +64,17 @@ const ResponseWithCodeSnippets = ({
                       <CopyIcon />
                     )}
                   </div>
-                  <pre className="f-text-sm f-text-zinc-200 f-whitespace-pre-wrap f-break-words">
+                  <pre className="f-text-sm f-text-zinc-800 f-whitespace-pre-wrap f-break-words">
                     <code>{snippets[snippetIndex]}</code>
                   </pre>
                 </div>
               );
             }
-            return <span key={`${index}`}>{part}</span>;
+            return (
+              <span className="f-text-[#273734]" key={`${index}`}>
+                {part}
+              </span>
+            );
           })}
           <div ref={endOfResponseRef} className="sm:f-block f-hidden" />
         </div>
@@ -78,11 +82,11 @@ const ResponseWithCodeSnippets = ({
         <>
           <div className=" f-flex f-flex-col f-gap-2">
             {" "}
-            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-zinc-950/40 f-animate-pulse"></div>{" "}
+            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-[#e7e8e2] f-animate-pulse"></div>{" "}
             {[...Array(3)].map((_ele, i) => (
               <div
                 key={i}
-                className="f-w-full f-h-4 f-rounded-full f-bg-zinc-950/40 f-animate-pulse"
+                className="f-w-full f-h-4 f-rounded-full f-bg-[#e7e8e2] f-animate-pulse"
               ></div>
             ))}
           </div>

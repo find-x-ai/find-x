@@ -26,7 +26,7 @@ export const SearchIcon = () => {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      className="f-text-blue-500 f-stroke-2"
+      className="f-text-blue-600 f-stroke-2"
     >
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
@@ -62,7 +62,7 @@ export const CopyIcon = () => {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className=" f-w-8 f-h-8 hover:f-stroke-zinc-200 f-stroke-zinc-600  f-p-2 f-stroke-2"
+      className=" f-w-8 f-h-8 f-stroke-[#273734]  f-p-2 f-stroke-2"
     >
       <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
       <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -78,7 +78,7 @@ export const TickMarkIcon = () => {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className="f-stroke-2 f-stroke-zinc-200 f-w-8 f-h-8 f-p-2"
+      className="f-stroke-2 f-stroke-[#273734] f-w-8 f-h-8 f-p-2"
     >
       <path d="M20 6 9 17l-5-5" />
     </svg>
@@ -108,7 +108,7 @@ export const TextIcon = () => {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className="f-stroke-2 f-w-[25px] f-h-[25px] f-stroke-amber-400"
+      className="f-stroke-2 f-w-[25px] f-h-[25px] f-stroke-[#273734]"
     >
       <path d="M17 6.1H3" />
       <path d="M21 12.1H3" />
