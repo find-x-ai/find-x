@@ -20,7 +20,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         autoFocus={true}
         autoComplete="off"
         placeholder="Search anything"
-        className="f-w-full f-h-full f-transition-all f-duration-300 f-outline-none f-bg-transparent fh-full f-p-3  placeholder:f-text-[#273734]/80 f-caret-[#273734]"
+        className="f-w-full f-h-full f-transition-all f-duration-300 f-outline-none f-bg-transparent fh-full f-p-3 f-text-[#273734]  placeholder:f-text-[#273734]/80 f-caret-[#273734]"
         type="text"
         name="search"
       />
