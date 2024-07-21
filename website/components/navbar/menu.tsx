@@ -50,7 +50,7 @@ const Menu = ({ links }: { links: LinksArray[] }) => {
               >
                 <Link
                   onClick={async () => {
-                    await new Promise((res) => setTimeout(res, 300));
+                    await new Promise((res) => setTimeout(res, 200));
                     setIsOpen(false);
                   }}
                   href={link.url}
