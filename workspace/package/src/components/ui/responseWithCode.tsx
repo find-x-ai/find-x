@@ -50,13 +50,13 @@ const ResponseWithCodeSnippets = ({
               return (
                 <div
                   key={`${index}`}
-                  className="f-my-2 f-p-2 f-min-h-[45px] f-bg-[#f2f3ed] f-rounded-md f-border f-border-[#273734]/10 f-relative"
+                  className="f-my-2 f-p-2 f-min-h-[45px] f-bg-zinc-200 f-rounded-md f-border f-border-[#273734]/10 f-relative"
                 >
                   <div
                     onClick={() =>
                       copyToClipBoard(snippets[snippetIndex], snippetIndex)
                     }
-                    className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-[#fcfdf8] f-rounded-md f-border f-border-[#273734]/10 f-cursor-pointer"
+                    className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-zinc-100 f-rounded-md f-border f-border-[#273734]/20 f-cursor-pointer"
                   >
                     {copiedStates[snippetIndex] ? (
                       <TickMarkIcon />
@@ -71,7 +71,10 @@ const ResponseWithCodeSnippets = ({
               );
             }
             return (
-              <span className="f-text-[#273734]" key={`${index}`}>
+              <span
+                className="f-text-[#273734] f-font-[sans-serif]"
+                key={`${index}`}
+              >
                 {part}
               </span>
             );
@@ -82,11 +85,11 @@ const ResponseWithCodeSnippets = ({
         <>
           <div className=" f-flex f-flex-col f-gap-2">
             {" "}
-            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-[#e7e8e2] f-animate-pulse"></div>{" "}
+            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-zinc-200 f-animate-pulse"></div>{" "}
             {[...Array(3)].map((_ele, i) => (
               <div
                 key={i}
-                className="f-w-full f-h-4 f-rounded-full f-bg-[#e7e8e2] f-animate-pulse"
+                className="f-w-full f-h-4 f-rounded-full f-bg-zinc-200 f-animate-pulse"
               ></div>
             ))}
           </div>

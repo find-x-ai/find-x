@@ -9,7 +9,7 @@ export const Sources = ({ links }: { links: string[] }) => {
         <>
           {links.length > 0 ? (
             <div
-              className={`f-bg-[#f2f3ed] f-w-full f-group ${
+              className={`f-bg-zinc-200 f-w-full f-group ${
                 isOpen ? "f-h-[205px] " : "f-h-[60px]"
               } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden f-border f-border-[#273734]/10`}
             >
@@ -47,7 +47,7 @@ export const Sources = ({ links }: { links: string[] }) => {
                     return (
                       <div
                         key={i}
-                        className="f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm f-text-[#1f2e29] f-flex-col f-items-start md:f-w-full f-w-[200px] f-h-[120px] f-overflow-hidden f-bg-[#e7e8e2] f-px-4 f-py-2 f-rounded-md"
+                        className="f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm f-text-zinc-800 f-flex-col f-items-start md:f-w-full f-w-[200px] f-h-[120px] f-overflow-hidden f-bg-zinc-100 f-px-3 f-py-2 f-rounded-md"
                       >
                         <a
                           target="_blanc"
@@ -76,7 +76,7 @@ export const Sources = ({ links }: { links: string[] }) => {
               </div>
             </div>
           ) : (
-            <div className="f-w-full f-h-[60px] f-bg-[#e7e8e2] f-rounded-lg f-animate-pulse f-border-[#273734]/10"></div>
+            <div className="f-w-full f-h-[60px] f-bg-zinc-200 f-rounded-lg f-animate-pulse f-border-[#273734]/10"></div>
           )}
         </>
       )}

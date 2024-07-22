@@ -93,7 +93,7 @@ const ChatBox = ({ findx_key }: { findx_key: string }) => {
   return (
     <div>
       {isOpen ? (
-        <div className="f-w-full f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 f-z-[100]">
+        <div className="f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 f-z-[100]">
           <div
             ref={uiRef}
             className="f-w-full f-h-auto f-mx-auto f-max-w-[800px] f-relative f-top-10"

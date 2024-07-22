@@ -20,7 +20,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         autoFocus={true}
         autoComplete="off"
         placeholder="Search anything"
-        className="f-w-full f-h-full f-transition-all f-duration-300 f-outline-none f-bg-transparent fh-full f-p-3 f-text-[#273734]  placeholder:f-text-[#273734]/80 f-caret-[#273734]"
+        className="f-w-full f-h-full f-transition-all f-duration-300 f-outline-none f-bg-transparent fh-full f-p-3 f-text-zinc-800  placeholder:f-text-[#273734]/80 f-caret-[#273734]"
         type="text"
         name="search"
       />
@@ -28,7 +28,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     <div className="f-flex f-justify-center f-items-center f-px-2">
       <button
         onClick={() => setIsOpen(false)}
-        className="f-py-1 f-px-2 f-border f-rounded-md f-text-[#273734]/80 f-border-[#273734]/80 hover:f-border-red-500 hover:f-text-white hover:f-bg-red-500  f-transition-colors f-duration-200 f-cursor-pointer"
+        className="f-py-1 f-px-2 f-border f-rounded-md f-bg-zinc-800 f-text-white f-transition-colors f-duration-200 f-cursor-pointer"
       >
         Esc
       </button>
