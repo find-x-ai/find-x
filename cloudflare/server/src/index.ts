@@ -104,21 +104,10 @@ app.post(
 					content: chunk.data,
 				});
 			}
-			const data = `
-    <message>
-      <query>${query}</query>
-      <chunks>
-        ${array_of_context
-					.map(
-						(context, index) => `
-            <page>
-                <url>${context.url}</url>
-                <content>${context.content}</content>
-            </page>`
-					)
-					.join('')}
-       </chunks>
-    </message>`;
+			const data = JSON.stringify({
+				query: query,
+				search_data: array_of_context.map((context) => context.content),
+			});
 			let end = '<#$#>';
 
 			array_of_context.forEach((c, index) => {
