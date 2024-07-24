@@ -67,7 +67,7 @@ const ResponseWithCodeSnippets = ({
                     </div>
                   </div>
                   <div className="f-overflow-x-auto sm:f-overflow-x-hidden f-p-2 f-min-h-[45px]">
-                    <pre className="f-text-sm f-text-zinc-800 f-whitespace-pre-wrap f-break-words f-min-w-[500px] f-pr-10">
+                    <pre className="f-text-sm f-text-zinc-800 f-whitespace-pre-wrap f-break-words f-min-w-[600px] f-pr-10">
                       <code>{snippets[snippetIndex]}</code>
                     </pre>
                   </div>
