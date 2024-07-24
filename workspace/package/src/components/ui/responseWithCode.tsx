@@ -50,23 +50,27 @@ const ResponseWithCodeSnippets = ({
               return (
                 <div
                   key={`${index}`}
-                  className="f-my-2 f-p-2 f-min-h-[45px] f-bg-zinc-200 f-rounded-md f-border f-border-[#273734]/10 f-relative"
+                  className="f-my-2 f-bg-zinc-200 f-rounded-md f-border f-border-[#273734]/10 f-relative"
                 >
-                  <div
-                    onClick={() =>
-                      copyToClipBoard(snippets[snippetIndex], snippetIndex)
-                    }
-                    className=" f-transition-transform f-duration-500 f-absolute f-top-1 f-right-1 f-z-10 f-bg-zinc-100 f-rounded-md f-border f-border-[#273734]/20 f-cursor-pointer"
-                  >
-                    {copiedStates[snippetIndex] ? (
-                      <TickMarkIcon />
-                    ) : (
-                      <CopyIcon />
-                    )}
+                  <div className="f-absolute f-top-2 f-right-2 f-z-10">
+                    <div
+                      onClick={() =>
+                        copyToClipBoard(snippets[snippetIndex], snippetIndex)
+                      }
+                      className="f-bg-zinc-100 f-rounded-md f-border f-border-[#273734]/20 f-cursor-pointer hover:f-bg-zinc-300"
+                    >
+                      {copiedStates[snippetIndex] ? (
+                        <TickMarkIcon />
+                      ) : (
+                        <CopyIcon />
+                      )}
+                    </div>
                   </div>
-                  <pre className="f-text-sm f-text-zinc-800 f-whitespace-pre-wrap f-break-words">
-                    <code>{snippets[snippetIndex]}</code>
-                  </pre>
+                  <div className="f-overflow-x-auto sm:f-overflow-x-hidden f-p-2 f-min-h-[45px]">
+                    <pre className="f-text-sm f-text-zinc-800 f-whitespace-pre-wrap f-break-words f-min-w-[500px] f-pr-10">
+                      <code>{snippets[snippetIndex]}</code>
+                    </pre>
+                  </div>
                 </div>
               );
             }
@@ -83,9 +87,8 @@ const ResponseWithCodeSnippets = ({
         </div>
       ) : (
         <>
-          <div className=" f-flex f-flex-col f-gap-2">
-            {" "}
-            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-zinc-200 f-animate-pulse"></div>{" "}
+          <div className="f-flex f-flex-col f-gap-2">
+            <div className="f-w-[40%] f-mb-3 f-h-4 f-rounded-full f-bg-zinc-200 f-animate-pulse"></div>
             {[...Array(3)].map((_ele, i) => (
               <div
                 key={i}
