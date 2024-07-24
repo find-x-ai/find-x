@@ -49,12 +49,13 @@ export const Sources = ({ links }: { links: string[] }) => {
                         key={i}
                         className="f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm f-text-zinc-800 f-flex-col f-items-start md:f-w-full f-w-[200px] f-h-[120px] f-overflow-hidden f-bg-zinc-100 f-px-3 f-py-2 f-rounded-md"
                       >
-                        <a
+                       <a
                           target="_blanc"
-                          className="f-text-[#273734] f-font-medium"
+                          className="f-text-[#273734] f-font-medium f-flex f-gap-2 f-items-center"
                           href={url}
                         >
-                          {title}
+                          <span className=" f-text-[10px] f-w-[15px] f-h-[15px] f-bg-zinc-800 f-text-white f-flex f-justify-center f-items-center f-rounded-full">{i+1}</span>
+                          <span className="">{title}</span>
                         </a>
                         {content && (
                           <div className="f-group">

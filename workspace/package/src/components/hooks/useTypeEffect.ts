@@ -6,7 +6,7 @@ export const useTypeEffect = () => {
     const words = text.split(" ");
     for (let i = 0; i < words.length; i++) {
       setResponse((prev) => prev + (i === 0 ? "" : " ") + words[i]);
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 5));
     }
   };
 };
