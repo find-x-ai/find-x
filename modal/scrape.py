@@ -34,7 +34,7 @@ async def get_links(request: Dict):
             try:
                 page = await browser.new_page()
                 await page.goto(cur_url, timeout=30000)
-                
+                await page.wait_for_timeout(5000) 
                 # Extracting absolute links only and avoiding duplicates
                 links = await page.eval_on_selector_all("a[href]", """
                     (baseUrl) => {
@@ -99,13 +99,13 @@ async def get_links(request: Dict):
                         return cleanText;
                     }
                 """)
-                body_text=body_text.replace('. ','.')
-                body_text=body_text.replace(' .','.')
+                simple_text=body_text.replace(" . ",".")
                 
-                if len(body_text) < 20:
+                
+                if len(simple_text) < 20:
                     raise ValueError("Insufficient content found on the page")
                     
-                data[cur_url] = body_text
+                data[cur_url] = simple_text
 
             except PlaywrightError as e:
                 return {"error": "Failed to load or process the page", "details": str(e)}
