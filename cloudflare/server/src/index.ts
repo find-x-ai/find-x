@@ -13,10 +13,21 @@ const app = new Hono();
 type EnvironmentVariables = {
 	UPSTASH_VECTOR_REST_TOKEN: string;
 	UPSTASH_VECTOR_REST_URL: string;
-	AI_API_KEY: string;
 	UPSTASH_REDIS_REST_URL: string;
 	UPSTASH_REDIS_REST_TOKEN: string;
 	UPSERT_SECRET_KEY: string;
+	AI_API_KEY_1: string;
+	AI_API_KEY_2: string;
+	AI_API_KEY_3: string;
+	AI_API_KEY_4: string;
+	AI_API_KEY_5: string;
+	AI_API_KEY_6: string;
+	AI_API_KEY_7: string;
+	AI_API_KEY_8: string;
+	AI_API_KEY_9: string;
+	AI_API_KEY_10: string;
+	AI_API_KEY_11: string;
+	AI_API_KEY_12: string;
 };
 
 type Chunk = {
@@ -50,10 +61,28 @@ app.get('/', (c) => c.text('working fine...'));
 app.post(
 	'/query',
 	async (c) => {
+		const randomIndex = Math.floor(Math.random() * 12) + 1;
 		const t0 = performance.now();
-		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, AI_API_KEY, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } =
-			c.env as EnvironmentVariables;
+		const env = c.env as EnvironmentVariables;
 
+		const apiKeys: (keyof EnvironmentVariables)[] = [
+			'AI_API_KEY_1',
+			'AI_API_KEY_2',
+			'AI_API_KEY_3',
+			'AI_API_KEY_4',
+			'AI_API_KEY_5',
+			'AI_API_KEY_6',
+			'AI_API_KEY_7',
+			'AI_API_KEY_8',
+			'AI_API_KEY_9',
+			'AI_API_KEY_10',
+			'AI_API_KEY_11',
+			'AI_API_KEY_12',
+		];
+
+		const selectedApiKey = env[apiKeys[randomIndex - 1]];
+
+		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } = env;
 		const secret = c.req.header('Authorization') as string;
 
 		if (!secret) {
@@ -78,7 +107,7 @@ app.post(
 			return c.json({ message: 'Invalid Authorization key' }, 400);
 		}
 		try {
-			const groq = new Groq({ apiKey: AI_API_KEY });
+			const groq = new Groq({ apiKey: selectedApiKey });
 
 			const index = new Index({
 				url: UPSTASH_VECTOR_REST_URL,
