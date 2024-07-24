@@ -17,7 +17,7 @@ export const CloseIcon = () => {
   );
 };
 
-export const SearchIcon = () => {
+export const SearchIcon = ({ theme }: { theme: string }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +26,9 @@ export const SearchIcon = () => {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      className="f-text-zinc-800 f-stroke-2"
+      className={`${
+        theme === "light" ? "f-text-zinc-800" : "f-text-[#fe3d21]"
+      } f-stroke-2`}
     >
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
@@ -54,7 +56,7 @@ export const SparkleIcon = () => {
   );
 };
 
-export const CopyIcon = () => {
+export const CopyIcon = ({ theme }: { theme: string }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +64,9 @@ export const CopyIcon = () => {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className=" f-w-8 f-h-8 f-stroke-[#273734]  f-p-2 f-stroke-2"
+      className={`f-stroke-2 f-w-8 f-h-8 f-p-2 ${
+        theme === "light" ? "f-stroke-[#273734]" : "f-stroke-neutral-300"
+      }`}
     >
       <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
       <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
@@ -70,7 +74,7 @@ export const CopyIcon = () => {
   );
 };
 
-export const TickMarkIcon = () => {
+export const TickMarkIcon = ({ theme }: { theme: string }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -78,7 +82,9 @@ export const TickMarkIcon = () => {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className="f-stroke-2 f-stroke-[#273734] f-w-8 f-h-8 f-p-2"
+      className={`f-stroke-2 f-w-8 f-h-8 f-p-2 ${
+        theme === "light" ? "f-stroke-[#273734]" : "f-stroke-neutral-300"
+      }`}
     >
       <path d="M20 6 9 17l-5-5" />
     </svg>
@@ -100,7 +106,7 @@ export const ShevronDownIcon = ({ className }: { className?: string }) => {
   );
 };
 
-export const TextIcon = () => {
+export const TextIcon = ({ theme }: { theme: string }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -108,7 +114,9 @@ export const TextIcon = () => {
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      className="f-stroke-2 f-w-[25px] f-h-[25px] f-stroke-[#273734]"
+      className={`f-stroke-2 f-w-[25px] f-h-[25px] ${
+        theme === "light" ? "f-stroke-[#273734]" : "f-stroke-[#fe3d21]"
+      }`}
     >
       <path d="M17 6.1H3" />
       <path d="M21 12.1H3" />

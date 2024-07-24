@@ -8,6 +8,7 @@ type ResponseAreaProps = {
   searchQuery: string;
   referenceLinks: string[];
   codeSnippets: string[];
+  theme: "light" | "dark";
 };
 
 export const ResponseArea: React.FC<ResponseAreaProps> = ({
@@ -16,10 +17,13 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
   searchQuery,
   referenceLinks,
   codeSnippets,
+  theme,
 }) => (
   <div className="f-w-full f-flex f-justify-center f-relative f-font-[sans-serif]">
     <div
-      className={`f-w-full f-mt-2 f-rounded-md f-max-w-[800px] f-border f-border-zinc-800/90 f-bg-zinc-100 f-scrollbar-hide f-overflow-auto f-transition-all f-duration-500 f-ease-in-out ${
+      className={`f-w-full f-mt-2 f-rounded-md f-max-w-[800px] ${
+        theme === "light" ? "f-bg-zinc-100" : "f-bg-neutral-900"
+      } f-scrollbar-hide f-overflow-auto f-transition-all f-duration-500 f-ease-in-out ${
         isLoading || response
           ? "f-min-h-[80px] sm:f-max-h-[550px] f-max-h-[550px] f-block"
           : "f-h-0 f-hidden"
@@ -28,9 +32,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
       {(isLoading || response) && (
         <div
           className={`f-rounded-lg f-p-5 f-leading-7 f-font-sans f-flex-grow ${
-            response === "Searching"
-              ? "f-text-zinc-400 f-flex f-gap-7 f-items-center"
-              : "f-text-zinc-200"
+            response === "Searching" && `f-flex f-gap-7 f-items-center`
           }`}
         >
           <div
@@ -45,27 +47,50 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
           {response !== "Searching" ? (
             <>
               <div className="f-flex f-flex-col">
-                <h1 className="md:f-text-xl f-text-lg f-text-[#132121] f-font-medium f-pb-5 f-pt-0">
+                <h1
+                  className={`md:f-text-xl f-text-lg ${
+                    theme === "light"
+                      ? "f-text-[#132121]"
+                      : "f-text-neutral-100"
+                  } f-font-medium f-pb-5 f-pt-0`}
+                >
                   {searchQuery.slice(0, 100)}
                 </h1>{" "}
-                <Sources links={referenceLinks} />
-                <div className="f-py-3 f-text-lg f-text-[#273734] f-flex f-items-center f-gap-2">
-                  <TextIcon />
+                <Sources links={referenceLinks} theme={theme} />
+                <div
+                  className={`f-py-3 f-text-lg ${
+                    theme === "light" ? "f-text-[#273734]" : "f-text-[#fe3d21]"
+                  }  f-flex f-items-center f-gap-2`}
+                >
+                  <TextIcon theme={theme} />
                   <h2>AI response</h2>
                 </div>
               </div>
               <ResponseWithCodeSnippets
                 text={response.split("<#$#>")[0]}
                 snippets={codeSnippets}
+                theme={theme}
               />
             </>
           ) : (
-            <p className="f-text-[#273734] f-font-medium">{response}</p>
+            <p
+              className={`${
+                theme === "light" ? "f-text-[#273734]" : "f-text-neutral-400"
+              } f-font-medium`}
+            >
+              {response}
+            </p>
           )}
         </div>
       )}
-      <div className="f-flex f-justify-between f-items-center f-sticky f-bottom-[-1px] f-z-20 f-right-0 f-bg-zinc-100 sm:f-p-3 f-p-2 f-h-[50px]">
-        <span className="f-px-5 f-text-sm f-text-zinc-500 f-ml-auto f-tracking-wider">
+      <div
+        className={`f-flex f-justify-between f-items-center f-sticky f-bottom-[-1px] f-z-20 f-right-0 ${
+          theme === "light"
+            ? "f-bg-zinc-100 f-text-zinc-500"
+            : "f-bg-neutral-900 f-text-neutral-500"
+        } sm:f-p-3 f-p-2 f-h-[50px]`}
+      >
+        <span className="f-px-5 f-text-sm f-ml-auto f-tracking-wider">
           Powered by{" "}
           <a
             target="blanc"

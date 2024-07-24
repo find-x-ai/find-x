@@ -1,11 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { ResponseArea , SearchBar , SparkleButton } from "./ui";
+import { ResponseArea, SearchBar, SparkleButton } from "./ui";
 import { useTypeEffect } from "./hooks/useTypeEffect";
 import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
 import { fetchResponse } from "../actions/fetch";
+import { Config } from "./types";
 
-const ChatBox = ({ findx_key }: { findx_key: string }) => {
+const ChatBox = ({ config }: { config: Config }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -55,7 +56,7 @@ const ChatBox = ({ findx_key }: { findx_key: string }) => {
     setSearchQuery(search);
 
     try {
-      const responseStream = await fetchResponse(search, findx_key);
+      const responseStream = await fetchResponse(search, config.findx_key);
       let wholeResponse = "";
       let links: string[] = [];
 
@@ -98,13 +99,14 @@ const ChatBox = ({ findx_key }: { findx_key: string }) => {
             ref={uiRef}
             className="f-w-full f-h-auto f-mx-auto f-max-w-[800px] f-relative f-top-10"
           >
-            <SearchBar handleSubmit={handleSubmit} setIsOpen={setIsOpen} />
+            <SearchBar handleSubmit={handleSubmit} setIsOpen={setIsOpen} theme={config.theme} />
             <ResponseArea
               isLoading={isLoading}
               response={response}
               searchQuery={searchQuery}
               referenceLinks={referenceLinks}
               codeSnippets={codeSnippets}
+              theme={config.theme}
             />
           </div>
         </div>
