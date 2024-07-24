@@ -71,7 +71,7 @@ export const Sources = ({
                           theme === "light"
                             ? "f-text-zinc-800 f-bg-zinc-100"
                             : "f-text-neutral-400 f-bg-neutral-900"
-                        }  f-flex-col f-items-start md:f-w-full f-w-[200px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-1000 ${
+                        }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-1000 ${
                           isOpen ? "f-blur-none" : "f-blur-sm"
                         }`}
                       >
@@ -96,7 +96,8 @@ export const Sources = ({
                           <span className="">{title}</span>
                         </a>
                         {content && (
-                          <div className="f-group">
+                          <div className="f-group f-flex f-gap-2">
+                            <span className="f-w-[30px]" />
                             <a
                               href={url}
                               target="_blank"
@@ -104,7 +105,7 @@ export const Sources = ({
                               className=" f-flex-wrap"
                             >
                               {content.length > 80
-                                ? `${content.slice(0, 70)}...`
+                                ? `${content.slice(0, 65)}...`
                                 : content}
                             </a>
                           </div>
