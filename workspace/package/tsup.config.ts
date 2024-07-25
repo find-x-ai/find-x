@@ -5,7 +5,7 @@ const common: Options = {
   bundle: false,
   clean: true,
   minify: false,
-  sourcemap: true,
+  sourcemap: false,
   legacyOutput: true,
   external: ["dotenv"]
 };
