@@ -9,7 +9,6 @@ import { Config } from "./types";
 const ChatBox = ({ config }: { config: Config }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [response, setResponse] = useState<string>("");
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
   const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
@@ -53,7 +52,6 @@ const ChatBox = ({ config }: { config: Config }) => {
     setResponse("Searching");
     setReferenceLinks([]);
     setCodeSnippets([]);
-    setSearchQuery(search);
 
     try {
       const responseStream = await fetchResponse(search, config.findx_key);
@@ -92,18 +90,21 @@ const ChatBox = ({ config }: { config: Config }) => {
   };
 
   return (
-    <div>
+    <div className="find-x">
       {isOpen ? (
         <div className="f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 f-z-[100]">
           <div
             ref={uiRef}
             className="f-w-full f-h-auto f-mx-auto f-max-w-[800px] f-relative f-top-10"
           >
-            <SearchBar handleSubmit={handleSubmit} setIsOpen={setIsOpen} theme={config.theme} />
+            <SearchBar
+              handleSubmit={handleSubmit}
+              setIsOpen={setIsOpen}
+              theme={config.theme}
+            />
             <ResponseArea
               isLoading={isLoading}
               response={response}
-              searchQuery={searchQuery}
               referenceLinks={referenceLinks}
               codeSnippets={codeSnippets}
               theme={config.theme}
