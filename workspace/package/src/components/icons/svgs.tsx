@@ -124,3 +124,33 @@ export const TextIcon = ({ theme }: { theme: string }) => {
     </svg>
   );
 };
+
+export const SourcesIcon = ({
+  theme,
+  isOpen,
+}: {
+  theme: string;
+  isOpen: boolean;
+}) => {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      data-prefix="fak"
+      data-icon="sources"
+      role="img"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+      className={`f-stroke-2 f-w-8 f-h-8 f-p-2 ${
+        theme === "light" ? "f-stroke-[#273734]" : "f-stroke-neutral-300"
+      } f-w-[35px] f-h-[35px] ${
+        isOpen && "f-transform f-rotate-[360deg]"
+      } f-transition-transform f-duration-300`}
+    >
+      <path
+        fill="currentColor"
+        d="M262.4 32a76.8 76.8 0 1 1 0 153.6 76.8 76.8 0 1 1 0-153.6zm0 51.2a25.6 25.6 0 1 0 0 51.2 25.6 25.6 0 1 0 0-51.2zM416 185.6a76.8 76.8 0 1 1 0 153.6 76.8 76.8 0 1 1 0-153.6zm0 51.2a25.6 25.6 0 1 0 0 51.2 25.6 25.6 0 1 0 0-51.2zM108.8 185.6a76.8 76.8 0 1 1 0 153.6 76.8 76.8 0 1 1 0-153.6zm0 51.2a25.6 25.6 0 1 0 0 51.2 25.6 25.6 0 1 0 0-51.2zM262.4 339.2a76.8 76.8 0 1 1 0 153.6 76.8 76.8 0 1 1 0-153.6zm0 51.2a25.6 25.6 0 1 0 0 51.2 25.6 25.6 0 1 0 0-51.2z"
+      ></path>
+    </svg>
+  );
+};
