@@ -7,7 +7,7 @@ interface SparkleButtonProps {
 }
 
 export const SparkleButton: React.FC<SparkleButtonProps> = ({ setIsOpen }) => (
-  <div className="f-p-5 f-group f-fixed f-bottom-2 f-right-2">
+  <div className="f-p-5 f-group f-fixed f-bottom-2 f-right-2 find-x">
     <button
       title="ctrl + k"
       onClick={() => setIsOpen(true)}

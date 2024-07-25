@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CopyIcon, TickMarkIcon } from "../icons/svgs";
+//@ts-ignore
+import Markdown from "react-markdown";
 
 const ResponseWithCodeSnippets = ({
   text,
@@ -53,10 +55,12 @@ const ResponseWithCodeSnippets = ({
                 <div
                   key={`${index}`}
                   className={`f-my-2 ${
-                    theme === "light" ? "f-bg-zinc-200 f-border-[#273734]/10" : "f-bg-neutral-800/40 f-border-neutral-700/40"
+                    theme === "light"
+                      ? "f-bg-zinc-200 f-border-[#273734]/10"
+                      : "f-bg-neutral-800/40 f-border-neutral-700/40"
                   } f-rounded-md f-border f-relative`}
                 >
-                  <div className="f-absolute f-top-2 f-right-2 f-z-10">
+                  <div className="f-absolute f-top-1 f-right-1 f-z-10">
                     <div
                       onClick={() =>
                         copyToClipBoard(snippets[snippetIndex], snippetIndex)
@@ -75,11 +79,13 @@ const ResponseWithCodeSnippets = ({
                     </div>
                   </div>
                   <div className="f-overflow-x-auto sm:f-overflow-x-hidden f-p-2 f-min-h-[45px]">
-                    <pre className={`f-text-sm ${
+                    <pre
+                      className={`f-text-sm ${
                         theme === "light"
                           ? "f-text-zinc-800"
                           : "f-text-neutral-300"
-                      }  f-whitespace-pre-wrap f-break-words f-min-w-[600px] f-pr-10`}>
+                      }  f-whitespace-pre-wrap f-break-words f-min-w-[600px] f-pr-10`}
+                    >
                       <code>{snippets[snippetIndex]}</code>
                     </pre>
                   </div>
@@ -87,14 +93,18 @@ const ResponseWithCodeSnippets = ({
               );
             }
             return (
-              <span
+              <div
                 className={`${
                   theme === "light" ? "f-text-[#273734]" : "f-text-neutral-100"
                 } f-font-[sans-serif]`}
                 key={`${index}`}
               >
-                {part}
-              </span>
+                <Markdown
+                  className={`f-flex f-flex-col f-gap-2 f-whitespace-pre-wrap f-break-words txt`}
+                >
+                  {`${part}`}
+                </Markdown>
+              </div>
             );
           })}
           <div ref={endOfResponseRef} className="sm:f-block f-hidden" />

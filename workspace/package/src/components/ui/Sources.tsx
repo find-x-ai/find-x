@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShevronDownIcon } from "../icons/svgs";
+import { ShevronDownIcon, SourcesIcon } from "../icons/svgs";
 
 export const Sources = ({
   links,
@@ -30,15 +30,16 @@ export const Sources = ({
                 className="f-flex f-cursor-pointer f-select-none"
               >
                 <div className="f-w-full f-h-[60px] f-flex f-justify-start f-items-center f-p-3">
-                  <h2
-                    className={`f-p-2 ${
+                  <p
+                    className={`${
                       theme === "light"
                         ? "f-text-[#132121]"
                         : " f-text-neutral-200"
-                    } f-font-medium`}
+                    } f-font-medium f-flex f-gap-2 f-items-center`}
                   >
-                    Sources
-                  </h2>
+                    <SourcesIcon theme={theme} isOpen={isOpen} />
+                    <span> Sources</span>
+                  </p>
                 </div>
 
                 <div className="f-w-full f-h-[60px] f-flex f-justify-end f-items-center f-p-3">
@@ -105,7 +106,7 @@ export const Sources = ({
                               className=" f-flex-wrap"
                             >
                               {content.length > 80
-                                ? `${content.slice(0, 65)}...`
+                                ? `${content.slice(0, 70)}...`
                                 : content}
                             </a>
                           </div>

@@ -5,7 +5,6 @@ import { ResponseWithCodeSnippets, Sources } from "../ui";
 type ResponseAreaProps = {
   isLoading: boolean;
   response: string;
-  searchQuery: string;
   referenceLinks: string[];
   codeSnippets: string[];
   theme: "light" | "dark";
@@ -14,7 +13,6 @@ type ResponseAreaProps = {
 export const ResponseArea: React.FC<ResponseAreaProps> = ({
   isLoading,
   response,
-  searchQuery,
   referenceLinks,
   codeSnippets,
   theme,
@@ -47,15 +45,6 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
           {response !== "Searching" ? (
             <>
               <div className="f-flex f-flex-col">
-                <h1
-                  className={`md:f-text-xl f-text-lg ${
-                    theme === "light"
-                      ? "f-text-[#132121]"
-                      : "f-text-neutral-100"
-                  } f-font-medium f-pb-5 f-pt-0`}
-                >
-                  {searchQuery.slice(0, 100)}
-                </h1>{" "}
                 <Sources links={referenceLinks} theme={theme} />
                 <div
                   className={`f-py-3 f-text-lg ${
@@ -63,7 +52,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
                   }  f-flex f-items-center f-gap-2`}
                 >
                   <TextIcon theme={theme} />
-                  <h2>AI response</h2>
+                  <p>AI response</p>
                 </div>
               </div>
               <ResponseWithCodeSnippets
