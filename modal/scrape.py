@@ -34,7 +34,7 @@ async def get_links(request: Dict):
             try:
                 page = await browser.new_page()
                 await page.goto(cur_url, timeout=30000)
-                await page.wait_for_timeout(5000) 
+                await page.wait_for_timeout(2000) 
                 # Extracting absolute links only and avoiding duplicates
                 links = await page.eval_on_selector_all("a[href]", """
                     (baseUrl) => {
