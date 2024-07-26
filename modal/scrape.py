@@ -15,7 +15,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
 
 stub = Stub(name="link-scraper", image=playwright_image)
 
-@stub.function(secrets=[modal.Secret.from_name("secret_key")])
+@stub.function(secrets=[modal.Secret.from_name("my-custom-secret")])
 @web_endpoint(label="scrape", method="POST")
 async def get_links(request: Dict):
     from playwright.async_api import async_playwright, Error as PlaywrightError
@@ -24,7 +24,7 @@ async def get_links(request: Dict):
         async with async_playwright() as p:
             cur_url = request.get('url')
             key = request.get('secret_key')
-            secret_key = os.environ["secret_key"]
+            secret_key = os.environ["key_secret"]
             if(key != secret_key):
                 raise ValueError("Missing secret key")
             if not cur_url:
@@ -99,13 +99,11 @@ async def get_links(request: Dict):
                         return cleanText;
                     }
                 """)
-                simple_text=body_text.replace(" . ",".")
                 
-                
-                if len(simple_text) < 20:
+                if len(body_text) < 20:
                     raise ValueError("Insufficient content found on the page")
                     
-                data[cur_url] = simple_text
+                data[cur_url] = body_text
 
             except PlaywrightError as e:
                 return {"error": "Failed to load or process the page", "details": str(e)}
