@@ -13,7 +13,7 @@ image = Image.debian_slim().pip_install(
 stub = Stub(name="find-x", image=image)
 
 class SentenceTransformerEmbeddings(Embeddings):
-    def __init__(self, model_name_or_path: str = "all-mpnet-base-v2"):
+    def _init_(self, model_name_or_path: str ="all-MiniLM-L6-v2"):
         self.model = SentenceTransformer(model_name_or_path)
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
@@ -50,7 +50,7 @@ def generate_embedding(requestData: Dict):
 
     index = Index(url=upstash_url, token=upstash_token)  # initialize the vector index
     chunks = []
-    text_splitter = SemanticChunker(SentenceTransformerEmbeddings(), breakpoint_threshold_type="standard_deviation")
+    text_splitter = SemanticChunker(SentenceTransformerEmbeddings(), breakpoint_threshold_type="interquartile")
 
     try:
         for id, value in enumerate(my_list):
@@ -77,7 +77,7 @@ def generate_embedding(requestData: Dict):
         for chunk_id, chunk in enumerate(chunks):
             index.upsert(
                 vectors=[
-                    (f"{url}_{client_id}_{chunk_id}", chunk, {"client_id": client_id, "url": url, "Data": chunk}),
+                    (f"{url}{client_id}{chunk_id}", chunk, {"client_id": client_id, "url": url, "Data": chunk}),
                 ],
                 namespace=client_id
             )
