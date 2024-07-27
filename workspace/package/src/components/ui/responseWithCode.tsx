@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { CopyIcon, TickMarkIcon } from "../icons/svgs";
 //@ts-ignore
 import Markdown from "react-markdown";
+//@ts-ignore
+import remarkGfm from "remark-gfm";
 
 const ResponseWithCodeSnippets = ({
   text,
@@ -57,7 +59,7 @@ const ResponseWithCodeSnippets = ({
                   className={`f-my-2 ${
                     theme === "light"
                       ? "f-bg-zinc-200 f-border-[#273734]/10"
-                      : "f-bg-neutral-800/40 f-border-neutral-700/40"
+                      : "f-bg-[#232524]/40 f-border-neutral-700/40"
                   } f-rounded-md f-border f-relative`}
                 >
                   <div className="f-absolute f-top-1 f-right-1 f-z-10">
@@ -100,6 +102,7 @@ const ResponseWithCodeSnippets = ({
                 key={`${index}`}
               >
                 <Markdown
+                  remarkPlugins={[remarkGfm]}
                   className={`f-flex f-flex-col f-gap-2 f-whitespace-pre-wrap f-break-words txt`}
                 >
                   {`${part}`}
@@ -114,14 +117,14 @@ const ResponseWithCodeSnippets = ({
           <div className="f-flex f-flex-col f-gap-2">
             <div
               className={`f-w-[40%] f-mb-3 f-h-4 f-rounded-full ${
-                theme === "light" ? "f-bg-zinc-200" : "f-bg-neutral-800"
+                theme === "light" ? "f-bg-zinc-200" : "f-bg-[#232524]"
               }  f-animate-pulse`}
             ></div>
             {[...Array(3)].map((_ele, i) => (
               <div
                 key={i}
                 className={`f-w-full f-h-4 f-rounded-full ${
-                  theme === "light" ? "f-bg-zinc-200" : "f-bg-neutral-800"
+                  theme === "light" ? "f-bg-zinc-200" : "f-bg-[#232524]"
                 } f-animate-pulse`}
               ></div>
             ))}

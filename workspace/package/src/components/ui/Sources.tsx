@@ -16,10 +16,12 @@ export const Sources = ({
           {links.length > 0 ? (
             <div
               className={`${
-                theme === "light" ? "f-bg-zinc-200" : "f-bg-[#232524]"
+                theme === "light"
+                  ? "f-bg-zinc-200 f-border-[#273734]/10"
+                  : "f-bg-[#232524] f-border-neutral-700/40"
               } f-w-full f-group ${
                 isOpen ? "f-h-[205px] " : "f-h-[60px]"
-              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden`}
+              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden f-border`}
             >
               <div
                 onClick={() => {
@@ -127,7 +129,7 @@ export const Sources = ({
               className={`f-w-full f-h-[60px] ${
                 theme === "light"
                   ? "f-bg-zinc-200 f-border-[#273734]/10"
-                  : "f-bg-neutral-800 f-border-neutral-700/40"
+                  : "f-bg-[#232524] f-border-neutral-700/40"
               } f-rounded-lg f-animate-pulse `}
             ></div>
           )}
