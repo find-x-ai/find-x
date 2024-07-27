@@ -128,11 +128,59 @@
 .find-x sup {
   top: -0.5em;
 }
-.find-x table {
-  text-indent: 0;
-  border-color: inherit;
-  border-collapse: collapse;
+.find-x {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
+
+.find-x table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  background-color: #191b1a; /* Dark background */
+  color: #fff; /* Light text color */
+  border: 1px solid #18181b;
+  table-layout: fixed; /* Ensure columns fill the table width */
+}
+
+.find-x th, .find-x td {
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #525252; /* Column borders */
+}
+
+.find-x th {
+  background-color: #2a2c2b; /* Slightly lighter dark header background */
+}
+
+.find-x tr:nth-child(even) {
+  background-color: #232524; /* Slightly lighter dark background for even rows */
+}
+
+.find-x tr:nth-child(odd) {
+  background-color: #191b1a; /* Original dark background for odd rows */
+}
+
+.find-x th:last-child, .find-x td:last-child {
+  flex: 1; /* Make the last column fill the remaining space */
+}
+
+.find-x table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px; /* Ensure the wrapper has rounded corners as well */
+}
+
+@media (max-width: 600px) {
+  .find-x table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+  }
+}
+
 .find-x input,
 .find-x optgroup,
 .find-x select,
