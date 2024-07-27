@@ -59,7 +59,7 @@ export const Sources = ({
                 {links
                   .filter((link) => link.trim() !== "")
                   .map((link, i) => {
-                    const [url, content] = link.split("#");
+                    const [url, content] = link.split("<-|$|->");
                     const arr = url.split("/");
                     const title = arr[arr.length - 1] || "Home";
 
@@ -99,7 +99,9 @@ export const Sources = ({
                                 : "f-text-neutral-50"
                             }`}
                           >
-                            {title}
+                            {title.length < 20
+                              ? title
+                              : title.slice(0, 20) + "..."}
                           </span>
                         </a>
                         {content && (
@@ -111,9 +113,7 @@ export const Sources = ({
                               rel="noopener noreferrer"
                               className=" f-flex-wrap"
                             >
-                              {content.length > 80
-                                ? `${content.slice(0, 70)}...`
-                                : content}
+                              {content}
                             </a>
                           </div>
                         )}
