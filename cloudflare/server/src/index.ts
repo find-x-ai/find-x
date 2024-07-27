@@ -140,8 +140,9 @@ app.post(
 			let end = '<#$#>';
 
 			array_of_context.forEach((c, index) => {
-				end += c.url + '#' + c.content + '<*$*>';
+				end += c.url + '<-|$|->' + (c.content.length > 80 ? c.content.slice(0, 70) + '...' : c.content) + '<*$*>';
 			});
+
 			const t1 = performance.now();
 			return streamText(c, async (stream) => {
 				const chatCompletion = await groq.chat.completions.create({
