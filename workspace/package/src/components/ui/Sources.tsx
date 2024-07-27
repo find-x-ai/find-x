@@ -16,12 +16,10 @@ export const Sources = ({
           {links.length > 0 ? (
             <div
               className={`${
-                theme === "light"
-                  ? "f-bg-zinc-200 f-border-[#273734]/10"
-                  : "f-bg-neutral-800/40 f-border-neutral-700/40"
+                theme === "light" ? "f-bg-zinc-200" : "f-bg-[#232524]"
               } f-w-full f-group ${
                 isOpen ? "f-h-[205px] " : "f-h-[60px]"
-              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden f-border `}
+              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden`}
             >
               <div
                 onClick={() => {
@@ -71,8 +69,8 @@ export const Sources = ({
                         className={`f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm ${
                           theme === "light"
                             ? "f-text-zinc-800 f-bg-zinc-100"
-                            : "f-text-neutral-400 f-bg-neutral-900"
-                        }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-1000 ${
+                            : "f-text-neutral-400 f-bg-[#2d2f2e]"
+                        }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-300 ${
                           isOpen ? "f-blur-none" : "f-blur-sm"
                         }`}
                       >
@@ -81,7 +79,7 @@ export const Sources = ({
                           className={` f-font-medium f-flex f-gap-2 f-items-center ${
                             theme === "light"
                               ? "f-text-[#273734]"
-                              : "f-text-neutral-200"
+                              : "f-text-neutral-50"
                           }`}
                           href={url}
                         >
@@ -94,7 +92,15 @@ export const Sources = ({
                           >
                             {i + 1}
                           </span>
-                          <span className="">{title}</span>
+                          <span
+                            className={`${
+                              theme === "light"
+                                ? "f-text-[#273734]"
+                                : "f-text-neutral-50"
+                            }`}
+                          >
+                            {title}
+                          </span>
                         </a>
                         {content && (
                           <div className="f-group f-flex f-gap-2">

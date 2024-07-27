@@ -14,7 +14,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => (
   <div
     className={`f-flex f-w-full f-h-14 ${
-      theme === "light" ? "f-bg-zinc-100" : "f-bg-neutral-900"
+      theme === "light" ? "f-bg-zinc-100" : "f-bg-[#191b1a]"
     } f-rounded-md f-overflow-hidden f-z-10`}
   >
     <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
