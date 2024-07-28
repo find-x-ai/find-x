@@ -75,7 +75,7 @@ const AllRequests = ({ requests }: { requests: Project[] }) => {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">{c.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap sm:hidden md:table-cell">
-                    {c.url}
+                    {c.url.length < 40 ? c.url : c.url.slice(0, 40) + "..."}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-green-600">
                     {c.plan}$

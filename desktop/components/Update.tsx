@@ -28,7 +28,7 @@ import { invoke } from "@tauri-apps/api/tauri";
 import { db } from "@/lib/db";
 import { redis } from "@/lib/redis";
 
-interface ClientData {
+type ClientData = {
   id: string;
   joined_at: Date | string;
   url: string;
@@ -36,7 +36,7 @@ interface ClientData {
   plan: string;
   api_key: string;
   email: string;
-}
+};
 
 const Update = ({ client }: { client: ClientData }) => {
   const router = useRouter();
@@ -110,11 +110,20 @@ const Update = ({ client }: { client: ClientData }) => {
 
         await new Promise((res) => setTimeout(res, 1500));
 
-        setDialogOpen(false);
+        await invoke("set_item", {
+          key: "new",
+          value: JSON.stringify({
+            id: client.id,
+            name: name,
+            url: url,
+            plan: plan,
+            email: email,
+            update: true,
+          }),
+        });
 
-        router.push(
-          `/new?data=${name}*${url}*${plan}*${email}*${client.id}*update`
-        );
+        setDialogOpen(false);
+        router.push(`/new`);
       } else {
         toast.error("Invalid URL");
       }
@@ -283,13 +292,14 @@ const Update = ({ client }: { client: ClientData }) => {
                 disabled={detailsUpdateLoading || appUpdateLoading}
                 onClick={handleUpdateApp}
                 type="button"
-                className="w-full bg-amber-500 hover:bg-amber-600"
+                className="w-full bg-[#ff371a] hover:bg-[#ff371a]/80"
               >
-                {appUpdateLoading ? (
-                  <Loader2 className=" animate-spin" />
-                ) : (
-                  "Update app"
-                )}
+                <p className="flex gap-2 items-center transition-all duration-300 ">
+                  {appUpdateLoading && (
+                    <Loader2 className="animate-spin duration-500 w-[20px]" />
+                  )}
+                  <span className="transition-all duration-300">Full update</span>{" "}
+                </p>
               </Button>
             </div>
           </form>

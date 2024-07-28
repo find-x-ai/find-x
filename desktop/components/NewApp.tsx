@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {
   Select,
   SelectContent,
@@ -11,8 +11,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -30,15 +28,10 @@ const NewApp = () => {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [success, setSuccess] = useState<boolean>(false);
-  const [data, setData] = useState<{ name: string; url: string; plan: string; email: string }>(
-    { name: "", url: "", plan: "", email: "" }
-  );
-  const fakeLoad = async () => {
-    return;
-  };
 
-  const handleCreateNewApp = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCreateNewApp = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
@@ -51,10 +44,20 @@ const NewApp = () => {
       const res = (await invoke("check_url", { url: url })) as boolean;
 
       if (res) {
-        setSuccess(true);
-        setData({ name: name, url: url, plan: plan, email: email });
         setDialogOpen(false);
-        router.push(`/new?data=${name}*${url}*${plan}*${email}`);
+        await invoke("set_item", {
+          key: "new",
+          value: JSON.stringify({
+            id: null,
+            name: name,
+            url: url,
+            plan: plan,
+            email: email,
+            update: false,
+          }),
+        });
+
+        router.push(`/new`);
       } else {
         toast.error("Invalid URL");
       }
@@ -68,31 +71,56 @@ const NewApp = () => {
   return (
     <Dialog open={dialogOpen}>
       <DialogTrigger
-        className="px-3 py-2 rounded-md text-amber-500 border border-amber-500 w-[130px] bg-amber-500/5"
-       onClick={()=> {
-        setDialogOpen(true);
-      }}>
-       New
+        className="px-3 py-2 rounded-md bg-[#ff371a] text-white w-[130px]"
+        onClick={() => {
+          setDialogOpen(true);
+        }}
+      >
+        New
       </DialogTrigger>
       <DialogContent className="bg-black border border-zinc-700 text-white">
         <DialogHeader>
           <DialogTitle className="text-2xl px-3">Configure New App</DialogTitle>
         </DialogHeader>
         <div className="w-full h-full flex flex-col p-3">
-          <form onSubmit={handleCreateNewApp} className="w-full flex flex-col gap-5">
+          <form
+            onSubmit={handleCreateNewApp}
+            className="w-full flex flex-col gap-5"
+          >
             <div className="w-full flex gap-5">
               <div className="w-full space-y-2">
                 <Label htmlFor="name">App Name</Label>
-                <Input className="bg-zinc-950 border-zinc-800 " placeholder="Enter app name" type="text" required id="name" name="name" />
+                <Input
+                  className="bg-zinc-950 border-zinc-800 "
+                  placeholder="Enter app name"
+                  type="text"
+                  required
+                  id="name"
+                  name="name"
+                />
               </div>
               <div className="w-full space-y-2">
                 <Label htmlFor="url">URL</Label>
-                <Input className="bg-zinc-950 border-zinc-800 " placeholder="https://example.com/" type="text" required id="url" name="url" />
+                <Input
+                  className="bg-zinc-950 border-zinc-800 "
+                  placeholder="https://example.com/"
+                  type="text"
+                  required
+                  id="url"
+                  name="url"
+                />
               </div>
             </div>
             <div className="w-full space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input className="bg-zinc-950 border-zinc-800 " placeholder="example@example.com" type="email" required id="email" name="email" />
+              <Input
+                className="bg-zinc-950 border-zinc-800 "
+                placeholder="example@example.com"
+                type="email"
+                required
+                id="email"
+                name="email"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="select">Plan</Label>
@@ -111,9 +139,24 @@ const NewApp = () => {
               </Select>
             </div>
             <div className="w-full flex justify-end gap-5">
-              <Button className="bg-black border-zinc-800" onClick={()=> setDialogOpen(false)} variant={'outline'} type="button">cancel</Button>
-              <Button type="submit" className="w-[120px] bg-amber-500 hover:bg-amber-600">
-                {loading ? <Loader2 className=" animate-spin" /> : "create"}
+              <Button
+                className="bg-black border-zinc-800"
+                onClick={() => setDialogOpen(false)}
+                variant={"outline"}
+                type="button"
+              >
+                cancel
+              </Button>
+              <Button
+                type="submit"
+                className="w-[120px] bg-[#ff371a] hover:bg-[#ff371a]/80"
+              >
+                <p className="flex gap-2 items-center transition-all duration-300 ">
+                  {loading && (
+                    <Loader2 className="animate-spin duration-500 w-[20px]" />
+                  )}
+                  <span className="transition-all duration-300">create</span>{" "}
+                </p>
               </Button>
             </div>
           </form>
