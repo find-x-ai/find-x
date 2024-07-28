@@ -20,71 +20,11 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
 
 stub = App(name="link-scraper", image=playwright_image)
 
-class CustomMarkdownConverter(MarkdownConverter):
-    def __init__(self, base_url=None, **options):
-        super().__init__(**options)
-        self.base_url = base_url
-
-    def convert_a(self, el, text, convert_as_inline):
-        return text
-
-    def convert_img(self, el, text, convert_as_inline):
-        src = el.get('src')
-        if src and self.base_url:
-            src = urljoin(self.base_url, src)
-        alt = el.get('alt', '')
-        return f'![{alt}]({src})'
-
-    def convert_p(self, el, text, convert_as_inline):
-        return super().convert_p(el, text, convert_as_inline).strip() + '\n\n'
-
-def md(html, base_url=None, **options):
-    return CustomMarkdownConverter(base_url=base_url, **options).convert(html)
-
-def clean_markdown(markdown_text):
-    # Remove excessive newlines
-    cleaned = re.sub(r'\n{3,}', '\n\n', markdown_text)
-    
-    # Remove backslashes before special characters
-    cleaned = re.sub(r'\\([`*_{}[\]()#+\-.!])', r'\1', cleaned)
-    
-    # Replace escaped newlines with actual newlines
-    cleaned = re.sub(r'\\n+', '\n', cleaned)
-    
-    # Remove backslashes before pipes
-    cleaned = re.sub(r'\\\|', '|', cleaned)
-    
-    # Remove excessive whitespace around headings
-    cleaned = re.sub(r'\n\s*(#+)', r'\n\1', cleaned)
-    
-    # Ensure proper spacing around headings
-    cleaned = re.sub(r'(#+[^\n]*)\n+', r'\1\n', cleaned)
-    
-    # Ensure proper spacing after headers
-    cleaned = re.sub(r'(#{1,6})\s+', r'\1 ', cleaned)
-    
-    # Fix inconsistent list formatting
-    cleaned = re.sub(r'(?<!^)\s*([*+-]\s+)', r'\1', cleaned)
-    
-    # Remove extra spaces before list bullets
-    cleaned = re.sub(r'\s+([-*+]\s+)', r'\1', cleaned)
-    
-    # Ensure double newlines after paragraphs
-    cleaned = re.sub(r'([^\n])\n([^\n#*])', r'\1\n\n\2', cleaned)
-    
-    # Remove extra newlines around code blocks
-    cleaned = re.sub(r'```(\n+)([^`]*?)(\n+```)', r'```\2```', cleaned)
-
-    # Remove extra spaces at the beginning and end
-    cleaned = cleaned.strip()
-    
-    return cleaned
-
 @stub.function(secrets=[modal.Secret.from_name("secret_key")])
 @web_endpoint(label="scrape", method="POST")
 async def get_links(request: Dict):
     from playwright.async_api import async_playwright, Error as PlaywrightError
-    
+    from markdownify import markdownify as md
     try:
         async with async_playwright() as p:
             cur_url = request.get('url')
@@ -104,20 +44,31 @@ async def get_links(request: Dict):
                 # Extract links
                 links = await page.eval_on_selector_all("a[href]", """
                     (baseUrl) => {
-                        const uniqueLinks = new Set();
-                        const base = new URL(baseUrl);
+                                const uniqueLinks = new Set();
+                                const base = new URL(baseUrl);
 
-                        for (const element of document.querySelectorAll('a[href]')) {
-                            const href = element.href;
+                                // Normalize the base URL by stripping the trailing slash and converting to lowercase
+                                const normalizedBase = base.origin + base.pathname.replace(/\/+$/, '').toLowerCase();
 
-                            if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
-                                const normalizedHref = href.split('#')[0].replace(/\/+$/, '').toLowerCase();
-                                uniqueLinks.add(normalizedHref);
-                            }
+                                for (const element of document.querySelectorAll('a[href]')) {
+                                    let href = element.href;
+
+                                    if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
+                                        // Remove query parameters and fragments
+                                        href = href.split(/[?#]/)[0];
+                                        // Normalize the href by stripping the trailing slash and converting to lowercase
+                                        const normalizedHref = href.replace(/\/+$/, '').toLowerCase();
+
+                                        if (normalizedHref !== normalizedBase) {
+                                            uniqueLinks.add(normalizedHref);
+                                        }
+                                    }
+                                }
+
+                                return Array.from(uniqueLinks);
                         }
 
-                        return Array.from(uniqueLinks);
-                    }
+
                 """, cur_url)
 
                 unique_links = list(links)
@@ -144,7 +95,7 @@ async def get_links(request: Dict):
 
                 # Parse HTML and remove excluded elements
                 soup = BeautifulSoup(html_content, 'html.parser')
-                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select']
+                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select' , 'a' , 'span']
                 exclude_classes = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu']
 
                 for tag in exclude_tags:
@@ -160,20 +111,15 @@ async def get_links(request: Dict):
                     img.decompose()
 
                 # Convert cleaned HTML to Markdown
-                cleaned_html = str(soup)
+                cleaned_html = str(soup.body)
+                cleaned_html = re.sub(r'\d+', '', cleaned_html)  # Remove sequences of digits
+                cleaned_html = re.sub(r'\s+', ' ', cleaned_html).strip()  # Remove extra whitespace
+                
                 parsed_url = urlparse(cur_url)
                 domain = f"{parsed_url.scheme}://{parsed_url.netloc}"
                 markdown_content = md(cleaned_html, base_url=domain, heading_style="ATX", bullets="-")
+                markdown_content = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', markdown_content)
                 
-                # Clean up the Markdown
-                markdown_content = clean_markdown(markdown_content)
-
-                # Strip all '\n' characters from the content
-                markdown_content = markdown_content.replace('\n', '')
-
-                if len(markdown_content) < 20:
-                    raise ValueError("Insufficient content found on the page")
-                    
                 data = {cur_url: markdown_content}
 
             except PlaywrightError as e:
