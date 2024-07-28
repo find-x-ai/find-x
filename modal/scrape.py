@@ -47,8 +47,7 @@ async def get_links(request: Dict):
                                 const uniqueLinks = new Set();
                                 const base = new URL(baseUrl);
 
-                                // Normalize the base URL by stripping the trailing slash and converting to lowercase
-                                const normalizedBase = base.origin + base.pathname.replace(/\/+$/, '').toLowerCase();
+                                const normalizedBase = base.origin + base.pathname.replace(/\/+$/, '')
 
                                 for (const element of document.querySelectorAll('a[href]')) {
                                     let href = element.href;
@@ -56,10 +55,9 @@ async def get_links(request: Dict):
                                     if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
                                         // Remove query parameters and fragments
                                         href = href.split(/[?#]/)[0];
-                                        // Normalize the href by stripping the trailing slash and converting to lowercase
-                                        const normalizedHref = href.replace(/\/+$/, '').toLowerCase();
+                                        const normalizedHref = href.replace(/\/+$/, '')
 
-                                        if (normalizedHref !== normalizedBase) {
+                                        if (normalizedHref !== normalizedBase && ((normalizedHref + '/') !== normalizedBase)) {
                                             uniqueLinks.add(normalizedHref);
                                         }
                                     }
@@ -79,12 +77,18 @@ async def get_links(request: Dict):
                         const images = [];
                         for (const element of document.querySelectorAll('img[src]')) {
                             const src = element.src;
-                            if (src.startsWith('http://') || src.startsWith('https://')) {
+                            if(images.length < 10){
+                              if (src.startsWith('http://') || src.startsWith('https://')) {
                                 images.push({
-                                    url: src,
+                                    src: src,
                                     alt: element.alt || 'No description available'
                                 });
+                              }  
+                                
+                            }else {
+                                break;
                             }
+                            
                         }
                         return images;
                     }
@@ -95,7 +99,7 @@ async def get_links(request: Dict):
 
                 # Parse HTML and remove excluded elements
                 soup = BeautifulSoup(html_content, 'html.parser')
-                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select' , 'a' , 'span']
+                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select' , 'a' ,]
                 exclude_classes = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu']
 
                 for tag in exclude_tags:
@@ -129,9 +133,8 @@ async def get_links(request: Dict):
                 await browser.close()
 
         return {
-            "data": [{"url": cur_url, "content": data[cur_url]}], 
+            "data": [{"url": cur_url, "content": data[cur_url] ,  "images": {"data": images}}], 
             "links": unique_links, 
-            "images": {"data": images}
         }
 
     except ValueError as ve:
