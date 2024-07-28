@@ -224,7 +224,23 @@ app.post('/upsert', async (c) => {
 			return c.json({ mssage: 'Invalid key provided' }, 400);
 		}
 
-		const { client, data } = (await c.req.json()) as { client: number; data: [{ url: string; content: string }] };
+		const { client, data } = (await c.req.json()) as {
+			client: number;
+			data: [
+				{
+					url: string;
+					content: string;
+					images: {
+						data: [
+							{
+								src: string;
+								alt: string;
+							}
+						];
+					};
+				}
+			];
+		};
 
 		if (!client || !data || data.length < 1) {
 			return c.json({ message: 'Missing parameters' }, 400);
@@ -239,28 +255,14 @@ app.post('/upsert', async (c) => {
 		const namespace = index.namespace(client.toString());
 
 		for (let chunk of data) {
-			if (chunk.content.length > 2043) {
-				const splitted_chunks = splitText(chunk.content);
-
-				for (let i = 0; i < splitted_chunks.length; i++) {
-					await namespace.upsert({
-						id: `${chunk.url}_${i + 1}`,
-						data: splitted_chunks[i],
-						metadata: {
-							client: client,
-							url: chunk.url,
-							content: splitted_chunks[i],
-						},
-					});
-				}
-			} else {
+			if (chunk.content.trim().length > 50) {
 				await namespace.upsert({
 					id: `${chunk.url}`,
 					data: chunk.content,
 					metadata: {
 						client: client,
 						url: chunk.url,
-						content: chunk.content,
+						imgaes: JSON.stringify(chunk.images),
 					},
 				});
 			}
