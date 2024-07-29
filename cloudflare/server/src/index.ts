@@ -210,7 +210,7 @@ app.post(
 							]);
 
 							await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
-							oneTime = 1
+							oneTime = 1;
 						}
 						await stream.write(content);
 					}
