@@ -6,6 +6,9 @@ from markdownify import MarkdownConverter
 from bs4 import BeautifulSoup
 import re
 from urllib.parse import urlparse, urljoin
+from PIL import Image
+import requests
+from io import BytesIO
 
 playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "apt-get update",
@@ -15,7 +18,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install playwright==1.30.0",
     "playwright install-deps chromium",
     "playwright install chromium",
-    "pip install markdownify beautifulsoup4"
+    "pip install markdownify beautifulsoup4 pillow requests"
 )
 
 stub = App(name="link-scraper", image=playwright_image)
@@ -44,62 +47,73 @@ async def get_links(request: Dict):
                 # Extract links
                 links = await page.eval_on_selector_all("a[href]", """
                     (baseUrl) => {
-                                const uniqueLinks = new Set();
-                                const base = new URL(baseUrl);
+                        const uniqueLinks = new Set();
+                        const base = new URL(baseUrl);
 
-                                const normalizedBase = base.origin + base.pathname.replace(/\/+$/, '')
+                        const normalizedBase = base.origin + base.pathname.replace(/\/+$/, '')
 
-                                for (const element of document.querySelectorAll('a[href]')) {
-                                    let href = element.href;
+                        for (const element of document.querySelectorAll('a[href]')) {
+                            let href = element.href;
 
-                                    if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
-                                        // Remove query parameters and fragments
-                                        href = href.split(/[?#]/)[0];
-                                        const normalizedHref = href.replace(/\/+$/, '')
+                            if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
+                                // Remove query parameters and fragments
+                                href = href.split(/[?#]/)[0];
+                                const normalizedHref = href.replace(/\/+$/, '')
 
-                                        if (normalizedHref !== normalizedBase && ((normalizedHref + '/') !== normalizedBase)) {
-                                            uniqueLinks.add(normalizedHref);
-                                        }
-                                    }
+                                if (normalizedHref !== normalizedBase && ((normalizedHref + '/') !== normalizedBase)) {
+                                    uniqueLinks.add(normalizedHref);
                                 }
-
-                                return Array.from(uniqueLinks);
+                            }
                         }
 
-
+                        return Array.from(uniqueLinks);
+                    }
                 """, cur_url)
 
                 unique_links = list(links)
 
-                # Extract image URLs and alt text
+                # Extract image URLs and alt text with filtering
+                min_width = 200
+                min_height = 200
+
+                def is_valid_image(img_url):
+                    try:
+                        response = requests.get(img_url)
+                        img = Image.open(BytesIO(response.content))
+                        width, height = img.size
+                        return width >= min_width and height >= min_height
+                    except Exception:
+                        return False
+
                 images = await page.eval_on_selector_all("img[src]", """
                     () => {
                         const images = [];
                         for (const element of document.querySelectorAll('img[src]')) {
                             const src = element.src;
-                            if(images.length < 10){
-                              if (src.startsWith('http://') || src.startsWith('https://')) {
-                                images.push({
-                                    src: src,
-                                    alt: element.alt || 'No description available'
-                                });
-                              }  
-                                
-                            }else {
-                                break;
-                            }
-                            
+                            const alt = element.alt || 'No description available';
+                            images.push({src, alt});
                         }
                         return images;
                     }
                 """)
+
+                # Filter images by size and unique alt text
+                valid_images = []
+                seen_alts = set()
+
+                for img in images:
+                    if img['alt'] not in seen_alts and is_valid_image(img['src']):
+                        valid_images.append(img)
+                        seen_alts.add(img['alt'])
+                    if len(valid_images) >= 10:  # Limit to 10 images
+                        break
 
                 # Get HTML content
                 html_content = await page.content()
 
                 # Parse HTML and remove excluded elements
                 soup = BeautifulSoup(html_content, 'html.parser')
-                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select' , 'a' ,]
+                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select', 'a']
                 exclude_classes = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu']
 
                 for tag in exclude_tags:
@@ -133,7 +147,7 @@ async def get_links(request: Dict):
                 await browser.close()
 
         return {
-            "data": [{"url": cur_url, "content": data[cur_url] ,  "images": {"data": images}}], 
+            "data": [{"url": cur_url, "content": data[cur_url], "images": {"data": valid_images}}], 
             "links": unique_links, 
         }
 
