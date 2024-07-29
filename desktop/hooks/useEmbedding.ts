@@ -2,10 +2,8 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
 import { approveRequest } from "../app/actions/requests";
 import { LogMessage, ScrapedData } from "@/types";
-import { deleteClient } from "@/app/actions/client";
 import { index } from "@/lib/vector";
 
 interface Info {
@@ -190,14 +188,6 @@ export const useEmbedding = (
       if (info.id) {
         await approveRequest(parseInt(info.id));
       }
-
-      await redis.set(key, {
-        id: client.id,
-        name: info.name,
-        requests: 0,
-        remaining: parseInt(info.plan),
-      });
-
       logMessage(`Created API key successfully`, "[SUCCESS]", "text-green-500");
       setTimeout(() => {
         router.push("/all");
@@ -302,8 +292,16 @@ export const useEmbedding = (
 
   const insertNewClient = async (key: string) => {
     const result = await db(
-      `INSERT INTO client (name, email, api_key, plan, url) VALUES($1,$2,$3,$4,$5) RETURNING id`,
-      [info.name, info.email, key, parseInt(info.plan), info.url]
+      `INSERT INTO clients (name, email, api_key, plan, url , total_requests , remaining) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+      [
+        info.name,
+        info.email,
+        key,
+        parseInt(info.plan),
+        info.url,
+        0,
+        parseInt(info.plan),
+      ]
     );
     if (!result || result.length === 0) {
       throw new Error("Failed to insert new client");

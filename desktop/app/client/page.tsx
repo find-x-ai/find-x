@@ -8,9 +8,7 @@ import { toast } from "sonner";
 import Back from "@/components/ui/Back";
 import Loader from "@/components/Loader";
 import { db } from "@/lib/db";
-//@ts-ignore
 import { v4 as uuidv4 } from "uuid";
-import { redis } from "@/lib/redis";
 import { Update } from "@/components/Update";
 import CountUp from "react-countup";
 
@@ -22,6 +20,8 @@ interface ClientData {
   plan: string;
   api_key: string;
   email: string;
+  total_requests: number;
+  remaining: number;
 }
 
 const ClientPage: React.FC = () => {
@@ -32,10 +32,7 @@ const ClientPage: React.FC = () => {
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [clientData, setClientData] = useState<ClientData | null>(null);
-  const [apiData, setApiData] = useState<{
-    remaining: number;
-    requests: number;
-  }>({ remaining: 0, requests: 0 });
+
   const router = useRouter();
 
   useEffect(() => {
@@ -51,7 +48,7 @@ const ClientPage: React.FC = () => {
       };
 
       try {
-        const response = (await db(`SELECT * FROM CLIENT WHERE id = $1`, [
+        const response = (await db(`SELECT * FROM CLIENTS WHERE id = $1`, [
           clientFromUrl.id,
         ])) as ClientData[];
         if (response && response.length > 0) {
@@ -63,13 +60,6 @@ const ClientPage: React.FC = () => {
           setClientData({ ...clientFromUrl, ...dbClient, joined_at: joinedAt });
         } else {
         }
-
-        const keyData = (await redis.get(response[0].api_key)) as {
-          remaining: number;
-          requests: number;
-        };
-
-        setApiData(keyData);
       } catch (error) {
         console.error("Error fetching client data:", error);
       }
@@ -120,19 +110,10 @@ const ClientPage: React.FC = () => {
     const newKey = uuidv4();
 
     try {
-      await db(`UPDATE client SET api_key = $1 WHERE api_key = $2`, [
+      await db(`UPDATE clients SET api_key = $1 WHERE api_key = $2`, [
         newKey,
         oldKey,
       ]);
-
-      const oldData = (await redis.get(oldKey)) as {};
-
-      if (!oldData) {
-        throw "Failed to revoke api key!";
-      }
-
-      await redis.del(oldKey);
-      await redis.set(newKey, oldData);
 
       return window.location.reload();
     } catch (error) {
@@ -204,7 +185,7 @@ const ClientPage: React.FC = () => {
                   className="text-green-600"
                   duration={1.5}
                   start={0.0}
-                  end={apiData?.remaining}
+                  end={clientData?.remaining || 0}
                   decimal="."
                   decimals={2}
                 />
@@ -217,7 +198,7 @@ const ClientPage: React.FC = () => {
                 <CountUp
                   duration={1.5}
                   start={0}
-                  end={apiData?.requests}
+                  end={clientData?.total_requests}
                 />
               </div>
             </div>
