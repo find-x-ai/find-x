@@ -4,7 +4,7 @@ import { ResponseArea, SearchBar, SparkleButton } from "./ui";
 import { useTypeEffect } from "./hooks/useTypeEffect";
 import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
 import { fetchResponse } from "../actions/fetch";
-import { Config } from "./types";
+import { Config, Image } from "./types";
 
 const ChatBox = ({ config }: { config: Config }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -12,6 +12,7 @@ const ChatBox = ({ config }: { config: Config }) => {
   const [response, setResponse] = useState<string>("");
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
   const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
+  const [images, setImages] = useState<Image[]>([]);
 
   const uiRef = useRef<HTMLDivElement>(null);
   const typeEffect = useTypeEffect();
@@ -52,6 +53,7 @@ const ChatBox = ({ config }: { config: Config }) => {
     setResponse("Searching");
     setReferenceLinks([]);
     setCodeSnippets([]);
+    setImages([]);
 
     try {
       const responseStream = await fetchResponse(search, config.findx_key);
@@ -61,10 +63,16 @@ const ChatBox = ({ config }: { config: Config }) => {
       setResponse(""); // Clear the previous response
 
       for await (const chunk of responseStream) {
-        wholeResponse += chunk;
-
         if (chunk.includes("<#$#>")) {
-          const [responseText, linksText] = chunk.split("<#$#>");
+          const [header, responseText] = chunk.split("<#$#>");
+
+          const [linksText, imagesString] = header.split("<+$+>");
+
+          const ImageArray = JSON.parse(imagesString) as { data: Image[] };
+
+          setImages(ImageArray.data);
+
+          wholeResponse += responseText;
           if (linksText) {
             links = [
               ...links,
@@ -74,6 +82,7 @@ const ChatBox = ({ config }: { config: Config }) => {
           setReferenceLinks(links);
           await typeEffect(responseText, setResponse);
         } else {
+          wholeResponse += chunk;
           await typeEffect(chunk, setResponse);
         }
       }
@@ -108,6 +117,7 @@ const ChatBox = ({ config }: { config: Config }) => {
               referenceLinks={referenceLinks}
               codeSnippets={codeSnippets}
               theme={config.theme}
+              images={images}
             />
           </div>
         </div>

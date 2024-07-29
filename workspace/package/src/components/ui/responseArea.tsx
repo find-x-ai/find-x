@@ -1,6 +1,8 @@
 import React from "react";
 import { TextIcon } from "../icons/svgs";
 import { ResponseWithCodeSnippets, Sources } from "../ui";
+import { Image } from "../types";
+import { Images } from "./images";
 
 type ResponseAreaProps = {
   isLoading: boolean;
@@ -8,6 +10,7 @@ type ResponseAreaProps = {
   referenceLinks: string[];
   codeSnippets: string[];
   theme: "light" | "dark";
+  images: Image[];
 };
 
 export const ResponseArea: React.FC<ResponseAreaProps> = ({
@@ -16,6 +19,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
   referenceLinks,
   codeSnippets,
   theme,
+  images,
 }) => (
   <div className="f-w-full f-flex f-justify-center f-relative f-font-[sans-serif]">
     <div
@@ -55,6 +59,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
                   <p>AI response</p>
                 </div>
               </div>
+              {images.length > 0 ? <div className="f-pb-5 f-pt-3"><Images images={images} /></div> : ""}
               <ResponseWithCodeSnippets
                 text={response.split("<#$#>")[0]}
                 snippets={codeSnippets}
