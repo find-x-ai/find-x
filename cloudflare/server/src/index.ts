@@ -204,9 +204,10 @@ app.post(
 					const content = chunk.choices[0].delta.content;
 					if (content) {
 						if (oneTime === 0) {
-							await db(`UPDATE clients SET total_requests = $1 , remaining = $2`, [
+							await db(`UPDATE clients SET total_requests = $1 , remaining = $2 WHERE id = $3`, [
 								parseInt(db_res[0].total_requests) + 1,
 								(db_res[0].remaining - 0.02).toFixed(2),
+								db_res[0].id,
 							]);
 
 							await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
