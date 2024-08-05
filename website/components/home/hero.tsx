@@ -20,8 +20,9 @@ export const Hero = ({ version }: { version: string }) => {
         <span className="relative group-hover:left-1">-{">"}</span>
       </Link>
       <div className="flex flex-col items-center gap-5">
-        <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium">
-          The most comprehensive <br /> AI search for web
+        <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium text-zinc-700">
+          The most comprehensive <br />{" "}
+          <span className="text-[#ff371a] font-medium">AI search</span> for web
         </h1>
         <p>Search for anything, anywhere, instantly.</p>
       </div>
