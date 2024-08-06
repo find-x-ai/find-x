@@ -5,7 +5,9 @@ export const Sales = () => {
     <div className="w-full p-6 md:p-10 my-5 flex justify-center bg-zinc-200 border border-zinc-800 rounded-lg">
       <div className="w-full max-w-[500px] flex justify-center gap-5 items-center">
         <div className="">
-          <h2 className="text-xl md:text-2xl font-semibold">Contact sales now </h2>
+          <h2 className="text-xl md:text-2xl font-semibold">
+            Contact sales now{" "}
+          </h2>
         </div>
         <div>
           <Link
