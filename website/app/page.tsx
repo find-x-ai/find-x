@@ -1,4 +1,4 @@
-import { Hero, Video, Features, WeMakeDifference } from "@/components/home";
+import { Hero, Video, Features, WeMakeDifference , TotalRequests } from "@/components/home";
 export default async function Home() {
   const res = await fetch("https://registry.npmjs.org/find-x-ai", {
     next: { revalidate: 100 },
@@ -10,6 +10,7 @@ export default async function Home() {
       <Hero version={version} />
       <Video />
       <Features />
+      <TotalRequests/>
       <WeMakeDifference />
     </div>
   );
