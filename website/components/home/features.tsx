@@ -10,7 +10,7 @@ export const Features = () => {
       className="py-5 flex flex-col gap-5 rounded-lg"
     >
       <div className="text-center">
-        <h2 className="md:text-5xl text-4xl">What is it ?</h2>
+        <h2 className="md:text-5xl text-4xl text-zinc-700">What is it ?</h2>
       </div>
       <div className=" p-5 rounded-lg">
         <p className="w-full max-w-[800px] mx-auto text-zinc-700 leading-7">
