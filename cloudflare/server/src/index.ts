@@ -120,7 +120,7 @@ app.post(
 		const id = db_res[0].id;
 
 		try {
-			const groq = new Groq({ apiKey: selectedApiKey });
+			const groq = new Groq({ apiKey: env[apiKeys[9]] });
 
 			const index = new Index({
 				url: UPSTASH_VECTOR_REST_URL,
@@ -156,7 +156,7 @@ app.post(
 			let header = '';
 
 			// First, add all the URL and content information
-			array_of_context.forEach((c, index) => {
+			array_of_context.forEach((c, _index) => {
 				header += c.url + '<-|$|->' + (c.content.length > 80 ? c.content.slice(0, 70) + '...' : c.content) + '<*$*>';
 			});
 
@@ -198,6 +198,7 @@ app.post(
 					],
 					model: 'llama-3.1-8b-instant',
 					stream: true,
+					temperature: 0.5,
 				});
 				let oneTime = 0;
 				for await (const chunk of chatCompletion) {
