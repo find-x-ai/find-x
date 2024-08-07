@@ -145,7 +145,7 @@ export const SourcesIcon = ({
         theme === "light" ? "f-stroke-[#273734]" : "f-stroke-neutral-300"
       } f-w-[35px] f-h-[35px] ${
         isOpen && "f-transform f-rotate-[360deg]"
-      } f-transition-transform f-duration-300`}
+      } f-transition-transform f-duration-200`}
     >
       <path
         fill="currentColor"

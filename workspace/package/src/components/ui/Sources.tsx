@@ -21,7 +21,7 @@ export const Sources = ({
                   : "f-bg-[#232524] f-border-neutral-700/40"
               } f-w-full f-group ${
                 isOpen ? "f-h-[205px] " : "f-h-[60px]"
-              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-300 f-overflow-hidden f-border`}
+              } f-rounded-md f-flex f-flex-col f-transition-all f-duration-200 f-overflow-hidden f-border`}
             >
               <div
                 onClick={() => {
@@ -50,13 +50,13 @@ export const Sources = ({
                         : "f-stroke-neutral-200 group-hover:f-stroke-neutral-200/60"
                     } ${
                       isOpen && "f-transform f-rotate-180"
-                    } f-transition-transform f-duration-300`}
+                    } f-transition-transform f-duration-200`}
                   />
                 </div>
               </div>
 
               <div
-                className={`f-p-3 f-flex f-flex-row f-gap-5 f-h-full sm:f-overflow-hidden f-overflow-x-scroll f-overflow-y-hidden f-scrollbar-hide`}
+                className={`f-p-3 f-flex f-flex-row f-gap-3 f-h-full sm:f-overflow-hidden f-overflow-x-scroll f-overflow-y-hidden f-scrollbar-hide`}
               >
                 {links
                   .filter((link) => link.trim() !== "")
@@ -72,8 +72,8 @@ export const Sources = ({
                           theme === "light"
                             ? "f-text-zinc-800 f-bg-zinc-100"
                             : "f-text-neutral-400 f-bg-[#2d2f2e]"
-                        }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-300 ${
-                          isOpen ? "f-blur-none" : "f-blur-sm"
+                        }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-200 ${
+                          isOpen ? "f-opacity-100" : "f-opacity-0"
                         }`}
                       >
                         <a

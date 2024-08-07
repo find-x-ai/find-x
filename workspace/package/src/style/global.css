@@ -252,6 +252,7 @@
   display: flex;
   flex-direction: column;
   gap: 2;
+  padding-left: 20px;
 }
 
 .find-x .txt p {
@@ -268,6 +269,7 @@
   display: flex;
   flex-direction: column;
   gap: 2;
+  padding-left: 20px;
 }
 .find-x menu {
   list-style: none;
