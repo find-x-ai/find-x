@@ -2,14 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-.f-scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* Hide scrollbars */
 .f-scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
 
+.f-scrollbar-hide::-webkit-scrollbar {
+  display: none; /* WebKit browsers */
+}
+
+/* Border styles */
 .f-bl {
   border: 1px solid #3b82f6;
 }
@@ -18,6 +21,7 @@
   border: 1px solid #52525b;
 }
 
+/* Loader animation */
 .loader {
   height: 5px;
   width: 5px;
@@ -28,8 +32,7 @@
 
 @keyframes loader-38 {
   0% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px,
-      -7px -7px 0 5px;
+    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px;
   }
   8.33% {
     box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px -7px 0 5px, 7px -7px 0 5px;
@@ -65,8 +68,7 @@
     box-shadow: -7px -7px 0 5px, -7px 7px 0 5px, -7px 7px 0 5px, -7px 7px 0 5px;
   }
   100% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px,
-      -7px -7px 0 5px;
+    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px;
   }
 }
 
@@ -88,33 +90,39 @@
 .find-x ::after {
   --tw-content: "";
 }
+
 .find-x hr {
   height: 0;
   color: inherit;
   border-top-width: 1px;
 }
+
 .find-x abbr:where([title]) {
   text-decoration: underline dotted;
 }
+
 .find-x a {
   color: inherit;
   text-decoration: inherit;
 }
+
 .find-x b,
 .find-x strong {
   font-weight: bolder;
 }
+
 .find-x code,
 .find-x kbd,
 .find-x samp,
 .find-x pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 1em;
 }
+
 .find-x small {
   font-size: 80%;
 }
+
 .find-x sub,
 .find-x sup {
   font-size: 75%;
@@ -122,12 +130,15 @@
   position: relative;
   vertical-align: baseline;
 }
+
 .find-x sub {
   bottom: -0.25em;
 }
+
 .find-x sup {
   top: -0.5em;
 }
+
 .find-x {
   display: flex;
   flex-direction: column;
@@ -145,7 +156,8 @@
   table-layout: fixed; /* Ensure columns fill the table width */
 }
 
-.find-x th, .find-x td {
+.find-x th,
+.find-x td {
   padding: 8px;
   text-align: left;
   border: 1px solid #525252; /* Column borders */
@@ -163,11 +175,12 @@
   background-color: #191b1a; /* Original dark background for odd rows */
 }
 
-.find-x th:last-child, .find-x td:last-child {
+.find-x th:last-child,
+.find-x td:last-child {
   flex: 1; /* Make the last column fill the remaining space */
 }
 
-.find-x table-wrapper {
+.find-x .table-wrapper {
   width: 100%;
   overflow-x: auto;
   border-radius: 8px; /* Ensure the wrapper has rounded corners as well */
@@ -175,9 +188,9 @@
 
 @media (max-width: 600px) {
   .find-x table {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 }
 
@@ -194,9 +207,11 @@
   margin: 0;
   padding: 0;
 }
+
 .find-x select {
   text-transform: none;
 }
+
 .find-x [type="reset"],
 .find-x [type="submit"] {
   -webkit-appearance: button;
@@ -207,30 +222,37 @@
 .find-x progress {
   vertical-align: baseline;
 }
+
 .find-x ::-webkit-inner-spin-button,
 .find-x ::-webkit-outer-spin-button {
   height: auto;
 }
+
 .find-x [type="search"] {
   -webkit-appearance: textfield;
   outline-offset: -2px;
 }
+
 .find-x ::-webkit-search-decoration {
   -webkit-appearance: none;
 }
+
 .find-x ::-webkit-file-upload-button {
   -webkit-appearance: button;
   font: inherit;
 }
+
 .find-x summary {
   display: list-item;
 }
+
 .find-x blockquote {
   width: auto;
   height: 50px;
   padding: 5px;
   margin: 0;
 }
+
 .find-x dl,
 .find-x dd,
 .find-x hr,
@@ -239,13 +261,16 @@
 .find-x pre {
   margin: 0;
 }
+
 .find-x fieldset {
   margin: 0;
   padding: 0;
 }
+
 .find-x legend {
   padding: 0;
 }
+
 .find-x ul {
   list-style-type: disc;
   list-style-position: inside;
@@ -260,9 +285,11 @@
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
 .find-x .txt strong {
   opacity: 1;
 }
+
 .find-x ol {
   list-style-type: decimal;
   list-style-position: inside;
@@ -271,28 +298,23 @@
   gap: 2;
   padding-left: 20px;
 }
-.find-x menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+
+.find-x button,
+.find-x [role="button"] {
+  cursor: pointer;
+  border: 1px solid #9ca3af;
 }
-.find-x dialog {
-  padding: 0;
-}
-.find-x textarea {
-  resize: vertical;
-}
+
 .find-x input::placeholder,
 .find-x textarea::placeholder {
   opacity: 1;
   color: #9ca3af;
 }
-.find-x [role="button"] {
-  cursor: pointer;
-}
+
 .find-x :disabled {
   cursor: default;
 }
+
 .find-x img,
 .find-x svg,
 .find-x video,
@@ -304,11 +326,13 @@
   display: block;
   vertical-align: middle;
 }
+
 .find-x img,
 .find-x video {
   max-width: 100%;
   height: auto;
 }
+
 .find-x [hidden] {
   display: none;
 }
