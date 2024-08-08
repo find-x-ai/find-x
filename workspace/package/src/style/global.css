@@ -173,6 +173,20 @@
   padding: 0;
 }
 
+.find-x input::-moz-focus-inner {
+  outline: none;
+  border: 0px;
+}
+
+.find-x input:focus {
+  outline: none;
+  border: 0px;
+}
+.find-x input:focus-within {
+  outline: none;
+  border: 0px;
+}
+
 .find-x select {
   text-transform: none;
 }
@@ -260,12 +274,10 @@
   padding-bottom: 10px;
 }
 
-.find-x .txt strong {  
+.find-x .txt strong {
   opacity: 1;
   font-weight: 600;
 }
-
-
 
 .find-x button,
 .find-x [role="button"] {
