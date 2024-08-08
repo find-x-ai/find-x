@@ -34,7 +34,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
       {(isLoading || response) && (
         <div
           className={`f-rounded-lg f-p-5 f-leading-7 f-font-sans f-flex-grow ${
-            response === "Searching" && `f-flex f-gap-7 f-items-center`
+            response === "Searching" && `f-flex f-gap-4 f-items-center`
           }`}
         >
           <div
@@ -42,9 +42,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
               response === "Searching" ? "f-block f-pl-3" : "f-hidden"
             }`}
           >
-            <span
-              className={`loader f-scale-95 f-transition-colors f-duration-300 f-text-[#2cc3d8]`}
-            ></span>
+            <div className={`loader-fx`}></div>
           </div>
           {response !== "Searching" ? (
             <>
@@ -59,7 +57,13 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
                   <p>AI response</p>
                 </div>
               </div>
-              {images.length > 0 ? <div className="f-pb-5 f-pt-3"><Images images={images} /></div> : ""}
+              {images.length > 0 ? (
+                <div className="f-pb-5 f-pt-3">
+                  <Images images={images} />
+                </div>
+              ) : (
+                ""
+              )}
               <ResponseWithCodeSnippets
                 text={response.split("<#$#>")[0]}
                 snippets={codeSnippets}

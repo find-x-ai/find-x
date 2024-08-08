@@ -21,57 +21,21 @@
   border: 1px solid #52525b;
 }
 
-/* Loader animation */
-.loader {
-  height: 5px;
-  width: 5px;
-  opacity: 0.7;
-  box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px;
-  animation: loader-38 3s infinite;
+/* HTML: <div class="loader"></div> */
+.loader-fx {
+  width: 25px;
+  aspect-ratio: 1.154;
+  --_g: no-repeat radial-gradient(farthest-side, #21bcd2 90%, transparent);
+  background: var(--_g) 50% 0, var(--_g) 0 100%, var(--_g) 100% 100%;
+  background-size: 35% calc(35% * 1.154);
+  animation: l16 0.5s infinite;
 }
-
-@keyframes loader-38 {
-  0% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px;
-  }
-  8.33% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px -7px 0 5px, 7px -7px 0 5px;
-  }
-  16.66% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px;
-  }
-  24.99% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  33.32% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, -7px -7px 0 5px;
-  }
-  41.65% {
-    box-shadow: 7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, 7px -7px 0 5px;
-  }
-  49.98% {
-    box-shadow: 7px 7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px;
-  }
-  58.31% {
-    box-shadow: -7px 7px 0 5px, -7px 7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  66.64% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  74.97% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  83.3% {
-    box-shadow: -7px -7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  91.63% {
-    box-shadow: -7px -7px 0 5px, -7px 7px 0 5px, -7px 7px 0 5px, -7px 7px 0 5px;
-  }
+@keyframes l16 {
+  50%,
   100% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px;
+    background-position: 100% 100%, 50% 0, 0 100%;
   }
 }
-
 /* General styles */
 .find-x *,
 .find-x ::before,
@@ -115,7 +79,8 @@
 .find-x kbd,
 .find-x samp,
 .find-x pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   font-size: 1em;
 }
 
@@ -273,11 +238,20 @@
 
 .find-x ul {
   list-style-type: disc;
-  list-style-position: inside;
+  list-style-position: outside;
   display: flex;
   flex-direction: column;
   gap: 2;
-  padding-left: 20px;
+  margin-left: 2rem;
+}
+
+.find-x ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  display: flex;
+  flex-direction: column;
+  gap: 2;
+  padding-left: 2rem;
 }
 
 .find-x .txt p {
@@ -286,18 +260,12 @@
   padding-bottom: 10px;
 }
 
-.find-x .txt strong {
+.find-x .txt strong {  
   opacity: 1;
+  font-weight: 600;
 }
 
-.find-x ol {
-  list-style-type: decimal;
-  list-style-position: inside;
-  display: flex;
-  flex-direction: column;
-  gap: 2;
-  padding-left: 20px;
-}
+
 
 .find-x button,
 .find-x [role="button"] {

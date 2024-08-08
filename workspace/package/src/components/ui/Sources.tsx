@@ -56,7 +56,7 @@ export const Sources = ({
               </div>
 
               <div
-                className={`f-p-3 f-flex f-flex-row f-gap-3 f-h-full sm:f-overflow-hidden f-overflow-x-scroll f-overflow-y-hidden f-scrollbar-hide`}
+                className={`f-p-3 f-flex f-flex-row f-gap-3 f-h-full md:f-overflow-hidden f-overflow-x-scroll f-overflow-y-hidden f-scrollbar-hide`}
               >
                 {links
                   .filter((link) => link.trim() !== "")
