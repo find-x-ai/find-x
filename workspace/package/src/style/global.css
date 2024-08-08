@@ -187,6 +187,11 @@
   border: 0px;
 }
 
+.find-x input{
+  outline: none;
+  border: 0px;
+}
+
 .find-x select {
   text-transform: none;
 }
