@@ -1,16 +1,4 @@
-import { db } from "@/lib/db";
-
-export const TotalRequests = async () => {
-  let count = 0;
-  try {
-    const res = await db(`SELECT total_requests FROM clients`);
-    res.forEach((c) => {
-      count += parseInt(c.total_requests);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-
+export const TotalRequests = async ({ count }: { count: number }) => {
   return (
     <div className="flex items-center justify-center p-6 md:p-10 rounded-xl">
       <div className="w-full max-w-[600px] flex flex-col items-center md:space-y-0 md:flex-row gap-3 md:justify-center tracking-widest">
