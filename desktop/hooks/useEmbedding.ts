@@ -23,7 +23,7 @@ interface EmbeddingResult {
 }
 
 const CHUNK_SIZE = 5;
-const COUNTDOWN_TIME = 10;
+const COUNTDOWN_TIME = 5;
 const MAX_RETRIES = 3;
 
 export const useEmbedding = (
@@ -136,13 +136,9 @@ export const useEmbedding = (
           );
         } else {
           logMessage(
-            `Embedding process failed. Cleaning up partial embeddings...`,
+            `Embedding process failed.`,
             "[WARNING]",
             "text-yellow-500"
-          );
-          await cleanupPartialEmbeddings(
-            result.clientId,
-            result.embeddedChunks
           );
           logMessage(
             `Cleanup completed. Failed chunks: ${result.failedChunks.join(
@@ -167,6 +163,7 @@ export const useEmbedding = (
     chunks: ScrapedData[][]
   ): Promise<EmbeddingResult> => {
     logMessage(`Updating the website...`, "[INFO]", "text-white");
+    await index.namespace(info.id).reset();
     if (!info.id) {
       throw new Error("Missing ID for update operation");
     }
@@ -204,17 +201,17 @@ export const useEmbedding = (
     const failedChunks: number[] = [];
     const embeddedChunks: number[] = [];
 
-    for (let i = 0; i < chunks.length; i++) {
+    const processChunk = async (chunk: ScrapedData[], index: number) => {
       let success = false;
       for (let retry = 0; retry < MAX_RETRIES; retry++) {
         try {
-          await upsertChunk(clientId, chunks[i]);
+          await upsertChunk(clientId, chunk, index + 1);
           success = true;
-          embeddedChunks.push(i);
+          embeddedChunks.push(index);
           break;
         } catch (error) {
           logMessage(
-            `Error processing chunk ${i + 1}. Retry ${
+            `Error processing chunk ${index + 1}. Retry ${
               retry + 1
             }/${MAX_RETRIES}`,
             "[WARNING]",
@@ -222,41 +219,48 @@ export const useEmbedding = (
           );
         }
       }
+
       if (!success) {
         // Give the failed chunk one more try
         logMessage(
-          `Chunk ${i + 1} failed. Giving it one last try...`,
+          `Chunk ${index + 1} failed. Giving it one last try...`,
           "[INFO]",
           "text-blue-500"
         );
         try {
-          await upsertChunk(clientId, chunks[i]);
+          await upsertChunk(clientId, chunk, index + 1);
           success = true;
-          embeddedChunks.push(i);
+          embeddedChunks.push(index);
           logMessage(
-            `Chunk ${i + 1} embedded successfully on final try`,
+            `Chunk ${index + 1} embedded successfully on final try`,
             "[SUCCESS]",
             "text-green-500"
           );
         } catch (error) {
           logMessage(
-            `Chunk ${i + 1} failed on final try. Stopping process.`,
+            `Chunk ${index + 1} failed on final try. Stopping process.`,
             "[ERROR]",
             "text-red-500"
           );
-          failedChunks.push(i + 1);
-          break;
+          failedChunks.push(index + 1);
+          throw error;
         }
       }
-    }
+    };
 
-    if (failedChunks.length > 0) {
-      logMessage(
-        `Embedding process stopped. Running cleanup...`,
-        "[WARNING]",
-        "text-yellow-500"
+    try {
+      // Process all chunks in parallel
+      await Promise.all(
+        chunks.map((chunk, index) => processChunk(chunk, index))
       );
-      await cleanupPartialEmbeddings(clientId, embeddedChunks);
+
+      logMessage(
+        `Embedding process completed successfully`,
+        "[SUCCESS]",
+        "text-green-500"
+      );
+    } catch (error) {
+      logMessage(`Embedding process failed.`, "[WARNING]", "text-yellow-500");
     }
 
     return {
@@ -265,29 +269,6 @@ export const useEmbedding = (
       embeddedChunks,
       clientId,
     };
-  };
-
-  const cleanupPartialEmbeddings = async (
-    clientId: string,
-    _embeddedChunks: number[]
-  ): Promise<void> => {
-    logMessage(
-      `Starting cleanup of partial embeddings...`,
-      "[INFO]",
-      "text-blue-500"
-    );
-
-    try {
-      await index.deleteNamespace(clientId.toString());
-      logMessage(
-        `Cleanup completed successfully`,
-        "[SUCCESS]",
-        "text-green-500"
-      );
-    } catch (error) {
-      console.error(error);
-      logMessage(`Error during cleanup: ${error}`, "[ERROR]", "text-red-500");
-    }
   };
 
   const insertNewClient = async (key: string) => {
@@ -311,7 +292,8 @@ export const useEmbedding = (
 
   const upsertChunk = async (
     clientId: string,
-    chunk: ScrapedData[]
+    chunk: ScrapedData[],
+    index: number
   ): Promise<void> => {
     const res = await fetch(process.env.NEXT_PUBLIC_UPSERT_URL!, {
       method: "POST",
@@ -333,7 +315,7 @@ export const useEmbedding = (
     }
 
     logMessage(
-      `Successfully generated vector embeddings for chunk`,
+      `Successfully generated vector embeddings for chunk ${index}`,
       "[SUCCESS]",
       "text-green-500"
     );

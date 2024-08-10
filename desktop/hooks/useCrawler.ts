@@ -44,86 +44,84 @@ export const useCrawler = ({
     const internalQueue: string[] = [url];
     const visited = new Set<string>();
     const scrapedData: ScrapedData[] = [];
+    const batchSize = 100;
 
     while (internalQueue.length > 0) {
       if (signal.aborted) {
         throw new Error("Aborted");
       }
 
-      const currentUrl = internalQueue.shift() as string;
-      const arr = currentUrl.split("#");
-
-      if (
-        visited.has(currentUrl) ||
-        (visited.has(arr[0]) && !arr[0].endsWith("/"))
-      ) {
-        continue;
-      }
+      // Take a batch of URLs from the queue
+      const currentBatch = internalQueue.splice(0, batchSize);
 
       try {
-        logMessage(`Scraping: ${currentUrl}`, "[INFO]", "text-zinc-100");
+        const results = await Promise.all(
+          currentBatch.map(async (currentUrl) => {
+            const arr = currentUrl.split("#");
 
-        const response = await fetch(
-          localMode
-            ? "http://localhost:8001/api/fetch"
-            : "https://sahilm416--scrape.modal.run",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              url: currentUrl,
-              secret_key: process.env.NEXT_PUBLIC_SCRAPING_KEY!,
-            }),
-            signal: signal,
-          }
-        );
-
-        const result = await response.json();
-        logMessage(
-          `Successfully fetched ${currentUrl}`,
-          "[SUCCESS]",
-          "text-green-500"
-        );
-
-        await new Promise((resolve) => {
-          const timeout = setTimeout(resolve, 1000);
-          signal.addEventListener(
-            "abort",
-            () => {
-              clearTimeout(timeout);
-              resolve(undefined);
-            },
-            { once: true }
-          );
-        });
-
-        if (signal.aborted) {
-          throw new Error("Aborted");
-        }
-
-        const pageData = result.data[0];
-
-        if (pageData) {
-          scrapedData.push(pageData);
-
-          result.links.forEach((link: string) => {
-            if (isInternalLink(link, baseUrl)) {
-              const fullUrl = getFullUrl(link, baseUrl);
-              if (!visited.has(fullUrl)) {
-                internalQueue.push(fullUrl);
-              }
+            if (
+              visited.has(currentUrl) ||
+              (visited.has(arr[0]) && !arr[0].endsWith("/")) ||
+              visited.has(currentUrl + "/")
+            ) {
+              return null;
             }
-          });
 
-          visited.add(currentUrl);
-        } else {
-          logMessage(
-            `No data found for: ${currentUrl}`,
-            "[INFO]",
-            "text-zinc-100"
-          );
-        }
+            logMessage(`Scraping: ${currentUrl}`, "[INFO]", "text-zinc-100");
+
+            const response = await fetch(
+              localMode
+                ? "http://localhost:8001/api/fetch"
+                : "https://sahilm416--scrape.modal.run",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  url: currentUrl,
+                  secret_key: process.env.NEXT_PUBLIC_SCRAPING_KEY!,
+                }),
+                signal: signal,
+              }
+            );
+
+            const result = await response.json();
+            logMessage(
+              `Successfully fetched ${currentUrl}`,
+              "[SUCCESS]",
+              "text-green-500"
+            );
+
+            const pageData = result.data[0];
+
+            if (pageData) {
+              result.links.forEach((link: string) => {
+                if (isInternalLink(link, baseUrl)) {
+                  const fullUrl = getFullUrl(link, baseUrl);
+                  if (!visited.has(fullUrl)) {
+                    internalQueue.push(fullUrl);
+                  }
+                }
+              });
+
+              visited.add(currentUrl);
+              return pageData;
+            } else {
+              logMessage(
+                `No data found for: ${currentUrl}`,
+                "[INFO]",
+                "text-zinc-100"
+              );
+              return null;
+            }
+          })
+        );
+
+        // Filter out null results and add to scrapedData
+        scrapedData.push(
+          ...(results.filter((data) => data !== null) as ScrapedData[])
+        );
       } catch (error) {
+        console.log(error);
         if (
           error instanceof Error &&
           (error.name === "AbortError" || error.message === "Aborted")
@@ -131,11 +129,7 @@ export const useCrawler = ({
           logMessage(`Crawling cancelled by user`, "[USER]", "text-red-500");
           return { scrapedData, totalLinks: visited.size };
         }
-        logMessage(
-          `Error scraping page: ${currentUrl} - ${error}`,
-          "[ERROR]",
-          "text-red-500"
-        );
+        logMessage(`Error scraping batch: ${error}`, "[ERROR]", "text-red-500");
       }
     }
 
@@ -166,7 +160,6 @@ export const useCrawler = ({
       const timeTaken = formatTime(endTime - startTime);
 
       setScrapedData(scrapedData);
-      console.log(scrapedData);
       logMessage(
         `Crawling finished. Total Links: ${totalLinks}. Time: ${timeTaken}`,
         "[FINISHED]",
