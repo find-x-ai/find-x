@@ -44,7 +44,7 @@ const Aside = () => {
       <div className="flex flex-col gap-5">
         <NewApp />{" "}
         <div className="flex flex-col gap-1 text-sm">
-          <span className="text-white">v0.1.3</span>
+          <span className="text-white">v0.1.4</span>
           <span className="text-white text-[12px]">
             built with 💜 by sahil.
           </span>
