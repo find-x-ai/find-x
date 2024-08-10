@@ -1,7 +1,7 @@
 "use client";
-import Link from "next/link";
 import { Button } from "./ui/button";
 import { Check, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogClose,
@@ -14,6 +14,8 @@ import {
 } from "./ui/dialog";
 import { toast } from "sonner";
 import { rejectRequest } from "@/app/actions/requests";
+import { invoke } from "@tauri-apps/api/tauri";
+
 type Project = {
   id: number;
   joined_at: string;
@@ -25,6 +27,7 @@ type Project = {
 };
 
 const AllRequests = ({ requests }: { requests: Project[] }) => {
+  const router = useRouter();
   const handleReject = async (id: number) => {
     toast.promise(rejectRequest(id), {
       loading: "Rejecting request...",
@@ -81,16 +84,27 @@ const AllRequests = ({ requests }: { requests: Project[] }) => {
                     {c.plan}$
                   </td>
                   <td className="px-6 flex gap-5 py-4 whitespace-nowrap">
-                    <Link
-                      href={`/new?data=${c.name}*${c.url}*${c.plan}*${c.email}*${c.id}`}
+                    <Button
+                      onClick={async () => {
+                        await invoke("set_item", {
+                          key: "new",
+                          value: JSON.stringify({
+                            id: null,
+                            name: c.name,
+                            url: c.url,
+                            plan: c.plan,
+                            email: c.email,
+                            update: false,
+                          }),
+                        });
+                        router.push("/new");
+                      }}
+                      className="text-white hover:text-white rounded-full bg-green-600/30 border-green-600 hover:bg-green-700/30"
+                      variant={"outline"}
                     >
-                      <Button
-                        className="text-white hover:text-white rounded-full bg-green-600/30 border-green-600 hover:bg-green-700/30"
-                        variant={"outline"}
-                      >
-                        <Check />
-                      </Button>
-                    </Link>
+                      <Check />
+                    </Button>
+
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
