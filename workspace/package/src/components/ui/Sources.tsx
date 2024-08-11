@@ -61,10 +61,8 @@ export const Sources = ({
                 {links
                   .filter((link) => link.trim() !== "")
                   .map((link, i) => {
-                    const [url, content] = link.split("<-|$|->");
-                    const arr = url.split("/");
-                    const title = arr[arr.length - 1] || "Home";
-
+                    const [header, content] = link.split("<-|$|->");
+                    const [title, url] = header.split("</>");
                     return (
                       <div
                         key={i}
