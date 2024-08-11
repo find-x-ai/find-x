@@ -1,11 +1,10 @@
 import os
 import modal
-from modal import App, web_endpoint
+from modal import Stub, web_endpoint
 from typing import Dict
-from markdownify import MarkdownConverter
 from bs4 import BeautifulSoup
 import re
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 from PIL import Image
 import requests
 from io import BytesIO
@@ -21,7 +20,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install markdownify beautifulsoup4 pillow requests"
 )
 
-stub = App(name="link-scraper", image=playwright_image)
+stub = Stub(name="link-scraper", image=playwright_image)
 
 @stub.function(secrets=[modal.Secret.from_name("secret_key")])
 @web_endpoint(label="scrape", method="POST")
@@ -32,7 +31,7 @@ async def get_links(request: Dict):
         async with async_playwright() as p:
             cur_url = request.get('url')
             key = request.get('secret_key')
-            secret_key = os.environ["secret_key"]
+            secret_key=os.environ['secret_key']
             if key != secret_key:
                 raise ValueError("Invalid secret key")
             if not cur_url:
@@ -44,6 +43,9 @@ async def get_links(request: Dict):
                 await page.goto(cur_url, timeout=30000)
                 await page.wait_for_timeout(2000)
                 
+                # Extract title
+                title = await page.title()
+
                 # Extract links
                 links = await page.eval_on_selector_all("a[href]", """
                     (baseUrl) => {
@@ -128,17 +130,40 @@ async def get_links(request: Dict):
                 for img in soup.find_all('img'):
                     img.decompose()
 
-                # Convert cleaned HTML to Markdown
-                cleaned_html = str(soup.body)
-                cleaned_html = re.sub(r'\d+', '', cleaned_html)  # Remove sequences of digits
-                cleaned_html = re.sub(r'\s+', ' ', cleaned_html).strip()  # Remove extra whitespace
-                
                 parsed_url = urlparse(cur_url)
                 domain = f"{parsed_url.scheme}://{parsed_url.netloc}"
-                markdown_content = md(cleaned_html, base_url=domain, heading_style="ATX", bullets="-")
+                markdown_content = md(str(soup.body), base_url=domain, heading_style="ATX", bullets="-")
                 markdown_content = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', markdown_content)
+
+                # Remove extra newlines
+                markdown_content = re.sub(r'\n{3,}', '\n\n', markdown_content)
                 
-                data = {cur_url: markdown_content}
+                # Extract the title from the Markdown content
+                markdown_lines = markdown_content.splitlines()
+                markdown_title = None
+                for line in markdown_lines:
+                    if line.strip():
+                        markdown_title = line.split('#', 1)[1].strip() if '#' in line else line.strip()
+                        break
+
+                if not markdown_title:
+                    markdown_title = parsed_url.netloc# Fallback if no title found
+
+                # Remove unwanted Markdown formatting except for table and code blocks
+                def preserve_markdown(content):
+                    in_code_block = False
+                    preserved_lines = []
+                    for line in content.splitlines():
+                        if line.startswith("```"):
+                            in_code_block = not in_code_block
+                        if in_code_block or line.startswith("|"):
+                            preserved_lines.append(line)
+                        else:
+                            preserved_lines.append(re.sub(r'\*|_|#|-|\[|\]', '', line))
+                    # Join lines, strip leading/trailing spaces, and reduce multiple spaces to a single space
+                    return re.sub(r'\s+', ' ', " ".join(preserved_lines)).strip()
+
+                markdown_content = preserve_markdown(markdown_content)
 
             except PlaywrightError as e:
                 return {"error": "Failed to load or process the page", "details": str(e)}
@@ -147,8 +172,13 @@ async def get_links(request: Dict):
                 await browser.close()
 
         return {
-            "data": [{"url": cur_url, "content": data[cur_url], "images": {"data": valid_images}}], 
-            "links": unique_links, 
+            "data": [{
+                "url": cur_url,
+                "title": title,  # Use the page title
+                "content": markdown_content,  # Use the content with simplified Markdown
+                "images": {"data": valid_images}
+            }],
+            "links": unique_links,
         }
 
     except ValueError as ve:
