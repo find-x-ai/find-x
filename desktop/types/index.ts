@@ -1,5 +1,6 @@
 export type ScrapedData = {
   [key: string]: any;
+  title: string;
   images: {
     data: [
       {
