@@ -31,6 +31,7 @@ type EnvironmentVariables = {
 type Chunk = {
 	id: string;
 	metadata: {
+		title: string;
 		client_id: string;
 		url: string;
 		content: string;
@@ -40,6 +41,7 @@ type Chunk = {
 };
 
 type Context = {
+	title: string;
 	url: string;
 	content: string;
 	images: {
@@ -142,6 +144,7 @@ app.post(
 			for (const chunk of res) {
 				ids.push(chunk.id);
 				array_of_context.push({
+					title: chunk.metadata.title,
 					url: chunk.metadata.url,
 					content: chunk.data,
 					images: JSON.parse(chunk.metadata.images),
@@ -157,7 +160,7 @@ app.post(
 
 			// First, add all the URL and content information
 			array_of_context.forEach((c, _index) => {
-				header += c.url + '<-|$|->' + (c.content.length > 80 ? c.content.slice(0, 70) + '...' : c.content) + '<*$*>';
+				header += c.title + '</>' + c.url + '<-|$|->' + (c.content.length > 80 ? c.content.slice(0, 70) + '...' : c.content) + '<*$*>';
 			});
 
 			header += '<+$+>';
@@ -254,6 +257,7 @@ app.post('/upsert', async (c) => {
 			data: [
 				{
 					url: string;
+					title: string;
 					content: string;
 					images: {
 						data: [
@@ -285,6 +289,7 @@ app.post('/upsert', async (c) => {
 					id: `${chunk.url}`,
 					data: chunk.content,
 					metadata: {
+						title: chunk.title,
 						client: client,
 						url: chunk.url,
 						images: JSON.stringify(chunk.images),
