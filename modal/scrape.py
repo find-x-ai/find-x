@@ -159,7 +159,7 @@ async def get_links(request: Dict):
                         if in_code_block or line.startswith("|"):
                             preserved_lines.append(line)
                         else:
-                            preserved_lines.append(re.sub(r'\*|_|#|-|\[|\]', '', line))
+                            preserved_lines.append(re.sub(r'\*|_|#|-|\[|\]', '', line.lower()))
                     # Join lines, strip leading/trailing spaces, and reduce multiple spaces to a single space
                     return re.sub(r'\s+', ' ', " ".join(preserved_lines)).strip()
 
