@@ -4,13 +4,13 @@ import { ResponseArea, SearchBar, SparkleButton } from "./ui";
 import { useTypeEffect } from "./hooks/useTypeEffect";
 import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
 import { fetchResponse } from "../actions/fetch";
-import { Config, Image } from "./types";
+import { Config, Header, Image, Source } from "./types";
 
 const ChatBox = ({ config }: { config: Config }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-  const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
   const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
   const [images, setImages] = useState<Image[]>([]);
 
@@ -51,35 +51,23 @@ const ChatBox = ({ config }: { config: Config }) => {
     await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
     setIsLoading(true);
     setResponse("Searching");
-    setReferenceLinks([]);
+    setSources([]);
     setCodeSnippets([]);
     setImages([]);
 
     try {
       const responseStream = await fetchResponse(search, config.findx_key);
       let wholeResponse = "";
-      let links: string[] = [];
-
       setResponse(""); // Clear the previous response
 
       for await (const chunk of responseStream) {
         if (chunk.includes("<#$#>")) {
-          const [header, responseText] = chunk.split("<#$#>");
-
-          const [linksText, imagesString] = header.split("<+$+>");
-
-          const ImageArray = JSON.parse(imagesString) as { data: Image[] };
-
-          setImages(ImageArray.data);
-
+          // split the text to extract the header JSON string
+          const [headerString, responseText] = chunk.split("<#$#>");
+          const header = JSON.parse(headerString) as Header;
+          setImages(header.images.data);
           wholeResponse += responseText;
-          if (linksText) {
-            links = [
-              ...links,
-              ...linksText.split("<*$*>").map((link: string) => link.trim()),
-            ];
-          }
-          setReferenceLinks(links);
+          setSources(header.sources);
           await typeEffect(responseText, setResponse);
         } else {
           wholeResponse += chunk;
@@ -114,7 +102,7 @@ const ChatBox = ({ config }: { config: Config }) => {
             <ResponseArea
               isLoading={isLoading}
               response={response}
-              referenceLinks={referenceLinks}
+              sources={sources}
               codeSnippets={codeSnippets}
               theme={config.theme}
               images={images}

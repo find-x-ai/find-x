@@ -1,19 +1,20 @@
 import React, { useState } from "react";
 import { ShevronDownIcon, SourcesIcon } from "../icons/svgs";
+import { Source } from "../types";
 
 export const Sources = ({
-  links,
+  sources,
   theme,
 }: {
-  links: string[];
+  sources: Source[];
   theme: string;
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
     <>
-      {links && (
+      {sources && (
         <>
-          {links.length > 0 ? (
+          {sources.length > 0 ? (
             <div
               className={`${
                 theme === "light"
@@ -58,68 +59,64 @@ export const Sources = ({
               <div
                 className={`f-p-3 f-flex f-flex-row f-gap-3 f-h-full md:f-overflow-hidden f-overflow-x-scroll f-overflow-y-hidden f-scrollbar-hide`}
               >
-                {links
-                  .filter((link) => link.trim() !== "")
-                  .map((link, i) => {
-                    const [header, content] = link.split("<-|$|->");
-                    const [title, url] = header.split("</>");
-                    return (
-                      <div
-                        key={i}
-                        className={`f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm ${
+                {sources.map((source, i) => {
+                  return (
+                    <div
+                      key={i}
+                      className={`f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm ${
+                        theme === "light"
+                          ? "f-text-zinc-800 f-bg-zinc-100"
+                          : "f-text-neutral-400 f-bg-[#2d2f2e]"
+                      }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-200 ${
+                        isOpen ? "f-opacity-100" : "f-opacity-0"
+                      }`}
+                    >
+                      <a
+                        target="_blanc"
+                        className={` f-font-medium f-flex f-gap-2 f-items-center ${
                           theme === "light"
-                            ? "f-text-zinc-800 f-bg-zinc-100"
-                            : "f-text-neutral-400 f-bg-[#2d2f2e]"
-                        }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-200 ${
-                          isOpen ? "f-opacity-100" : "f-opacity-0"
+                            ? "f-text-[#273734]"
+                            : "f-text-neutral-50"
                         }`}
+                        href={source.url}
                       >
-                        <a
-                          target="_blanc"
-                          className={` f-font-medium f-flex f-gap-2 f-items-center ${
+                        <span
+                          className={` f-text-[10px] f-w-[15px] f-h-[15px] ${
+                            theme === "light"
+                              ? "f-bg-zinc-800 f-text-white"
+                              : "f-bg-neutral-200 f-text-black"
+                          } f-flex f-justify-center f-items-center f-rounded-full f-shrink-0 f-overflow-hidden`}
+                        >
+                          {i + 1}
+                        </span>
+                        <span
+                          className={`${
                             theme === "light"
                               ? "f-text-[#273734]"
                               : "f-text-neutral-50"
                           }`}
-                          href={url}
                         >
-                          <span
-                            className={` f-text-[10px] f-w-[15px] f-h-[15px] ${
-                              theme === "light"
-                                ? "f-bg-zinc-800 f-text-white"
-                                : "f-bg-neutral-200 f-text-black"
-                            } f-flex f-justify-center f-items-center f-rounded-full f-shrink-0 f-overflow-hidden`}
+                          {source.title.length < 20
+                            ? source.title
+                            : source.title.slice(0, 20) + "..."}
+                        </span>
+                      </a>
+                      {source.content && (
+                        <div className="f-group f-flex f-gap-2">
+                          <span className="f-w-[30px]" />
+                          <a
+                            href={source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className=" f-flex-wrap"
                           >
-                            {i + 1}
-                          </span>
-                          <span
-                            className={`${
-                              theme === "light"
-                                ? "f-text-[#273734]"
-                                : "f-text-neutral-50"
-                            }`}
-                          >
-                            {title.length < 20
-                              ? title
-                              : title.slice(0, 20) + "..."}
-                          </span>
-                        </a>
-                        {content && (
-                          <div className="f-group f-flex f-gap-2">
-                            <span className="f-w-[30px]" />
-                            <a
-                              href={url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className=" f-flex-wrap"
-                            >
-                              {content}
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                            {source.content}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ) : (

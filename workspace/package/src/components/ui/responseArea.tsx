@@ -1,13 +1,13 @@
 import React from "react";
 import { TextIcon } from "../icons/svgs";
 import { ResponseWithCodeSnippets, Sources } from "../ui";
-import { Image } from "../types";
+import { Image, Source } from "../types";
 import { Images } from "./images";
 
 type ResponseAreaProps = {
   isLoading: boolean;
   response: string;
-  referenceLinks: string[];
+  sources: Source[];
   codeSnippets: string[];
   theme: "light" | "dark";
   images: Image[];
@@ -16,7 +16,7 @@ type ResponseAreaProps = {
 export const ResponseArea: React.FC<ResponseAreaProps> = ({
   isLoading,
   response,
-  referenceLinks,
+  sources,
   codeSnippets,
   theme,
   images,
@@ -47,7 +47,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
           {response !== "Searching" ? (
             <>
               <div className="f-flex f-flex-col">
-                <Sources links={referenceLinks} theme={theme} />
+                <Sources sources={sources} theme={theme} />
                 <div
                   className={`f-py-3 f-text-lg ${
                     theme === "light" ? "f-text-[#273734]" : "f-text-[#21bcd2]"
