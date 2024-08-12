@@ -132,7 +132,7 @@ app.post(
 			const namespace = index.namespace(id.toString());
 
 			const res = (await namespace.query({
-				data: query,
+				data: query.toLowerCase(),
 				topK: 3,
 				includeVectors: false,
 				includeMetadata: true,
