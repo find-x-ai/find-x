@@ -6,66 +6,9 @@ import { instructions } from '../extra/istructions';
 import Groq from 'groq-sdk';
 import { cache } from 'hono/cache';
 import { neon } from '@neondatabase/serverless';
+import { EnvironmentVariables, Header, Image, Chunk, Data } from './types';
 
 const app = new Hono();
-
-type EnvironmentVariables = {
-	UPSTASH_VECTOR_REST_TOKEN: string;
-	UPSTASH_VECTOR_REST_URL: string;
-	UPSERT_SECRET_KEY: string;
-	NEON_KEY: string;
-	AI_API_KEY_1: string;
-	AI_API_KEY_2: string;
-	AI_API_KEY_3: string;
-	AI_API_KEY_4: string;
-	AI_API_KEY_5: string;
-	AI_API_KEY_6: string;
-	AI_API_KEY_7: string;
-	AI_API_KEY_8: string;
-	AI_API_KEY_9: string;
-	AI_API_KEY_10: string;
-	AI_API_KEY_11: string;
-	AI_API_KEY_12: string;
-};
-
-type Chunk = {
-	id: string;
-	metadata: {
-		title: string;
-		client_id: string;
-		url: string;
-		content: string;
-		images: string;
-	};
-	data: string;
-};
-
-type Context = {
-	title: string;
-	url: string;
-	content: string;
-	images: {
-		data: [
-			{
-				src: string;
-				alt: string;
-			}
-		];
-	};
-};
-
-type Data = {
-	id: number;
-	joined_at: Date;
-	name: string;
-	email: string;
-	api_key: string;
-	plan: number;
-	url: string;
-	total_requests: string;
-	remaining: number;
-};
-
 //allow cross origin requests
 app.use(cors());
 
@@ -94,7 +37,7 @@ app.post(
 			'AI_API_KEY_12',
 		];
 
-		const selectedApiKey = env[apiKeys[randomIndex - 1]];
+		// const selectedApiKey = env[apiKeys[randomIndex - 1]];
 
 		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, NEON_KEY } = env;
 		const secret = c.req.header('Authorization') as string;
@@ -138,56 +81,33 @@ app.post(
 				includeMetadata: true,
 				includeData: true,
 			})) as Chunk[];
+			let header: Header = { sources: [], images: { data: [] } };
+			let concatenatedHeader = '';
+			let context: String[] = [];
 
-			let array_of_context: Context[] = [];
-			let ids = [];
+			//Extract the data from the response chunks
 			for (const chunk of res) {
-				ids.push(chunk.id);
-				array_of_context.push({
+				header.sources.push({
 					title: chunk.metadata.title,
+					content: chunk.data.length < 70 ? chunk.data : chunk.data.slice(0, 70) + '...',
 					url: chunk.metadata.url,
-					content: chunk.data,
-					images: JSON.parse(chunk.metadata.images),
 				});
+				context.push(chunk.data);
+				const images = JSON.parse(chunk.metadata.images) as { data: Image[] };
+				header.images.data = [...images.data];
 			}
-
+			// data for AI model
 			const data = JSON.stringify({
 				query: query,
-				search_data: array_of_context.map((context) => context.content),
+				search_data: context,
 			});
 
-			let header = '';
-
-			// First, add all the URL and content information
-			array_of_context.forEach((c, _index) => {
-				header += c.title + '</>' + c.url + '<-|$|->' + (c.content.length > 80 ? c.content.slice(0, 70) + '...' : c.content) + '<*$*>';
-			});
-
-			header += '<+$+>';
-
-			// Now, collect all unique images in a single array
-			let uniqueImages = new Map();
-			array_of_context.forEach((c) => {
-				if (c.images && c.images.data) {
-					c.images.data.forEach((img) => {
-						if (!uniqueImages.has(img.src)) {
-							uniqueImages.set(img.src, img);
-						}
-					});
-				}
-			});
-
-			// Convert the Map to an array of unique images
-			let allUniqueImages = Array.from(uniqueImages.values());
-
-			// Add the combined unique images JSON to the header
-			header += JSON.stringify({ data: allUniqueImages });
-
-			header += '<#$#>';
+			// Convert the header object to a JSON string and concatenate with the special symbol
+			concatenatedHeader += JSON.stringify(header) + '<#$#>';
 
 			const t1 = performance.now();
 			return streamText(c, async (stream) => {
-				await stream.write(header);
+				await stream.write(concatenatedHeader);
 				const chatCompletion = await groq.chat.completions.create({
 					messages: [
 						{
