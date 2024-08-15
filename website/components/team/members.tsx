@@ -38,11 +38,19 @@ const membersList: Member[] = [
     name: "Saad Momin",
     email: "saadmomin5555@gmail.com",
     profile: "https://github.com/saadmomin2903.png",
-    role: "Founder and Data Engineer",
+    role: "Data Engineer",
     about: `Saad Momin is a founder and Data Engineer at Find-X.\n
     He works closely with Sohel Mujawar, providing crucial support in developing and maintaining the platform's data infrastructure.\n
     As a helping hand to the team, Saad ensures that all systems run smoothly and efficiently, playing a key role in troubleshooting and optimizing processes.\n`,
     x: "https://x.com/saadlegend0",
+  },
+  {
+    name: "Suyog Patil",
+    email: "suyogpatil1810@gmail.com",
+    profile: "https://github.com/xspatrian.png",
+    role: "Security Engineer",
+    about: `As a Security Engineer, Suyog Patil focuses on safeguarding our systems and data while working directly with clients to address their security needs. \n \n His role involves implementing security protocols and ensuring compliance to protect our users' information.`,
+    x: "https://x.com/xspatrian",
   },
 ];
 
