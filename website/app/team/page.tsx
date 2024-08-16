@@ -1,4 +1,9 @@
 import { Members } from "@/components/team";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Team",
+};
 
 const page = () => {
   return (

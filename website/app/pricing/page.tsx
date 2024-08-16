@@ -1,4 +1,10 @@
 import { Cards , Sales } from "@/components/pricing";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description: "Pricing models for find-x",
+};
 
 const page = () => {
   return (
