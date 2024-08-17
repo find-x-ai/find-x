@@ -1,6 +1,6 @@
 {
   "name": "find-x-ai",
-  "version": "0.0.79",
+  "version": "0.0.80",
   "description": "",
   "license": "MIT",
   "main": "dist/esm/index.js",

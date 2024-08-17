@@ -1,7 +1,13 @@
 import React from "react";
 import { Image } from "../types";
 
-export const Images = ({ images }: { images: Image[] }) => {
+export const Images = ({
+  images,
+  theme,
+}: {
+  images: Image[];
+  theme: string;
+}) => {
   if (images.length >= 4) {
     return (
       <div>
@@ -42,7 +48,7 @@ export const Images = ({ images }: { images: Image[] }) => {
   } else if (images.length === 3) {
     return (
       <div>
-        <div className="f-flex f-w-full f-gap-2">
+        <div className="f-flex f-w-full f-gap-2 f-h-[100px] md:f-h-[200px]">
           {images.map((img, i) => (
             <div
               key={i}
@@ -61,11 +67,15 @@ export const Images = ({ images }: { images: Image[] }) => {
   } else {
     return (
       <div>
-        <div className="f-flex f-w-full f-gap-2">
+        <div className="f-flex f-w-full f-gap-2 f-h-[100px] md:f-h-[200px]">
           {images.map((img, i) => (
             <div
               key={i}
-              className="f-w-full f-border f-rounded-md f-overflow-hidden f-flex f-items-center f-justify-center f-border-neutral-700/40 f-bg-[#232524]"
+              className={`f-w-full f-border f-rounded-md f-overflow-hidden f-flex f-items-center f-justify-center ${
+                theme === "light"
+                  ? "f-border-[#273734]/10 f-bg-[#d6d6d6]"
+                  : "f-border-neutral-700/40 f-bg-[#232524]"
+              }`}
             >
               <img
                 className="f-w-full f-h-full f-object-cover"

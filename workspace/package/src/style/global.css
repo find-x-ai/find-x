@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.find-x * {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 /* Hide scrollbars */
 .f-scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
@@ -25,7 +29,7 @@
 .loader-fx {
   width: 25px;
   aspect-ratio: 1.154;
-  --_g: no-repeat radial-gradient(farthest-side, #21bcd2 90%, transparent);
+  --_g: no-repeat radial-gradient(farthest-side, #ff371a 90%, transparent);
   background: var(--_g) 50% 0, var(--_g) 0 100%, var(--_g) 100% 100%;
   background-size: 35% calc(35% * 1.154);
   animation: l16 0.5s infinite;
@@ -151,14 +155,6 @@
   border-radius: 8px; /* Ensure the wrapper has rounded corners as well */
 }
 
-@media (max-width: 600px) {
-  .find-x table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
-
 .find-x input,
 .find-x optgroup,
 .find-x select,
@@ -187,7 +183,7 @@
   border: 0px;
 }
 
-.find-x input{
+.find-x input {
   outline: none;
   border: 0px;
 }

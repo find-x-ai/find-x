@@ -19,7 +19,7 @@ export const Sources = ({
               className={`${
                 theme === "light"
                   ? "f-bg-zinc-200 f-border-[#273734]/10"
-                  : "f-bg-[#232524] f-border-neutral-700/40"
+                  : "f-bg-neutral-900 f-border-neutral-700/40"
               } f-w-full f-group ${
                 isOpen ? "f-h-[205px] " : "f-h-[60px]"
               } f-rounded-md f-flex f-flex-col f-transition-all f-duration-200 f-overflow-hidden f-border`}
@@ -65,8 +65,8 @@ export const Sources = ({
                       key={i}
                       className={`f-flex md:f-flex-shrink f-shrink-0 f-relative f-gap-1 f-text-sm ${
                         theme === "light"
-                          ? "f-text-zinc-800 f-bg-zinc-100"
-                          : "f-text-neutral-400 f-bg-[#2d2f2e]"
+                          ? "f-text-zinc-600/90 f-bg-zinc-100"
+                          : "f-text-neutral-400 f-bg-neutral-950/80"
                       }  f-flex-col f-items-start md:f-w-full f-w-[230px] f-h-[120px] f-overflow-hidden f-px-3 f-py-2 f-rounded-md f-transition-all f-duration-200 ${
                         isOpen ? "f-opacity-100" : "f-opacity-0"
                       }`}
@@ -81,11 +81,11 @@ export const Sources = ({
                         href={source.url}
                       >
                         <span
-                          className={` f-text-[10px] f-w-[15px] f-h-[15px] ${
+                          className={`f-text-[9px] f-w-[15px] f-h-[15px] ${
                             theme === "light"
                               ? "f-bg-zinc-800 f-text-white"
                               : "f-bg-neutral-200 f-text-black"
-                          } f-flex f-justify-center f-items-center f-rounded-full f-shrink-0 f-overflow-hidden`}
+                          } f-flex f-justify-center f-items-center f-rounded-full`}
                         >
                           {i + 1}
                         </span>
