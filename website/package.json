@@ -9,7 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mdx-js/loader": "^3.0.1",
+    "@mdx-js/react": "^3.0.1",
     "@neondatabase/serverless": "^0.9.4",
+    "@next/mdx": "^14.2.5",
+    "@types/mdx": "^2.0.13",
     "anjum": "^0.0.19",
     "framer-motion": "^11.3.2",
     "lucide-react": "^0.407.0",

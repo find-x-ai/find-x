@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Menu from "./menu";
 
 const links = [
-  { name: "docs", url: "/docs", target: "_self" },
+  { name: "docs", url: "/docs/getting_started", target: "_self" },
   { name: "team", url: "/team", target: "_self" },
   { name: "blogs", url: "/blogs", target: "_self" },
 ];
