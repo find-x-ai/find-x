@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Toaster } from "sonner";
 import "./globals.css";
+import { ChatBox } from "find-x-ai";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,12 @@ export default function RootLayout({
         </div>
         <Toaster richColors={false} />
         <Footer />
+        <ChatBox
+          config={{
+            findx_key: process.env.NEXT_PUBLIC_FINDX_KEY!,
+            theme: "dark",
+          }}
+        />
       </body>
     </html>
   );
