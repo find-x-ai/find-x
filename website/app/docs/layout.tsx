@@ -12,9 +12,9 @@ export default async function DocsLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex w-full h-[calc(100vh-60px)] docs">
+    <div className="flex w-full md:h-[calc(100vh-60px)] docs">
       <SideBar />
-      <div className="p-5 w-full h-full overflow-y-scroll">{children}</div>
+      <div className="p-5 w-full h-full overflow-y-auto ">{children}</div>
     </div>
   );
 }
