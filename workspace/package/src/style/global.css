@@ -29,7 +29,7 @@
 .loader-fx {
   width: 25px;
   aspect-ratio: 1.154;
-  --_g: no-repeat radial-gradient(farthest-side, #ff371a 90%, transparent);
+  --_g: no-repeat radial-gradient(farthest-side, #21bad3 90%, transparent);
   background: var(--_g) 50% 0, var(--_g) 0 100%, var(--_g) 100% 100%;
   background-size: 35% calc(35% * 1.154);
   animation: l16 0.5s infinite;
@@ -47,6 +47,15 @@
   box-sizing: border-box;
   border-width: 0;
   border-style: solid;
+}
+.find-x code {
+  background-color: #2d2f2f;
+  padding: 4px;
+  border-radius: 5px;
+}
+.find-x-code pre , code {
+  background-color: #232525 !important;
+  padding: auto !important;
 }
 
 /* Add border only to elements with f-border class */

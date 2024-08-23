@@ -24,7 +24,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
   <div className="f-w-full f-flex f-justify-center f-relative f-font-[sans-serif]">
     <div
       className={`f-w-full f-mt-2 f-rounded-md f-max-w-[800px] ${
-        theme === "light" ? "f-bg-zinc-100" : "f-bg-neutral-950"
+        theme === "light" ? "f-bg-zinc-100" : "f-bg-[#191a1a]"
       } f-scrollbar-hide f-overflow-y-auto f-overflow-x-hidden f-transition-all f-duration-500 f-ease-in-out ${
         isLoading || response
           ? "f-min-h-[80px] sm:f-max-h-[550px] f-max-h-[550px] f-block"
@@ -50,7 +50,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
                 <Sources sources={sources} theme={theme} />
                 <div
                   className={`f-py-3 f-text-lg ${
-                    theme === "light" ? "f-text-[#273734]" : "f-text-[#FF371A]"
+                    theme === "light" ? "f-text-[#273734]" : "f-text-[#21bad3]"
                   }  f-flex f-items-center f-gap-2`}
                 >
                   <TextIcon theme={theme} />
@@ -85,7 +85,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
         className={`f-flex f-justify-between f-items-center f-sticky f-bottom-[-1px] f-z-20 f-right-0 ${
           theme === "light"
             ? "f-bg-zinc-100 f-text-zinc-500"
-            : "f-bg-neutral-950 f-text-neutral-500"
+            : "f-bg-[#191a1a] f-text-neutral-500"
         } sm:f-p-3 f-p-2 f-h-[50px]`}
       >
         <span className="f-px-5 f-text-sm f-ml-auto f-tracking-wider">

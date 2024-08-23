@@ -59,7 +59,7 @@ const ResponseWithCodeSnippets = ({
                   className={`f-my-2 ${
                     theme === "light"
                       ? "f-bg-zinc-200 f-border-[#273734]/10"
-                      : "f-bg-neutral-900 f-border-neutral-700/40"
+                      : "f-bg-[#232525] f-border-neutral-700/40"
                   } f-rounded-md f-border f-relative`}
                 >
                   <div className="f-absolute f-top-1 f-right-1 f-z-10">
@@ -86,7 +86,7 @@ const ResponseWithCodeSnippets = ({
                         theme === "light"
                           ? "f-text-zinc-600"
                           : "f-text-neutral-300"
-                      }  f-whitespace-pre-wrap f-break-words f-min-w-[600px] f-pr-10`}
+                      }  f-whitespace-pre-wrap f-break-words f-min-w-[600px] f-pr-10 find-x-code`}
                     >
                       <code>{snippets[snippetIndex]}</code>
                     </pre>
