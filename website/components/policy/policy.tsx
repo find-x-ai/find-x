@@ -152,10 +152,10 @@ export const PrivacyPolicy = () => {
       <p className="mb-4">
         Email:{" "}
         <a
-          href="mailto:findx.org@gmail.com"
+          href="mailto:team@find-x.tech"
           className="text-blue-600 hover:underline"
         >
-          findx.org@gmail.com
+          team@find-x.tech
         </a>
       </p>
     </div>

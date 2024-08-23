@@ -42,7 +42,7 @@ export const Navbar = () => {
         </div>
         <div className="md:flex hidden items-center">
           <Link
-            href={"mailto:findx.org@gmail.com"}
+            href={"mailto:team@find-x.tech"}
             className="text-white bg-zinc-800 p-2 w-[120px] rounded-md text-center"
           >
             contact
@@ -54,7 +54,7 @@ export const Navbar = () => {
               ...links,
               {
                 name: "contact",
-                url: "mailto:findx.org@gmail.com",
+                url: "mailto:team@find-x.tech",
                 target: "_self",
               },
             ]}

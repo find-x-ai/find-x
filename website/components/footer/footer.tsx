@@ -27,7 +27,7 @@ export const Footer = () => {
         </div>
         <div className="mb-5 lg:mb-0 lg:w-1/4 space-y-2">
           <h3 className="text-lg mb-2">Contact Us</h3>
-          <p className="text-sm text-zinc-600">Email: findx.org@gmail.com</p>
+          <p className="text-sm text-zinc-600">Email: team@find-x.tech</p>
         </div>
         <div className="lg:w-1/4">
           <h3 className="text-lg mb-2">Follow Us</h3>
