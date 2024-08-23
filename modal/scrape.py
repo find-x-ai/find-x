@@ -70,14 +70,14 @@ async def get_links(request: Dict):
                 min_width = 200
                 min_height = 200
 
-                def is_valid_image(img_url):
-                    try:
-                        response = requests.get(img_url)
-                        img = Image.open(BytesIO(response.content))
-                        width, height = img.size
-                        return width >= min_width and height >= min_height
-                    except Exception:
-                        return False
+                # def is_valid_image(img_url):
+                #     try:
+                #         response = requests.get(img_url)
+                #         img = Image.open(BytesIO(response.content))
+                #         width, height = img.size
+                #         return width >= min_width and height >= min_height
+                #     except Exception:
+                #         return False
 
                 images = await page.eval_on_selector_all("img[src]", """
                     () => {
@@ -95,7 +95,7 @@ async def get_links(request: Dict):
                 seen_alts = set()
 
                 for img in images:
-                    if img['alt'] not in seen_alts and is_valid_image(img['src']):
+                    if img['alt'] not in seen_alts:
                         valid_images.append(img)
                         seen_alts.add(img['alt'])
                     if len(valid_images) >= 10:  # Limit to 10 images
