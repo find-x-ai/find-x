@@ -94,7 +94,8 @@ app.post(
 				});
 				context.push(chunk.data);
 				const images = JSON.parse(chunk.metadata.images) as { data: Image[] };
-				header.images.data = [...images.data];
+				console.log(images)
+				header.images.data = [...header.images.data , ...images.data];
 			}
 			// data for AI model
 			const data = JSON.stringify({
