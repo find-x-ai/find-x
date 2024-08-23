@@ -53,7 +53,7 @@
   padding: 4px;
   border-radius: 5px;
 }
-.find-x-code pre , code {
+.find-x-code pre , .find-x-code code {
   background-color: #232525 !important;
   padding: auto !important;
 }
