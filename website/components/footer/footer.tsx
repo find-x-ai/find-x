@@ -7,7 +7,7 @@ export const Footer = () => {
         <div className="mb-5 lg:mb-0 lg:w-1/4">
           <h2 className="text-xl mb-2">Find-X</h2>
           <p className="text-sm text-zinc-600">
-            The most comprehensive <br /> ai search for web.
+            The most comprehensive <br /> AI search for web.
           </p>
         </div>
         <div className="mb-5 lg:mb-0 lg:w-1/4">
