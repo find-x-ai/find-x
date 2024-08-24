@@ -6,8 +6,28 @@ import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
 import { fetchResponse } from "../actions/fetch";
 import { Config, Header, Image, Source } from "./types";
 
-const ChatBox = ({ config }: { config: Config }) => {
+let externalToggle: (() => void) | null = null;
+
+export const toggleChatBox = () => {
+  if (externalToggle) {
+    externalToggle();
+  } else {
+    console.warn("ChatBox has not been initialized yet.");
+  }
+};
+
+const useChatBoxState = (): [
+  boolean,
+  () => void,
+  React.Dispatch<React.SetStateAction<boolean>>
+] => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const toggleOpen = () => setIsOpen((prev) => !prev);
+  return [isOpen, toggleOpen, setIsOpen];
+};
+
+const ChatBox = ({ config }: { config: Config }) => {
+  const [isOpen, toggleOpen, setIsOpen] = useChatBoxState();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
   const [sources, setSources] = useState<Source[]>([]);
@@ -17,6 +37,13 @@ const ChatBox = ({ config }: { config: Config }) => {
   const uiRef = useRef<HTMLDivElement>(null);
   const typeEffect = useTypeEffect();
   const extractCodeSnippets = useExtractCodeSnippets();
+
+  useEffect(() => {
+    externalToggle = toggleOpen;
+    return () => {
+      externalToggle = null;
+    };
+  }, [toggleOpen]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -42,7 +69,7 @@ const ChatBox = ({ config }: { config: Config }) => {
       document.removeEventListener("keydown", handleKeydown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [setIsOpen]);
 
   const handleSubmit = async (formData: FormData) => {
     const search = formData.get("search") as string;
@@ -88,8 +115,12 @@ const ChatBox = ({ config }: { config: Config }) => {
 
   return (
     <div className="find-x">
-      {isOpen ? (
-        <div className={`f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 ${config.theme === "dark" ? "f-bg-zinc-200/80" : "f-bg-zinc-950/80 "} -f-backdrop-blur-[3px] f-overflow-hidden f-top-0 f-z-[100]`}>
+      {isOpen && (
+        <div
+          className={`f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 ${
+            config.theme === "dark" ? "f-bg-zinc-200/80" : "f-bg-zinc-950/80 "
+          } -f-backdrop-blur-[3px] f-overflow-hidden f-top-0 f-z-[100]`}
+        >
           <div
             ref={uiRef}
             className="f-w-full f-h-auto f-mx-auto f-max-w-[800px] f-relative f-top-10"
@@ -109,9 +140,8 @@ const ChatBox = ({ config }: { config: Config }) => {
             />
           </div>
         </div>
-      ) : (
-        <SparkleButton setIsOpen={setIsOpen} />
       )}
+      {config.default && <SparkleButton setIsOpen={setIsOpen} />}
     </div>
   );
 };

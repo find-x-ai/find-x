@@ -2,6 +2,7 @@
 export type Config = {
   findx_key: string;
   theme: "light" | "dark";
+  default: boolean
 };
 
 export type Image = {
