@@ -7,31 +7,46 @@ export const Features = () => {
       initial={{ opacity: 0, filter: "blur(5px)", y: 10 }}
       whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
       viewport={{ once: true }}
-      className="py-5 flex flex-col gap-5 rounded-lg"
+      className="p-5 flex flex-col gap-10 rounded-lg border bg-zinc-200"
     >
-      <div className="text-center">
-        <h2 className="md:text-5xl text-4xl text-zinc-700">What is it ?</h2>
-      </div>
-      <div className=" p-5 rounded-lg">
-        <p className="w-full max-w-[800px] mx-auto text-zinc-700 leading-7">
-          Find-X is the advance search for the modern web apps. We use the top
-          tier technologies and techniques to get everything at your fingertips.
-          We're here to redefine the default search on your website. It'll make
-          sure that your users doesn't suffer on your website.
-          <br />
-          It efficiently handles all the search queries on your app and presents
-          the most relevant information in best possible format.
-        </p>
-      </div>
-      <div className="flex md:flex-row flex-col gap-3 text-zinc-800">
-        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-200 shadow-sm rounded-lg flex justify-between items-center">
-          <h2 className="text-lg tracking-wider">Faster response time</h2> <ChevronsUp className="w-[30px] h-[30px] text-zinc-700" />
+      <div className="flex md:flex-row flex-col gap-7">
+        <div className="w-full">
+          <div className="md:text-start text-center py-5">
+            <h2 className="md:text-5xl text-4xl text-zinc-700">What is it ?</h2>
+          </div>
+          <div className="rounded-lg">
+            <p className="w-full max-w-[800px] mx-auto text-zinc-700 leading-7">
+              Find-X powers lightning-fast, accurate search for modern web apps.
+              With cutting-edge technology, we deliver relevant results
+              instantly, ensuring your users find exactly what they need without
+              hassle. 
+              <br />
+              <br />
+              Upgrade your website’s search and keep your audience
+              engaged effortlessly with the speed and functionality like never before.
+            </p>
+          </div>
         </div>
-        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-200 shadow-sm rounded-lg flex justify-between items-center">
-          <h2 className="text-lg tracking-wider">Efficient search</h2> <TextSearch className="w-[30px] h-[30px] text-zinc-700" />
+        <div>
+          <img
+            className="md:w-[500px] lg:w-[550px] w-full rounded-lg"
+            src="/search_hero.png"
+            alt="search image"
+          />
         </div>
-        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-200 shadow-sm rounded-lg flex justify-between items-center">
-          <h2 className="text-lg tracking-wider">Easy integration</h2> <Route className="w-[30px] h-[30px] text-zinc-700" />
+      </div>
+      <div className="flex md:flex-row flex-col gap-3 text-zinc-200">
+        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-800 shadow-sm rounded-lg flex justify-between items-center">
+          <h2 className="text-lg tracking-wider">Faster response time</h2>{" "}
+          <ChevronsUp className="w-[30px] h-[30px] text-zinc-300" />
+        </div>
+        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-800 shadow-sm rounded-lg flex justify-between items-center">
+          <h2 className="text-lg tracking-wider">Efficient search</h2>{" "}
+          <TextSearch className="w-[30px] h-[30px] text-zinc-300" />
+        </div>
+        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-800 shadow-sm rounded-lg flex justify-between items-center">
+          <h2 className="text-lg tracking-wider">Easy integration</h2>{" "}
+          <Route className="w-[30px] h-[30px] text-zinc-300" />
         </div>
       </div>
     </motion.div>

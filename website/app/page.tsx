@@ -26,7 +26,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="px-5 flex flex-col gap-5 pb-10">
+    <div className="px-5 flex flex-col gap-10 pb-10">
       <Hero version={version} />
       <Video />
       <Features />
