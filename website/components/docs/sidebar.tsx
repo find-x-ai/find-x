@@ -15,6 +15,10 @@ const links = [
     name: "Setup Instructions",
     url: "/docs/setup",
   },
+  {
+    name: "Custom Component",
+    url: "/docs/custom",
+  },
 ];
 
 export const SideBar = () => {

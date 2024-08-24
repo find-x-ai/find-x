@@ -40,6 +40,7 @@ import type { Metadata } from "next";
           config={{
             findx_key: process.env.NEXT_PUBLIC_FINDX_KEY!,
             theme: "dark",
+            default: true
           }}
         />
       </body>
@@ -50,6 +51,7 @@ import type { Metadata } from "next";
 The `ChatBox` component takes in `config` prop which has two properties
 - findx_key (This is the public api key sent to you)
 - theme (Here you have two options either `dark` or `light`)
+- default (This is boolean value that indicates whether you want to use the default trigger element or not)
 
 ### Now restart the development server and see the magic ✨
 
