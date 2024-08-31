@@ -97,7 +97,7 @@ export const Members: React.FC = () => {
               key={i}
               variants={itemVariants}
               className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors duration-300 ${
-                selectedMember === member ? "bg-zinc-200" : "hover:bg-zinc-200"
+                selectedMember === member ? "bg-[#F6F7F9]" : "hover:bg-[#F6F7F9]"
               }`}
               onClick={() => handleMemberClick(member)}
             >
@@ -166,7 +166,7 @@ export const Members: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-full rounded-lg border border-zinc-800 bg-zinc-200 p-4 md:p-6">
+              <div className="w-full rounded-lg border border-zinc-800 bg-[#F6F7F9] p-4 md:p-6">
                 <h3 className="text-lg md:text-xl font-semibold mb-2 md:mb-4">
                   About
                 </h3>
@@ -215,7 +215,7 @@ export const Members: React.FC = () => {
               </div>
             </motion.div>
           ) : (
-            <div className="text-center w-full h-[220px] rounded-lg bg-zinc-200 border border-zinc-800 p-5">
+            <div className="text-center w-full h-[220px] rounded-lg bg-[#F6F7F9] border border-zinc-800 p-5">
               <h1 className="text-3xl md:text-6xl font-semibold mb-4">
                 Together <br /> we built Find-X
               </h1>

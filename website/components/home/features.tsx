@@ -7,7 +7,7 @@ export const Features = () => {
       initial={{ opacity: 0, filter: "blur(5px)", y: 10 }}
       whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
       viewport={{ once: true }}
-      className="p-5 flex flex-col gap-10 rounded-lg border bg-zinc-200"
+      className="p-5 md:p-10 flex flex-col gap-10 rounded-lg bg-[#F6F7F9]"
     >
       <div className="flex md:flex-row flex-col gap-7">
         <div className="w-full">

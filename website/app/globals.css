@@ -32,10 +32,10 @@
   }
 
   .docs code {
-    @apply bg-zinc-200 rounded px-1 py-0.5;
+    @apply bg-[#F6F7F9] rounded px-1 py-0.5;
   }
 
   .docs pre {
-    @apply bg-gray-200 rounded p-4 mb-4 overflow-x-auto;
+    @apply bg-[#F6F7F9] rounded p-4 mb-4 overflow-x-auto;
   }
 }

@@ -32,8 +32,8 @@ export const SideBar = () => {
           href={link.url}
           className={`block py-3 px-4 rounded-lg text-lg font-medium transition-colors duration-300 ${
             path.includes(link.url)
-              ? "bg-zinc-200 text-zinc-900"
-              : "text-zinc-700 hover:bg-zinc-200 hover:text-zinc-900"
+              ? "bg-[#F6F7F9] text-zinc-900"
+              : "text-zinc-700 hover:bg-[#F6F7F9] hover:text-zinc-900"
           }`}
         >
           {link.name}

@@ -14,7 +14,7 @@ export const Hero = ({ version }: { version: string }) => {
       <Link
         target="_blanc"
         href={"https://npmjs.org/find-x-ai"}
-        className="py-1 group px-3 cursor-pointer rounded-full border bg-zinc-200 border-zinc-800 text-zinc-800 text-sm"
+        className="py-1 group px-3 cursor-pointer rounded-full border bg-[#F6F7F9] border-zinc-800 text-zinc-800 text-sm"
       >
         Just released {version}{" "}
         <span className="relative group-hover:left-1">-{">"}</span>
@@ -35,7 +35,7 @@ export const Hero = ({ version }: { version: string }) => {
         </Link>
         <Link
           href={"/pricing"}
-          className="p-3 w-[120px] bg-zinc-100 hover:bg-zinc-200 border border-zinc-800  rounded-full text-center"
+          className="p-3 w-[120px] bg-[#F6F7F9] hover:bg-zinc-200 border border-zinc-800  rounded-full text-center"
         >
           Pricing
         </Link>

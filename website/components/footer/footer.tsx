@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const Footer = () => {
   return (
-    <footer className="bg-zinc-200/30 h-auto flex justify-center p-5">
+    <footer className="bg-[#F6F7F9] h-auto flex justify-center p-5">
       <div className="w-full max-w-[1200px] flex flex-col lg:flex-row p-5">
         <div className="mb-5 lg:mb-0 lg:w-1/4">
           <h2 className="text-xl mb-2">Find-X</h2>

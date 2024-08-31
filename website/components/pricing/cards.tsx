@@ -52,7 +52,7 @@ export const Cards = () => {
         return (
           <div
             key={i}
-            className="bg-zinc-200 p-6 rounded-lg w-full border border-zinc-800"
+            className="bg-[#F6F7F9] p-6 rounded-lg w-full border border-zinc-800"
           >
             <h2 className="text-2xl font-semibold mb-4">{c.title}</h2>
             <p className="text-lg mb-4 text-green-500 font-semibold">
