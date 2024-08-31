@@ -65,6 +65,7 @@ Getting started with Find-X is quick and easy. Follow the steps below to integra
              config={{
                findx_key: process.env.NEXT_PUBLIC_FINDX_KEY!,
                theme: "dark",
+               default: true,
              }}
            />
          </body>
