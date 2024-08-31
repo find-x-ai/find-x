@@ -82,7 +82,7 @@ export const RequestForm = () => {
                   id="name"
                   name="name"
                   type="text"
-                  className="p-2 rounded-md bg-zinc-200 border placeholder:text-zinc-500 border-zinc-800"
+                  className="p-2 rounded-md bg-[#F6F7F9] border placeholder:text-zinc-500 border-zinc-800"
                   placeholder="Enter your app name"
                 />
               </div>
@@ -94,7 +94,7 @@ export const RequestForm = () => {
                   name="email"
                   type="email"
                   placeholder="Your email"
-                  className="p-2 rounded-md bg-zinc-200 placeholder:text-zinc-500 border border-zinc-800"
+                  className="p-2 rounded-md bg-[#F6F7F9] placeholder:text-zinc-500 border border-zinc-800"
                 />
               </div>
             </div>
@@ -105,7 +105,7 @@ export const RequestForm = () => {
                 id="url"
                 name="url"
                 type="text"
-                className="p-2 rounded-md bg-zinc-200 placeholder:text-zinc-500 border border-zinc-800"
+                className="p-2 rounded-md bg-[#F6F7F9] placeholder:text-zinc-500 border border-zinc-800"
                 placeholder="https://example.com/"
               />
             </div>

@@ -69,7 +69,7 @@ export const Steps = () => {
         >
           <div className="sm:h-[150px] h-[180px] max-h-[200px] flex flex-col items-center">
             <motion.span
-              className={`w-[50px] h-[50px] bg-zinc-200 border-zinc-800 flex justify-center items-center rounded-full border transition-colors duration-300 ${
+              className={`w-[50px] h-[50px] bg-zinc-800 text-[#fff] border-zinc-800 flex justify-center items-center rounded-full border transition-colors duration-300 ${
                 hoveredIndex === index &&
                 "md:bg-zinc-800 md:text-white md:border-white"
               } z-20`}
