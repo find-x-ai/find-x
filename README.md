@@ -1,12 +1,6 @@
-# Find-X: The Next-Gen AI Search Engine
+# Find-X: AI based local search engine for websites.
 
-Welcome to **Find-X**, an advanced AI-powered search engine crafted to deliver precise, contextually accurate answers for any query. Harnessing cutting-edge vector databases and AI technologies, Find-X provides unparalleled performance and speed, tailored to meet the demands of modern websites.
-
-## 🚀 Key Features
-
-- **Vector-Based Storage:** Leverage vector storage for fast and efficient retrieval of website data.
-- **AI-Powered Responses:** Generate concise and contextually accurate answers using state-of-the-art AI models.
-- **Blazing Fast Performance:** Experience industry-leading response times that set Find-X apart from the competition.
+Welcome to **Find-X**, an advanced AI-powered search engine crafted to deliver precise, contextually accurate answers for any query.
 
 ## 🌐 Supported Frameworks
 
