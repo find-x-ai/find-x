@@ -22,7 +22,7 @@ export const Hero = ({ version }: { version: string }) => {
       <div className="flex flex-col items-center gap-5">
         <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium text-zinc-700">
           The most comprehensive <br />{" "}
-          <span className="text-[#ff371a] font-medium">AI search</span> for web
+          <span className="text-[#20A0B5] font-medium">AI search</span> for web
         </h1>
         <p>Search for anything, anywhere, instantly.</p>
       </div>
@@ -35,7 +35,7 @@ export const Hero = ({ version }: { version: string }) => {
         </Link>
         <Link
           href={"/pricing"}
-          className="p-3 w-[120px] bg-[#F6F7F9] hover:bg-zinc-200 border border-zinc-800  rounded-full text-center"
+          className="p-3 w-[120px] bg-[#F6F7F9] hover:bg-zinc-100 border border-zinc-800  rounded-full text-center"
         >
           Pricing
         </Link>
