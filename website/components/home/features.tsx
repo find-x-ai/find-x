@@ -1,54 +1,52 @@
-"use client";
-import { motion } from "framer-motion";
 import { ChevronsUp, Route, TextSearch } from "lucide-react";
 export const Features = () => {
   return (
-    <motion.div
-      initial={{ opacity: 0, filter: "blur(5px)", y: 10 }}
-      whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-      viewport={{ once: true }}
-      className="p-5 md:p-10 flex flex-col gap-10 rounded-lg bg-[#F6F7F9]"
-    >
-      <div className="flex md:flex-row flex-col gap-7">
-        <div className="w-full">
-          <div className="md:text-start text-center py-5">
-            <h2 className="md:text-5xl text-4xl text-zinc-700">What is it ?</h2>
+    <div className="w-full flex flex-col gap-10 items-center text-center">
+      <div className=" space-y-3">
+        <h3 className="text-xl">Introduction</h3>
+        <h2 className="text-[#20A0B5] text-4xl md:text-5xl">What is it?</h2>
+      </div>
+      <div className="w-full flex flex-col gap-3">
+        <div className="w-full flex flex-col md:flex-row gap-3">
+          <div className="w-full bg-[#F6F7F9] rounded-lg md:rounded-[20px_0px_0px_0px] p-10 flex items-end justify-center text-center">
+            <div className="space-y-2">
+              <h3 className="font-[600] text-lg">Advanced Search</h3>
+              <p className="text-zinc-600">
+                AI based local search engine for websites
+              </p>
+            </div>
           </div>
-          <div className="rounded-lg">
-            <p className="w-full max-w-[800px] mx-auto text-zinc-700 leading-7">
-              Find-X powers lightning-fast, accurate search for modern web apps.
-              With cutting-edge technology, we deliver relevant results
-              instantly, ensuring your users find exactly what they need without
-              hassle. 
-              <br />
-              <br />
-              Upgrade your website’s search and keep your audience
-              engaged effortlessly with the speed and functionality like never before.
-            </p>
+          <div className="w-full bg-[#F6F7F9] rounded-lg md:rounded-[0px_20px_0px_0px] p-10 flex items-end justify-center text-center">
+            <div className="space-y-2">
+              <h3 className="font-[600] text-lg">Not Just Text</h3>
+              <p className="text-zinc-600">
+                Explore media content with Find-X not just boring text
+                responses.
+              </p>
+            </div>
           </div>
         </div>
-        <div>
-          <img
-            className="md:w-[500px] lg:w-[550px] w-full rounded-lg"
-            src="/search_hero.png"
-            alt="search image"
-          />
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_0px_20px] flex justify-between items-center">
+            <h2 className="text-lg tracking-wider font-medium">
+              Faster response time
+            </h2>{" "}
+            <ChevronsUp className="w-[30px] h-[30px] text-zinc-500" />
+          </div>
+          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-none flex justify-between items-center">
+            <h2 className="text-lg tracking-wider font-medium">
+              Efficient search
+            </h2>{" "}
+            <TextSearch className="w-[30px] h-[30px] text-zinc-500" />
+          </div>
+          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_20px_0px] flex justify-between items-center">
+            <h2 className="text-lg tracking-wider font-medium">
+              Easy integration
+            </h2>{" "}
+            <Route className="w-[30px] h-[30px] text-zinc-500" />
+          </div>
         </div>
       </div>
-      <div className="flex md:flex-row flex-col gap-3 text-zinc-200">
-        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-800 shadow-sm rounded-lg flex justify-between items-center">
-          <h2 className="text-lg tracking-wider">Faster response time</h2>{" "}
-          <ChevronsUp className="w-[30px] h-[30px] text-zinc-300" />
-        </div>
-        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-800 shadow-sm rounded-lg flex justify-between items-center">
-          <h2 className="text-lg tracking-wider">Efficient search</h2>{" "}
-          <TextSearch className="w-[30px] h-[30px] text-zinc-300" />
-        </div>
-        <div className="w-full text-center p-10 cursor-default border border-zinc-800 bg-zinc-800 shadow-sm rounded-lg flex justify-between items-center">
-          <h2 className="text-lg tracking-wider">Easy integration</h2>{" "}
-          <Route className="w-[30px] h-[30px] text-zinc-300" />
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 };
