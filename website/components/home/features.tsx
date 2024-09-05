@@ -8,7 +8,7 @@ export const Features = () => {
       </div>
       <div className="w-full flex flex-col gap-3">
         <div className="w-full flex flex-col md:flex-row gap-3">
-          <div className="w-full bg-[#F6F7F9] rounded-lg md:rounded-[20px_0px_0px_0px] p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
+          <div className="w-full bg-[#F6F7F9] rounded-lg md:rounded-[20px_0px_0px_0px] border p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
             <div className="flex w-full">
               <div className="w-full h-[50px] bg-[#ffffff] rounded-lg p-2 flex items-center">
                 <div>
@@ -32,7 +32,7 @@ export const Features = () => {
               </p>
             </div>
           </div>
-          <div className="w-full overflow-hidden bg-[#F6F7F9] rounded-lg md:rounded-[0px_20px_0px_0px] p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
+          <div className="w-full overflow-hidden bg-[#F6F7F9] rounded-lg md:rounded-[0px_20px_0px_0px] border p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
             <div className="w-full h-[150px] flex gap-5">
               <div className="w-full h-full flex overflow-hidden gap-3">
                 {/* Left Column */}
@@ -88,19 +88,19 @@ export const Features = () => {
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-3">
-          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_0px_20px] flex gap-5 justify-center items-center">
+          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_0px_20px] border flex gap-5 justify-center items-center">
             <h2 className="text-lg tracking-wider font-medium">
               Faster response time
             </h2>{" "}
             <ChevronsUp className="w-[30px] h-[30px] text-zinc-500" />
           </div>
-          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-none flex gap-5 justify-center items-center">
+          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-none border flex gap-5 justify-center items-center">
             <h2 className="text-lg tracking-wider font-medium">
               Efficient search
             </h2>{" "}
             <TextSearch className="w-[30px] h-[30px] text-zinc-500" />
           </div>
-          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_20px_0px] flex gap-5 justify-center items-center">
+          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_20px_0px] border flex gap-5 justify-center items-center">
             <h2 className="text-lg tracking-wider font-medium">
               Easy integration
             </h2>{" "}
