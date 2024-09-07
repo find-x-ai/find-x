@@ -66,7 +66,7 @@ export const RequestForm = () => {
       <div className="w-full flex flex-col lg:flex-row sm:gap-20 gap-10">
         <div className="flex flex-col gap-10">
           <div>
-            <h1 className="text-3xl font-semibold text-zinc-700">
+            <h1 className="text-3xl font-semibold text-[#20A0B5]">
               Get access now
             </h1>
           </div>

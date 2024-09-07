@@ -216,7 +216,7 @@ export const Members: React.FC = () => {
             </motion.div>
           ) : (
             <div className="text-center w-full h-[220px] rounded-lg bg-[#F6F7F9] border border-zinc-800 p-5">
-              <h1 className="text-3xl md:text-6xl font-semibold mb-4">
+              <h1 className="text-3xl md:text-6xl font-semibold mb-4 text-[#20A0B5]">
                 Together <br /> we built Find-X
               </h1>
               <p className="text-lg md:text-xl text-zinc-600">
