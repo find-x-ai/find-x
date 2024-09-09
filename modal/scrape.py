@@ -20,6 +20,8 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "playwright install-deps chromium",
     "playwright install chromium",
     "pip install markdownify beautifulsoup4 pillow requests transformers torch sentencepiece"
+    "pip install markdownify beautifulsoup4 pillow requests"
+
 )
 
 app = App(name="link-scraper", image=playwright_image)
@@ -168,10 +170,11 @@ async def get_links(request: Dict):
 
                 # Call the summarizer model 
                 summary=SummarizerModel().summarize.remote(summary_text,title)
+                markdown_output = readable_text
 
             except PlaywrightError as e:
                 return {"error": "Failed to load or process the page", "details": str(e)}
-            
+
             finally:
                 await browser.close()
 
@@ -180,7 +183,9 @@ async def get_links(request: Dict):
                 "url": cur_url,
                 "title": title,
                 "content": markdown_output,
+
                 "summary": summary,
+
                 "images": {"data": valid_images}
             }],
             "links": links,

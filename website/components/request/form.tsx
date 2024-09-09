@@ -66,7 +66,7 @@ export const RequestForm = () => {
       <div className="w-full flex flex-col lg:flex-row sm:gap-20 gap-10">
         <div className="flex flex-col gap-10">
           <div>
-            <h1 className="text-3xl font-semibold text-zinc-700">
+            <h1 className="text-3xl font-semibold text-[#20A0B5]">
               Get access now
             </h1>
           </div>
@@ -82,7 +82,7 @@ export const RequestForm = () => {
                   id="name"
                   name="name"
                   type="text"
-                  className="p-2 rounded-md bg-zinc-200 border placeholder:text-zinc-500 border-zinc-800"
+                  className="p-2 rounded-md bg-[#F6F7F9] border placeholder:text-zinc-500 border-zinc-800"
                   placeholder="Enter your app name"
                 />
               </div>
@@ -94,7 +94,7 @@ export const RequestForm = () => {
                   name="email"
                   type="email"
                   placeholder="Your email"
-                  className="p-2 rounded-md bg-zinc-200 placeholder:text-zinc-500 border border-zinc-800"
+                  className="p-2 rounded-md bg-[#F6F7F9] placeholder:text-zinc-500 border border-zinc-800"
                 />
               </div>
             </div>
@@ -105,7 +105,7 @@ export const RequestForm = () => {
                 id="url"
                 name="url"
                 type="text"
-                className="p-2 rounded-md bg-zinc-200 placeholder:text-zinc-500 border border-zinc-800"
+                className="p-2 rounded-md bg-[#F6F7F9] placeholder:text-zinc-500 border border-zinc-800"
                 placeholder="https://example.com/"
               />
             </div>

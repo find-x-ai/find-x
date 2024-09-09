@@ -1,0 +1,52 @@
+import { CustomChatComponent , NextLink } from "@/components/docs"
+
+# Custom Component
+
+We have a default UI component to trigger `ChatBox` that creates a small sparkle icon at bottom-right corner
+of the screen. Its completely your choice to keep it or create a **custom** component to trigger the chat.
+
+## Config Props
+
+To configure custom component you need to change the props passed to the `<ChatBox/>` component.
+Here is the example code for it.
+
+```typescript
+<ChatBox
+  config={{
+    findx_key: process.env.NEXT_PUBLIC_FINDX_KEY!,
+    theme: "dark",
+    default: false,
+  }}
+/>
+```
+
+The value for `default` is a boolean value that indicates whether you want to use the default UI component or not.
+Making the value **false** will remove the default UI component from bottom-right corner of the screen.
+
+**Note**: You can use the default UI component and custom component together to trigger the chat without any conflict.
+
+## Triggering the chat UI
+
+Triggering the chat UI is a simple process that just consists of a function that needs to be called to toggle the chat.
+Here is how you can do it.
+
+```typescript
+"use client"
+// Fuction to toggle the chat
+import { toggleChatBox } from "find-x-ai";
+
+export function CustomChatComponent(){
+  return (
+    <button onClick={ ()=> toggleChatBox() }>
+       Search here...
+    </button>
+  )
+}
+```
+Here is how it will look : 
+<CustomChatComponent/>
+
+That's it! Now you have a custom component that triggers the chat. 🎉
+
+---
+<NextLink prev="/docs/setup" />

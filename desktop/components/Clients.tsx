@@ -11,6 +11,8 @@ type Project = {
   plan: string;
   api_key: string;
   email: string;
+  total_requests: number;
+  remaining: number;
 };
 
 

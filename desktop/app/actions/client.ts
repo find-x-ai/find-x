@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
 import { Index } from "@upstash/vector";
 
 export const deleteClient = async ({
@@ -10,9 +9,7 @@ export const deleteClient = async ({
   key: string;
 }) => {
   try {
-    const res = await db(`DELETE FROM CLIENT WHERE id = $1`, [id]);
-
-    await redis.del(key);
+    await db(`DELETE FROM CLIENTS WHERE id = $1`, [id]);
 
     const index = new Index({
       url: process.env.NEXT_PUBLIC_UPSTASH_VECTOR_REST_URL!,

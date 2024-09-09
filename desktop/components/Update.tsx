@@ -11,8 +11,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -26,9 +24,8 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { invoke } from "@tauri-apps/api/tauri";
 import { db } from "@/lib/db";
-import { redis } from "@/lib/redis";
 
-interface ClientData {
+type ClientData = {
   id: string;
   joined_at: Date | string;
   url: string;
@@ -36,7 +33,9 @@ interface ClientData {
   plan: string;
   api_key: string;
   email: string;
-}
+  total_requests: number;
+  remaining: number;
+};
 
 const Update = ({ client }: { client: ClientData }) => {
   const router = useRouter();
@@ -78,43 +77,54 @@ const Update = ({ client }: { client: ClientData }) => {
     try {
       const res = (await invoke("check_url", { url: url })) as boolean;
 
+      const db_res = await db(`SELECT remaining FROM clients where id = $1`, [
+        parseInt(client.id),
+      ]);
+
+      if (!db_res || db_res.length === 0) {
+        throw new Error("Client not found");
+      }
+
+      const old_data = db_res[0] as ClientData;
+
       if (res) {
         if (data.plan !== "0") {
           await db(
-            `UPDATE client SET name = $1 , email = $2 , url = $3 , plan = $4  WHERE id = $5`,
-            [name, email, url, plan, parseInt(client.id)]
+            `UPDATE clients SET name = $1 , email = $2 , url = $3 , plan = $4 , remaining = $5  WHERE id = $5`,
+            [
+              name,
+              email,
+              url,
+              plan,
+              parseInt(client.id),
+              old_data.remaining + parseInt(plan),
+            ]
           );
         } else {
           await db(
-            `UPDATE client SET name = $1 , email = $2 , url = $3  WHERE id = $4`,
+            `UPDATE clients SET name = $1 , email = $2 , url = $3  WHERE id = $4`,
             [name, email, url, parseInt(client.id)]
           );
         }
-        const oldData = (await redis.get(client.api_key)) as {
-          id: number;
-          name: string;
-          requests: number;
-          remaining: number;
-        };
 
-        if (!oldData) {
-          throw new Error("Failed to update api key data!");
-        }
-        await redis.set(client.api_key, {
-          id: parseInt(client.id),
-          name: data.name,
-          remaining: oldData.remaining + parseInt(data.plan),
-          requests: oldData.requests,
-        });
         toast.success("Updated project successfully!");
 
         await new Promise((res) => setTimeout(res, 1500));
 
-        setDialogOpen(false);
+        await invoke("set_item", {
+          key: "new",
+          value: JSON.stringify({
+            id: client.id,
+            name: name,
+            url: url,
+            plan: plan,
+            email: email,
+            update: true,
+          }),
+        });
 
-        router.push(
-          `/new?data=${name}*${url}*${plan}*${email}*${client.id}*update`
-        );
+        setDialogOpen(false);
+        router.push(`/new`);
       } else {
         toast.error("Invalid URL");
       }
@@ -132,36 +142,37 @@ const Update = ({ client }: { client: ClientData }) => {
     try {
       const res = (await invoke("check_url", { url: data.url })) as boolean;
 
+      const db_res = await db(`SELECT remaining FROM clients where id = $1`, [
+        parseInt(client.id),
+      ]);
+
+      if (!db_res || db_res.length === 0) {
+        throw new Error("Client not found");
+      }
+
+      const old_data = db_res[0] as ClientData;
+
       if (!res) {
         throw new Error("Invalid url");
       }
       if (data.plan !== "0") {
         await db(
-          `UPDATE client SET name = $1 , email = $2 , url = $3 , plan = $4  WHERE id = $5`,
-          [name, email, url, plan, parseInt(client.id)]
+          `UPDATE clients SET name = $1 , email = $2 , url = $3 , plan = $4 , remaining = $6  WHERE id = $5`,
+          [
+            name,
+            email,
+            url,
+            plan,
+            parseInt(client.id),
+            old_data.remaining + parseInt(plan),
+          ]
         );
       } else {
         await db(
-          `UPDATE client SET name = $1 , email = $2 , url = $3  WHERE id = $4`,
+          `UPDATE clients SET name = $1 , email = $2 , url = $3  WHERE id = $4`,
           [name, email, url, parseInt(client.id)]
         );
       }
-      const oldData = (await redis.get(client.api_key)) as {
-        id: number;
-        name: string;
-        requests: number;
-        remaining: number;
-      };
-
-      if (!oldData) {
-        throw new Error("Failed to update api key data!");
-      }
-      await redis.set(client.api_key, {
-        id: parseInt(client.id),
-        name: data.name,
-        remaining: oldData.remaining + parseInt(data.plan),
-        requests: oldData.requests,
-      });
       toast.success("Updated project successfully!");
 
       await new Promise((res) => setTimeout(res, 1500));
@@ -283,13 +294,16 @@ const Update = ({ client }: { client: ClientData }) => {
                 disabled={detailsUpdateLoading || appUpdateLoading}
                 onClick={handleUpdateApp}
                 type="button"
-                className="w-full bg-amber-500 hover:bg-amber-600"
+                className="w-full bg-[#ff371a] hover:bg-[#ff371a]/80"
               >
-                {appUpdateLoading ? (
-                  <Loader2 className=" animate-spin" />
-                ) : (
-                  "Update app"
-                )}
+                <p className="flex gap-2 items-center transition-all duration-300 ">
+                  {appUpdateLoading && (
+                    <Loader2 className="animate-spin duration-500 w-[20px]" />
+                  )}
+                  <span className="transition-all duration-300">
+                    Full update
+                  </span>{" "}
+                </p>
               </Button>
             </div>
           </form>

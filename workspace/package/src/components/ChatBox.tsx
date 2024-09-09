@@ -4,18 +4,46 @@ import { ResponseArea, SearchBar, SparkleButton } from "./ui";
 import { useTypeEffect } from "./hooks/useTypeEffect";
 import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
 import { fetchResponse } from "../actions/fetch";
-import { Config } from "./types";
+import { Config, Header, Image, Source } from "./types";
+
+let externalToggle: (() => void) | null = null;
+
+export const toggleChatBox = () => {
+  if (externalToggle) {
+    externalToggle();
+  } else {
+    console.warn("ChatBox has not been initialized yet.");
+  }
+};
+
+const useChatBoxState = (): [
+  boolean,
+  () => void,
+  React.Dispatch<React.SetStateAction<boolean>>
+] => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const toggleOpen = () => setIsOpen((prev) => !prev);
+  return [isOpen, toggleOpen, setIsOpen];
+};
 
 const ChatBox = ({ config }: { config: Config }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, toggleOpen, setIsOpen] = useChatBoxState();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-  const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
   const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
+  const [images, setImages] = useState<Image[]>([]);
 
   const uiRef = useRef<HTMLDivElement>(null);
   const typeEffect = useTypeEffect();
   const extractCodeSnippets = useExtractCodeSnippets();
+
+  useEffect(() => {
+    externalToggle = toggleOpen;
+    return () => {
+      externalToggle = null;
+    };
+  }, [toggleOpen]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -41,7 +69,7 @@ const ChatBox = ({ config }: { config: Config }) => {
       document.removeEventListener("keydown", handleKeydown);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [setIsOpen]);
 
   const handleSubmit = async (formData: FormData) => {
     const search = formData.get("search") as string;
@@ -50,30 +78,26 @@ const ChatBox = ({ config }: { config: Config }) => {
     await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
     setIsLoading(true);
     setResponse("Searching");
-    setReferenceLinks([]);
+    setSources([]);
     setCodeSnippets([]);
+    setImages([]);
 
     try {
       const responseStream = await fetchResponse(search, config.findx_key);
       let wholeResponse = "";
-      let links: string[] = [];
-
       setResponse(""); // Clear the previous response
 
       for await (const chunk of responseStream) {
-        wholeResponse += chunk;
-
         if (chunk.includes("<#$#>")) {
-          const [responseText, linksText] = chunk.split("<#$#>");
-          if (linksText) {
-            links = [
-              ...links,
-              ...linksText.split("<*$*>").map((link: string) => link.trim()),
-            ];
-          }
-          setReferenceLinks(links);
+          // split the text to extract the header JSON string
+          const [headerString, responseText] = chunk.split("<#$#>");
+          const header = JSON.parse(headerString) as Header;
+          setImages(header.images.data);
+          wholeResponse += responseText;
+          setSources(header.sources);
           await typeEffect(responseText, setResponse);
         } else {
+          wholeResponse += chunk;
           await typeEffect(chunk, setResponse);
         }
       }
@@ -91,8 +115,12 @@ const ChatBox = ({ config }: { config: Config }) => {
 
   return (
     <div className="find-x">
-      {isOpen ? (
-        <div className="f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 f-bg-zinc-950/90 f-overflow-hidden f-top-0 f-z-[100]">
+      {isOpen && (
+        <div
+          className={`f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 ${
+            config.theme === "dark" ? "f-bg-zinc-200/80" : "f-bg-zinc-950/80 "
+          } -f-backdrop-blur-[3px] f-overflow-hidden f-top-0 f-z-[100]`}
+        >
           <div
             ref={uiRef}
             className="f-w-full f-h-auto f-mx-auto f-max-w-[800px] f-relative f-top-10"
@@ -105,15 +133,15 @@ const ChatBox = ({ config }: { config: Config }) => {
             <ResponseArea
               isLoading={isLoading}
               response={response}
-              referenceLinks={referenceLinks}
+              sources={sources}
               codeSnippets={codeSnippets}
               theme={config.theme}
+              images={images}
             />
           </div>
         </div>
-      ) : (
-        <SparkleButton setIsOpen={setIsOpen} />
       )}
+      {config.default && <SparkleButton setIsOpen={setIsOpen} />}
     </div>
   );
 };

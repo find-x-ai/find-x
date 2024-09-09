@@ -12,6 +12,8 @@ type Project = {
   plan: string;
   api_key: string;
   email: string;
+  total_requests: number;
+  remaining: number;
 };
 
 const ClientsPage = () => {
@@ -20,7 +22,7 @@ const ClientsPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = (await db(`SELECT * FROM client`)) as Project[]
+      const data = (await db(`SELECT * FROM clients`)) as Project[];
       setClients(data);
       setLoading(false);
     };
@@ -32,7 +34,7 @@ const ClientsPage = () => {
     <div className="h-screen flex flex-col">
       {loading ? (
         <div className="h-full w-full overflow-y-scroll flex flex-col justify-center items-center text-2xl text-zinc-600">
-          <Loader2 className="animate-spin duration-500 w-[40px] h-[40px] text-white"/>
+          <Loader2 className="animate-spin duration-500 w-[40px] h-[40px] text-white" />
         </div>
       ) : (
         <Clients clients={clients} />

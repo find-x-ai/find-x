@@ -1,25 +1,20 @@
-// test/index.spec.ts
-import { env, createExecutionContext, waitOnExecutionContext, SELF } from 'cloudflare:test';
-import { describe, it, expect } from 'vitest';
-import worker from '../src/index';
+import { test, expect } from 'vitest';
 
-// For now, you'll need to do something like this to get a correctly-typed
-// `Request` to pass to `worker.fetch()`.
-const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
+test('Worker Test Route', async () => {
+	const res = await fetch('https://server.find-x.workers.dev/');
+	expect(res.status).toBe(200);
+});
 
-describe('Hello World worker', () => {
-	it('responds with Hello World! (unit style)', async () => {
-		const request = new IncomingRequest('http://example.com');
-		// Create an empty context to pass to `worker.fetch()`.
-		const ctx = createExecutionContext();
-		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
-		await waitOnExecutionContext(ctx);
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
+test('Query Endpoint', async (c) => {
+	const res = await fetch('https://server.find-x.workers.dev/query', {
+		method: 'POST',
+		body: JSON.stringify({
+			query: 'test?',
+		}),
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer test`,
+		},
 	});
-
-	it('responds with Hello World! (integration style)', async () => {
-		const response = await SELF.fetch('https://example.com');
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
-	});
+	expect(res.status).toBe(200);
 });

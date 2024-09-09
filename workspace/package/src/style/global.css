@@ -2,14 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-.f-scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.find-x * {
+  font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Hide scrollbars */
 .f-scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
 
+.f-scrollbar-hide::-webkit-scrollbar {
+  display: none; /* WebKit browsers */
+}
+
+/* Border styles */
 .f-bl {
   border: 1px solid #3b82f6;
 }
@@ -18,58 +25,21 @@
   border: 1px solid #52525b;
 }
 
-.loader {
-  height: 5px;
-  width: 5px;
-  opacity: 0.7;
-  box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px;
-  animation: loader-38 3s infinite;
+/* HTML: <div class="loader"></div> */
+.loader-fx {
+  width: 25px;
+  aspect-ratio: 1.154;
+  --_g: no-repeat radial-gradient(farthest-side, #21bad3 90%, transparent);
+  background: var(--_g) 50% 0, var(--_g) 0 100%, var(--_g) 100% 100%;
+  background-size: 35% calc(35% * 1.154);
+  animation: l16 0.5s infinite;
 }
-
-@keyframes loader-38 {
-  0% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px,
-      -7px -7px 0 5px;
-  }
-  8.33% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px -7px 0 5px, 7px -7px 0 5px;
-  }
-  16.66% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px;
-  }
-  24.99% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  33.32% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, -7px -7px 0 5px;
-  }
-  41.65% {
-    box-shadow: 7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, 7px -7px 0 5px;
-  }
-  49.98% {
-    box-shadow: 7px 7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px;
-  }
-  58.31% {
-    box-shadow: -7px 7px 0 5px, -7px 7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  66.64% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  74.97% {
-    box-shadow: -7px -7px 0 5px, 7px -7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  83.3% {
-    box-shadow: -7px -7px 0 5px, 7px 7px 0 5px, 7px 7px 0 5px, -7px 7px 0 5px;
-  }
-  91.63% {
-    box-shadow: -7px -7px 0 5px, -7px 7px 0 5px, -7px 7px 0 5px, -7px 7px 0 5px;
-  }
+@keyframes l16 {
+  50%,
   100% {
-    box-shadow: -7px -7px 0 5px, -7px -7px 0 5px, -7px -7px 0 5px,
-      -7px -7px 0 5px;
+    background-position: 100% 100%, 50% 0, 0 100%;
   }
 }
-
 /* General styles */
 .find-x *,
 .find-x ::before,
@@ -77,6 +47,15 @@
   box-sizing: border-box;
   border-width: 0;
   border-style: solid;
+}
+.find-x code {
+  background-color: #2d2f2f;
+  padding: 4px;
+  border-radius: 5px;
+}
+.find-x-code pre , .find-x-code code {
+  background-color: #232525 !important;
+  padding: auto !important;
 }
 
 /* Add border only to elements with f-border class */
@@ -88,22 +67,27 @@
 .find-x ::after {
   --tw-content: "";
 }
+
 .find-x hr {
   height: 0;
   color: inherit;
   border-top-width: 1px;
 }
+
 .find-x abbr:where([title]) {
   text-decoration: underline dotted;
 }
+
 .find-x a {
   color: inherit;
   text-decoration: inherit;
 }
+
 .find-x b,
 .find-x strong {
   font-weight: bolder;
 }
+
 .find-x code,
 .find-x kbd,
 .find-x samp,
@@ -112,9 +96,11 @@
     "Liberation Mono", "Courier New", monospace;
   font-size: 1em;
 }
+
 .find-x small {
   font-size: 80%;
 }
+
 .find-x sub,
 .find-x sup {
   font-size: 75%;
@@ -122,17 +108,62 @@
   position: relative;
   vertical-align: baseline;
 }
+
 .find-x sub {
   bottom: -0.25em;
 }
+
 .find-x sup {
   top: -0.5em;
 }
-.find-x table {
-  text-indent: 0;
-  border-color: inherit;
-  border-collapse: collapse;
+
+.find-x {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
+
+.find-x table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  background-color: #191b1a; /* Dark background */
+  color: #fff; /* Light text color */
+  border: 1px solid #18181b;
+  table-layout: fixed; /* Ensure columns fill the table width */
+}
+
+.find-x th,
+.find-x td {
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #525252; /* Column borders */
+}
+
+.find-x th {
+  background-color: #2a2c2b; /* Slightly lighter dark header background */
+}
+
+.find-x tr:nth-child(even) {
+  background-color: #232524; /* Slightly lighter dark background for even rows */
+}
+
+.find-x tr:nth-child(odd) {
+  background-color: #191b1a; /* Original dark background for odd rows */
+}
+
+.find-x th:last-child,
+.find-x td:last-child {
+  flex: 1; /* Make the last column fill the remaining space */
+}
+
+.find-x .table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px; /* Ensure the wrapper has rounded corners as well */
+}
+
 .find-x input,
 .find-x optgroup,
 .find-x select,
@@ -146,9 +177,30 @@
   margin: 0;
   padding: 0;
 }
+
+.find-x input::-moz-focus-inner {
+  outline: none;
+  border: 0px;
+}
+
+.find-x input:focus {
+  outline: none;
+  border: 0px;
+}
+.find-x input:focus-within {
+  outline: none;
+  border: 0px;
+}
+
+.find-x input {
+  outline: none;
+  border: 0px;
+}
+
 .find-x select {
   text-transform: none;
 }
+
 .find-x [type="reset"],
 .find-x [type="submit"] {
   -webkit-appearance: button;
@@ -159,30 +211,37 @@
 .find-x progress {
   vertical-align: baseline;
 }
+
 .find-x ::-webkit-inner-spin-button,
 .find-x ::-webkit-outer-spin-button {
   height: auto;
 }
+
 .find-x [type="search"] {
   -webkit-appearance: textfield;
   outline-offset: -2px;
 }
+
 .find-x ::-webkit-search-decoration {
   -webkit-appearance: none;
 }
+
 .find-x ::-webkit-file-upload-button {
   -webkit-appearance: button;
   font: inherit;
 }
+
 .find-x summary {
   display: list-item;
 }
+
 .find-x blockquote {
   width: auto;
   height: 50px;
   padding: 5px;
   margin: 0;
 }
+
 .find-x dl,
 .find-x dd,
 .find-x hr,
@@ -191,19 +250,32 @@
 .find-x pre {
   margin: 0;
 }
+
 .find-x fieldset {
   margin: 0;
   padding: 0;
 }
+
 .find-x legend {
   padding: 0;
 }
+
 .find-x ul {
   list-style-type: disc;
-  list-style-position: inside;
+  list-style-position: outside;
   display: flex;
   flex-direction: column;
   gap: 2;
+  margin-left: 2rem;
+}
+
+.find-x ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  display: flex;
+  flex-direction: column;
+  gap: 2;
+  padding-left: 2rem;
 }
 
 .find-x .txt p {
@@ -211,38 +283,28 @@
   padding-top: 10px;
   padding-bottom: 10px;
 }
+
 .find-x .txt strong {
   opacity: 1;
+  font-weight: 600;
 }
-.find-x ol {
-  list-style-type: decimal;
-  list-style-position: inside;
-  display: flex;
-  flex-direction: column;
-  gap: 2;
+
+.find-x button,
+.find-x [role="button"] {
+  cursor: pointer;
+  border: 1px solid #9ca3af;
 }
-.find-x menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.find-x dialog {
-  padding: 0;
-}
-.find-x textarea {
-  resize: vertical;
-}
+
 .find-x input::placeholder,
 .find-x textarea::placeholder {
   opacity: 1;
   color: #9ca3af;
 }
-.find-x [role="button"] {
-  cursor: pointer;
-}
+
 .find-x :disabled {
   cursor: default;
 }
+
 .find-x img,
 .find-x svg,
 .find-x video,
@@ -254,11 +316,13 @@
   display: block;
   vertical-align: middle;
 }
+
 .find-x img,
 .find-x video {
   max-width: 100%;
   height: auto;
 }
+
 .find-x [hidden] {
   display: none;
 }

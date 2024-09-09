@@ -27,7 +27,7 @@ export const SearchIcon = ({ theme }: { theme: string }) => {
       fill="none"
       stroke="currentColor"
       className={`${
-        theme === "light" ? "f-text-zinc-800" : "f-text-[#fe3d21]"
+        theme === "light" ? "f-text-zinc-800" : "f-text-[#21bad3]"
       } f-stroke-2`}
     >
       <circle cx="11" cy="11" r="8" />
@@ -115,7 +115,7 @@ export const TextIcon = ({ theme }: { theme: string }) => {
       viewBox="0 0 24 24"
       fill="none"
       className={`f-stroke-2 f-w-[25px] f-h-[25px] ${
-        theme === "light" ? "f-stroke-[#273734]" : "f-stroke-[#fe3d21]"
+        theme === "light" ? "f-stroke-[#273734]" : "f-stroke-[#21bad3]"
       }`}
     >
       <path d="M17 6.1H3" />
@@ -145,7 +145,7 @@ export const SourcesIcon = ({
         theme === "light" ? "f-stroke-[#273734]" : "f-stroke-neutral-300"
       } f-w-[35px] f-h-[35px] ${
         isOpen && "f-transform f-rotate-[360deg]"
-      } f-transition-transform f-duration-300`}
+      } f-transition-transform f-duration-200`}
     >
       <path
         fill="currentColor"

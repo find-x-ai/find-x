@@ -2,11 +2,11 @@
 import { db } from "@/lib/db";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { redis } from "@/lib/redis";
-import { Switch } from "../components/ui/switch";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import CountUp from "react-countup";
 
-type Project = {
+type Client = {
   id: number;
   joined_at: string;
   url: string;
@@ -14,85 +14,87 @@ type Project = {
   plan: string;
   key: string;
   email: string;
+  total_requests: string;
+  remaining: number;
 };
 
-export default function Home() {
-  const [data, setData] = useState<Project[]>([]);
-  const [average, setAverage] = useState<number>();
-  const [averageLoading, setAverageLoading] = useState<boolean>(true);
-  const [clientLoading, setClientLoading] = useState<boolean>(true);
-  const [logs, setLogs] = useState<
-    [{ status: number; client: string; time: number }]
-  >([{ status: 200, client: "", time: Date.now() }]);
-  const [logsLoading, setLogsLoading] = useState<boolean>(true); // New state for logs loading
+type Log = {
+  time: Date;
+  name: string;
+  status: number;
+};
+
+export default function Dashboard() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [totalRequests, setTotalRequests] = useState<number>(0);
+  const [isClientLoading, setIsClientLoading] = useState<boolean>(true);
+  const [logs, setLogs] = useState<Log[]>([
+    { status: 200, name: "Fetching logs...", time: new Date() },
+  ]);
+  const [isLogsLoading, setIsLogsLoading] = useState<boolean>(true);
   const [isLive, setIsLive] = useState<boolean>(false);
   const logsEndRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Scroll to the latest log whenever logs change
     if (logsEndRef.current) {
       logsEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [logs]);
 
-  const fetchLogsAndAverage = async () => {
-    setLogsLoading(true); // Set logs loading to true when fetching logs
+  const fetchClientData = async () => {
+    try {
+      const res = (await db("SELECT * FROM clients")) as Client[];
+      setClients(res);
+      const total = res.reduce((sum, client) => sum + parseInt(client.total_requests), 0);
+      setTotalRequests(total);
+    } catch (err) {
+      console.error("Error fetching client data:", err);
+    }
+  };
+
+  const fetchLogs = async () => {
+    setIsLogsLoading(true);
 
     try {
-      const logs = await redis.get("logs");
-      if (logs) {
-        //@ts-ignore
-        setLogs(logs);
+      const dbRes = (await db("SELECT * FROM logs")) as Log[];
+      if (!dbRes || dbRes.length === 0) {
+        setLogs([{ time: new Date(), name: "Fetch failed", status: 500 }]);
+      } else {
+        setLogs(dbRes);
       }
+
+      // Fetch updated client data to refresh total requests
+      await fetchClientData();
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching logs:", err);
       setLogs([
         {
           status: 500,
-          client: "unable to retrieve logs",
-          time: Date.now(),
+          name: "Unable to retrieve logs",
+          time: new Date(),
         },
       ]);
     }
 
-    try {
-      const analytics = await redis.get("average");
-      if (analytics) {
-        //@ts-ignore
-        setAverage(analytics.total);
-        setAverageLoading(false);
-      }
-    } catch (err) {
-      console.log(err);
-      setAverage(0);
-      setAverageLoading(false);
-    }
-
-    setLogsLoading(false); // Set logs loading to false after fetching logs
+    setIsLogsLoading(false);
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      db(`SELECT * FROM client`).then((fetchedData) => {
-        if (fetchedData) {
-          //@ts-ignore
-          setData(fetchedData);
-        }
-      });
-
-      setClientLoading(false);
-
-      fetchLogsAndAverage();
+    const fetchInitialData = async () => {
+      setIsClientLoading(true);
+      await fetchClientData();
+      await fetchLogs();
+      setIsClientLoading(false);
     };
 
-    fetchData();
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
     if (isLive) {
-      intervalRef.current = setInterval(fetchLogsAndAverage, 5000);
+      intervalRef.current = setInterval(fetchLogs, 5000);
       timeoutRef.current = setTimeout(() => {
         setIsLive(false);
       }, 30000);
@@ -108,12 +110,8 @@ export default function Home() {
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [isLive]);
 
@@ -121,17 +119,12 @@ export default function Home() {
     <main className="h-full max-h-screen flex flex-col">
       <div className="border-b bg-black p-5 flex justify-between items-center border-zinc-900">
         <div>
-          <h1 className="text-2xl text-white">Hey team !</h1>
-          <h3 className="my-2 opacity-75 text-white/90">welcome to find-x</h3>
+          <h1 className="text-2xl text-white">Hey team!</h1>
+          <h3 className="my-2 opacity-75 text-white/90">Welcome to find-x</h3>
         </div>
         <div className="flex gap-3 text-white items-center">
-          <Label>GO live</Label>
-          <Switch
-            checked={isLive}
-            onCheckedChange={(s) => {
-              setIsLive(s);
-            }}
-          />
+          <Label>Go Live</Label>
+          <Switch checked={isLive} onCheckedChange={setIsLive} />
         </div>
       </div>
       <div className="p-5 h-full flex gap-5">
@@ -140,16 +133,10 @@ export default function Home() {
             <div className="cardwithbg bg-black w-full h-full absolute z-10 blur-[2px] opacity-20"></div>
             <div className="w-full h-full flex justify-center items-center flex-col gap-3">
               <h1 className="text-3xl font-semibold text-white text-center z-20">
-                {averageLoading ? (
-                  <span>
-                    <Loader2 className="animate-spin w-[28px] h-[28px] duration-300" />
-                  </span>
-                ) : (
-                  average?.toFixed(0)
-                )}
+                <CountUp duration={1.5} start={0} end={totalRequests} />
               </h1>
               <p className="text-zinc-400 text-center text-sm z-20">
-                Total queries till date
+                Total queries to date
               </p>
             </div>
           </div>
@@ -157,12 +144,10 @@ export default function Home() {
             <div className="cardwithbg bg-black w-full h-full absolute z-10 blur-[2px] opacity-20"></div>
             <div className="w-full h-full flex justify-center items-center flex-col">
               <h1 className="text-4xl font-semibold text-white h-[60px] z-20 text-center">
-                {clientLoading ? (
-                  <span>
-                    <Loader2 className="animate-spin w-[28px] h-[28px] duration-300" />
-                  </span>
+                {isClientLoading ? (
+                  <Loader2 className="animate-spin w-[28px] h-[28px] duration-300" />
                 ) : (
-                  data.length
+                  clients.length
                 )}
               </h1>
               <p className="text-zinc-400 z-20 text-center text-sm">
@@ -180,17 +165,17 @@ export default function Home() {
                 className="w-3 h-3 bg-red-500/70 rounded-full"
               ></div>
               <div
-                title="success"
+                title="Success"
                 className="w-3 h-3 bg-green-500/70 rounded-full"
               ></div>
               <div
-                title="warning"
+                title="Warning"
                 className="w-3 h-3 bg-yellow-500/70 rounded-full"
               ></div>
             </div>
           </div>
           <div className="text-zinc-300 h-[440px] pt-[50px] flex-1 scrollbar-hide font-mono overflow-y-scroll pb-5">
-            {logsLoading && logs.length < 2 ? (
+            {isLogsLoading && logs.length < 2 ? (
               <div className="flex w-full h-full flex-col gap-3 justify-center items-center text-white">
                 <Loader2 className="animate-spin w-[28px] h-[28px] duration-300" />
                 <span className="text-zinc-600 font-sans">Loading logs...</span>
@@ -200,13 +185,13 @@ export default function Home() {
                 <div
                   key={i}
                   className={`flex justify-between border-b border-zinc-800 px-5 py-2 ${
-                    i % 2 === 0 && "bg-zinc-950"
+                    i % 2 === 0 ? "bg-zinc-950" : ""
                   }`}
                 >
                   <span className="text-sm p-1 rounded-md border border-zinc-800 text-blue-600">
-                    {new Date(log.time).toDateString().slice(4, 20)}
+                    {log.time.toDateString()}
                   </span>
-                  <span className="text-start w-[200px]">{log.client}</span>
+                  <span className="text-start w-[200px]">{log.name}</span>
                   <span
                     className={`text-sm rounded-md p-1 ${
                       log.status === 200

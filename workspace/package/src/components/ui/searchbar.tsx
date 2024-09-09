@@ -14,7 +14,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 }) => (
   <div
     className={`f-flex f-w-full f-h-14 ${
-      theme === "light" ? "f-bg-zinc-100" : "f-bg-neutral-900"
+      theme === "light" ? "f-bg-zinc-100" : "f-bg-[#191a1a]"
     } f-rounded-md f-overflow-hidden f-z-10`}
   >
     <div className="f-flex f-justify-center f-items-center f-py-2 f-px-3">
@@ -41,7 +41,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         className={`f-rounded-md ${
           theme === "light"
             ? "f-bg-zinc-800 hover:f-bg-zinc-900 f-text-white"
-            : "f-bg-neutral-800 hover:f-bg-neutral-950 f-text-white"
+            : "f-bg-zinc-800 hover:f-bg-zinc-800/90 f-text-white/80"
         } f-transition-colors f-duration-200 f-cursor-pointer esc`}
       >
         Esc

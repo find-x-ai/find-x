@@ -2,56 +2,13 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { streamText } from 'hono/streaming';
 import { Index } from '@upstash/vector';
-import { Redis } from '@upstash/redis/cloudflare';
 import { instructions } from '../extra/istructions';
 import Groq from 'groq-sdk';
 import { cache } from 'hono/cache';
-import { splitText } from './methods/split';
+import { neon } from '@neondatabase/serverless';
+import { EnvironmentVariables, Header, Image, Chunk, Data } from './types';
 
 const app = new Hono();
-
-type EnvironmentVariables = {
-	UPSTASH_VECTOR_REST_TOKEN: string;
-	UPSTASH_VECTOR_REST_URL: string;
-	UPSTASH_REDIS_REST_URL: string;
-	UPSTASH_REDIS_REST_TOKEN: string;
-	UPSERT_SECRET_KEY: string;
-	AI_API_KEY_1: string;
-	AI_API_KEY_2: string;
-	AI_API_KEY_3: string;
-	AI_API_KEY_4: string;
-	AI_API_KEY_5: string;
-	AI_API_KEY_6: string;
-	AI_API_KEY_7: string;
-	AI_API_KEY_8: string;
-	AI_API_KEY_9: string;
-	AI_API_KEY_10: string;
-	AI_API_KEY_11: string;
-	AI_API_KEY_12: string;
-};
-
-type Chunk = {
-	id: string;
-	metadata: {
-		client_id: string;
-		url: string;
-		content: string;
-	};
-	data: string;
-};
-
-type Context = {
-	url: string;
-	content: string;
-};
-
-type Data = {
-	id: string;
-	requests: number;
-	name: string;
-	remaining: number;
-};
-
 //allow cross origin requests
 app.use(cors());
 
@@ -80,9 +37,9 @@ app.post(
 			'AI_API_KEY_12',
 		];
 
-		const selectedApiKey = env[apiKeys[randomIndex - 1]];
+		// const selectedApiKey = env[apiKeys[randomIndex - 1]];
 
-		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } = env;
+		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, NEON_KEY } = env;
 		const secret = c.req.header('Authorization') as string;
 
 		if (!secret) {
@@ -97,53 +54,61 @@ app.post(
 			return c.json({ message: 'Missing parameters' }, 400);
 		}
 
-		const redis = new Redis({
-			url: UPSTASH_REDIS_REST_URL,
-			token: UPSTASH_REDIS_REST_TOKEN,
-		});
-		const info = (await redis.get(key)) as Data;
+		const db = neon(NEON_KEY);
 
-		if (!info.id) {
+		const db_res = (await db('SELECT * FROM clients WHERE api_key = $1', [key])) as Data[];
+
+		if (db_res.length < 1) {
 			return c.json({ message: 'Invalid Authorization key' }, 400);
 		}
+
+		const id = db_res[0].id;
+
 		try {
-			const groq = new Groq({ apiKey: selectedApiKey });
+			const groq = new Groq({ apiKey: env[apiKeys[9]] });
 
 			const index = new Index({
 				url: UPSTASH_VECTOR_REST_URL,
 				token: UPSTASH_VECTOR_REST_TOKEN,
 				cache: false,
 			});
-			const namespace = index.namespace(info.id);
+			const namespace = index.namespace(id.toString());
 
 			const res = (await namespace.query({
-				data: query,
+				data: query.toLowerCase(),
 				topK: 3,
 				includeVectors: false,
 				includeMetadata: true,
 				includeData: true,
 			})) as Chunk[];
+			let header: Header = { sources: [], images: { data: [] } };
+			let concatenatedHeader = '';
+			let context: String[] = [];
 
-			let array_of_context: Context[] = [];
-			let ids = [];
+			//Extract the data from the response chunks
 			for (const chunk of res) {
-				ids.push(chunk.id);
-				array_of_context.push({
+				header.sources.push({
+					title: chunk.metadata.title,
+					content: chunk.data.length < 70 ? chunk.data : chunk.data.slice(0, 70) + '...',
 					url: chunk.metadata.url,
-					content: chunk.data,
 				});
+				context.push(chunk.data);
+				const images = JSON.parse(chunk.metadata.images) as { data: Image[] };
+				console.log(images);
+				header.images.data = [...header.images.data, ...images.data];
 			}
+			// data for AI model
 			const data = JSON.stringify({
 				query: query,
-				search_data: array_of_context.map((context) => context.content),
+				search_data: context,
 			});
-			let end = '<#$#>';
 
-			array_of_context.forEach((c, index) => {
-				end += c.url + '#' + c.content + '<*$*>';
-			});
+			// Convert the header object to a JSON string and concatenate with the special symbol
+			concatenatedHeader += JSON.stringify(header) + '<#$#>';
+
 			const t1 = performance.now();
 			return streamText(c, async (stream) => {
+				await stream.write(concatenatedHeader);
 				const chatCompletion = await groq.chat.completions.create({
 					messages: [
 						{
@@ -157,45 +122,30 @@ app.post(
 					],
 					model: 'llama-3.1-8b-instant',
 					stream: true,
+					temperature: 0.5,
 				});
 				let oneTime = 0;
 				for await (const chunk of chatCompletion) {
 					const content = chunk.choices[0].delta.content;
 					if (content) {
 						if (oneTime === 0) {
-							redis
-								.set(key, { ...info, requests: info.requests + 1, remaining: parseFloat((info.remaining - 0.02).toFixed(2)) })
-								.then(() => {
-									oneTime = 1;
-								});
+							await db(`UPDATE clients SET total_requests = $1 , remaining = $2 WHERE id = $3`, [
+								parseInt(db_res[0].total_requests) + 1,
+								(db_res[0].remaining - 0.02).toFixed(2),
+								db_res[0].id,
+							]);
+
+							await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
+							oneTime = 1;
 						}
 						await stream.write(content);
 					}
 				}
-				await stream.write(end);
-
-				// const logs = (await redis.get('logs')) as [];
-				// await redis.set('logs', [
-				// 	...logs,
-				// 	{
-				// 		client: info.name,
-				// 		status: 200,
-				// 		time: performance.now(),
-				// 	},
-				// ]);
 
 				await stream.close();
 			});
 		} catch (error) {
-			const logs = (await redis.get('logs')) as [];
-			await redis.set('logs', [
-				...logs,
-				{
-					status: 500,
-					client: info.name,
-					time: Date.now(),
-				},
-			]);
+			await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 500]);
 
 			console.log(error);
 			c.json({ success: false, answer: 'Something went wrong!!!' }, 500);
@@ -223,7 +173,24 @@ app.post('/upsert', async (c) => {
 			return c.json({ mssage: 'Invalid key provided' }, 400);
 		}
 
-		const { client, data } = (await c.req.json()) as { client: number; data: [{ url: string; content: string }] };
+		const { client, data } = (await c.req.json()) as {
+			client: number;
+			data: [
+				{
+					url: string;
+					title: string;
+					content: string;
+					images: {
+						data: [
+							{
+								src: string;
+								alt: string;
+							}
+						];
+					};
+				}
+			];
+		};
 
 		if (!client || !data || data.length < 1) {
 			return c.json({ message: 'Missing parameters' }, 400);
@@ -238,28 +205,15 @@ app.post('/upsert', async (c) => {
 		const namespace = index.namespace(client.toString());
 
 		for (let chunk of data) {
-			if (chunk.content.length > 2043) {
-				const splitted_chunks = splitText(chunk.content);
-
-				for (let i = 0; i < splitted_chunks.length; i++) {
-					await namespace.upsert({
-						id: `${chunk.url}_${i + 1}`,
-						data: splitted_chunks[i],
-						metadata: {
-							client: client,
-							url: chunk.url,
-							content: splitted_chunks[i],
-						},
-					});
-				}
-			} else {
+			if (chunk.content.trim().length > 50) {
 				await namespace.upsert({
 					id: `${chunk.url}`,
 					data: chunk.content,
 					metadata: {
+						title: chunk.title,
 						client: client,
 						url: chunk.url,
-						content: chunk.content,
+						images: JSON.stringify(chunk.images),
 					},
 				});
 			}

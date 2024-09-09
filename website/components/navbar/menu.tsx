@@ -36,7 +36,7 @@ const Menu = ({ links }: { links: LinksArray[] }) => {
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="w-full h-[calc(100vh-70px)] absolute z-[100] bg-zinc-100 top-[70px] right-0 flex justify-center items-start py-10"
+          className="w-full h-[calc(100vh-70px)] absolute z-[100] bg-[#ffffff] top-[70px] right-0 flex justify-center items-start py-10"
         >
           <motion.ul
             whileInView={{ opacity: 1 }}
