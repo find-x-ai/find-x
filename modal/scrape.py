@@ -166,9 +166,7 @@ async def get_links(request: Dict):
                     summary_text=readable_text
                 markdown_output=readable_text
 
-
-
-                # Call the summarizer model asynchronously
+                # Call the summarizer model 
                 summary=SummarizerModel().summarize.remote(summary_text,title)
 
             except PlaywrightError as e:
@@ -213,15 +211,9 @@ class SummarizerModel:
         title_lower = title.lower().strip()
 
         def process_summary(text, title_lower):
-            # Convert title to lowercase for consistent comparison
-    
-            # Create a pattern to match the title at the start of the text
+
             pattern = re.compile(rf'^{re.escape(title_lower)}\s*', re.IGNORECASE)
-    
-            # Remove the title if it appears at the start of the text
             text = pattern.sub('', text).strip()
-    
-            # Capitalize the first letter of the remaining text if it is not empty
             if text:
                 text = text[0].upper() + text[1:]
     
