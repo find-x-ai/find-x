@@ -1,7 +1,15 @@
+import re
+from bs4 import BeautifulSoup
 import os
 import modal
-from modal import Stub, web_endpoint
+from modal import App, build, enter, method, web_endpoint
 from typing import Dict
+import requests
+from PIL import Image
+from io import BytesIO
+from urllib.parse import urlparse
+from playwright.async_api import async_playwright, Error as PlaywrightError
+from markdownify import markdownify as md
 
 playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "apt-get update",
@@ -11,99 +19,157 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install playwright==1.30.0",
     "playwright install-deps chromium",
     "playwright install chromium",
+    "pip install markdownify beautifulsoup4 pillow requests transformers torch sentencepiece"
 )
 
-stub = Stub(name="link-scraper", image=playwright_image)
+app = App(name="link-scraper", image=playwright_image)
 
-@stub.function(secrets=[modal.Secret.from_name("my-custom-secret")])
+@app.function(secrets=[modal.Secret.from_name("secret_key")])
 @web_endpoint(label="scrape", method="POST")
 async def get_links(request: Dict):
-    from playwright.async_api import async_playwright, Error as PlaywrightError
-    
     try:
-        async with async_playwright() as p:
-            cur_url = request.get('url')
-            key = request.get('secret_key')
-            secret_key = os.environ["key_secret"]
-            if(key != secret_key):
-                raise ValueError("Missing secret key")
-            if not cur_url:
-                raise ValueError("URL is missing in the request")
+        cur_url = request.get('url')
+        key = request.get('secret_key')
+        secret_key = os.environ.get('secret_key')
+        
+        if key != secret_key:
+            raise ValueError("Invalid secret key")
+        if not cur_url:
+            raise ValueError("URL is missing in the request")
 
+        async with async_playwright() as p:
             browser = await p.chromium.launch()
+            page = await browser.new_page()
+
             try:
-                page = await browser.new_page()
-                await page.goto(cur_url, timeout=30000)
-                await page.wait_for_timeout(5000) 
-                # Extracting absolute links only and avoiding duplicates
+                await page.goto(cur_url, timeout=30000 , wait_until="networkidle")
+                
                 links = await page.eval_on_selector_all("a[href]", """
                     (baseUrl) => {
                         const uniqueLinks = new Set();
                         const base = new URL(baseUrl);
+                        const normalizedBase = base.origin + base.pathname.replace(/\/+$/, '');
 
                         for (const element of document.querySelectorAll('a[href]')) {
-                            const href = element.href;
+                            let href = element.href;
 
-                            // Check if the link is absolute and not the same as the main URL
                             if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
-                                // Normalize the URL by removing fragments and trailing slashes
-                                const normalizedHref = href.split('#')[0].replace(/\/+$/, '').toLowerCase();
-                                uniqueLinks.add(normalizedHref);  // Add to the Set to ensure uniqueness
-                            }
-                        }
+                                href = href.split(/[?#]/)[0];
+                                const normalizedHref = href.replace(/\/+$/, '');
 
-                        // Convert the Set back to an array and return
-                        return Array.from(uniqueLinks);
-                    }
-                """, cur_url)  # Pass the current URL as the base URL
-
-                unique_links = list(links)  # Convert to a list if needed
-
-                data = {}
-                
-                body_text = await page.evaluate("""
-                    () => {
-                        const excludeTags = ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'NAV', 'ASIDE', 'FOOTER', 'BUTTON', 'SVG', 'FORM', 'TEXTAREA', 'SELECT'];
-                        const excludeClasses = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu'];
-                        
-                        function isExcluded(element) {
-                            if (excludeTags.includes(element.tagName)) return true;
-                            if (element.className && typeof element.className === 'string') {
-                                for (const className of excludeClasses) {
-                                    if (element.className.toLowerCase().includes(className)) return true;
+                                if (normalizedHref !== normalizedBase && ((normalizedHref + '/') !== normalizedBase)) {
+                                    uniqueLinks.add(normalizedHref);
                                 }
                             }
-                            return false;
                         }
-                        
-                        function getCleanText(node) {
-                            if (node.nodeType === Node.TEXT_NODE) {
-                                return node.textContent.trim();
-                            }
-                            
-                            if (node.nodeType !== Node.ELEMENT_NODE || isExcluded(node)) return '';
-                            
-                            let text = '';
-                            for (const child of node.childNodes) {
-                                text += ' ' + getCleanText(child);
-                            }
-                            
-                            return text.trim();
+
+                        return Array.from(uniqueLinks);
+                    }
+                """, cur_url)
+
+                min_width = 200
+                min_height = 200
+
+                def is_valid_image(img_url):
+                    try:
+                        response = requests.get(img_url)
+                        img = Image.open(BytesIO(response.content))
+                        width, height = img.size
+                        return width >= min_width and height >= min_height
+                    except Exception:
+                        return False
+
+                images = await page.eval_on_selector_all("img[src]", """
+                    () => {
+                        const images = [];
+                        for (const element of document.querySelectorAll('img[src]')) {
+                            const src = element.src;
+                            const alt = element.alt || 'No description available';
+                            images.push({src, alt});
                         }
-                        
-                        let cleanText = getCleanText(document.body);
-                        
-                        // Remove extra whitespace
-                        cleanText = cleanText.replace(/\\s+/g, ' ').trim();
-                        
-                        return cleanText;
+                        return images;
                     }
                 """)
+
+                valid_images = []
+                seen_alts = set()
+
+                for img in images:
+                    if img['alt'] not in seen_alts and is_valid_image(img['src']):
+                        valid_images.append(img)
+                        seen_alts.add(img['alt'])
+                    if len(valid_images) >= 10:  # Limit to 10 images
+                        break
+
+                html_content = await page.content()
+                soup = BeautifulSoup(html_content, 'html.parser')
+
+                exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select', 'a']
+                exclude_classes = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu']
+                exclude_ids = ['footer', 'sidebar', 'menu', 'button', 'navbar', 'nav']
+
+                for tag in exclude_tags:
+                    for element in soup.find_all(tag):
+                        element.decompose()
+
+                for class_name in exclude_classes:
+                    for element in soup.find_all(class_=class_name):
+                        element.decompose()
+
+                for id in exclude_ids:
+                    for element in soup.find_all(attrs={'id': id}):
+                        element.decompose()
+
+                # Keep track of placeholders for tables and code blocks
+                table_placeholders = []
+                code_placeholders = []
+
+                for table in soup.find_all("table"):
+                    placeholder = "<#t#>"
+                    table_placeholders.append((placeholder, str(table)))
+                    table.replace_with(placeholder)
+
+                for pre_tag in soup.find_all("pre"):
+                    placeholder = "<#p#>"
+                    code_placeholders.append((placeholder, str(pre_tag)))
+                    pre_tag.replace_with(placeholder)
+
+                for code_tag in soup.find_all("code"):
+                    placeholder = "<#c#>"
+                    code_placeholders.append((placeholder, str(code_tag)))
+                    code_tag.replace_with(placeholder)
+
+                try:
+                    title = await page.title()
+                except PlaywrightError:
+                    parsed_url = urlparse(cur_url)
+                    title = parsed_url.netloc
+
+                # Extract text with spaces between tag contents
+                readable_text = soup.get_text(separator=' ').lower().replace('\n' , ' ').strip()
+                readable_text = re.sub(r'[^\x00-\x7F]', '', readable_text)
+
+                # Replace placeholders with corresponding markdown content
+                for placeholder, original_html in table_placeholders:
+                    markdown_table = md(original_html)
+                    readable_text = readable_text.replace(placeholder, markdown_table, 1)
                 
-                if len(body_text) < 20:
-                    raise ValueError("Insufficient content found on the page")
-                    
-                data[cur_url] = body_text
+                for placeholder, original_html in code_placeholders:
+                    markdown_code = md(original_html)
+                    readable_text = readable_text.replace(placeholder, markdown_code, 1)
+
+                title_lower = title.lower()
+                if readable_text.startswith(title_lower + ' '):
+                    # Remove the duplicate title
+                    summary_text = readable_text[len(title_lower):].lstrip()
+                else:
+                    summary_text=readable_text
+                markdown_output=readable_text
+
+
+
+                # Call the summarizer model asynchronously
+                summary=SummarizerModel().summarize.remote(summary_text,title)
 
             except PlaywrightError as e:
                 return {"error": "Failed to load or process the page", "details": str(e)}
@@ -111,9 +177,73 @@ async def get_links(request: Dict):
             finally:
                 await browser.close()
 
-        return {"data": [{"url": cur_url, "content": data[cur_url]}], "links": unique_links}
+        return {
+            "data": [{
+                "url": cur_url,
+                "title": title,
+                "content": markdown_output,
+                "summary": summary,
+                "images": {"data": valid_images}
+            }],
+            "links": links,
+        }
 
     except ValueError as ve:
         return {"error": str(ve)}
     except Exception as e:
         return {"error": "An unexpected error occurred", "details": str(e)}
+    
+
+@app.cls()  
+class SummarizerModel:
+    @build()
+    @enter()
+    def initialize(self):
+        # Initialize model 
+        from transformers import pipeline, T5TokenizerFast
+        self.model_name = 't5-small'
+        self.tokenizer = T5TokenizerFast.from_pretrained(self.model_name, legacy=False)
+        self.summarizer = pipeline("summarization", model=self.model_name, tokenizer=self.tokenizer)
+
+    @method()
+    def summarize(self, text: str, title: str):
+        max_input_tokens = 256
+        summary_max_length = 100
+        summary_min_length = 30
+        title_lower = title.lower().strip()
+
+        def process_summary(text, title_lower):
+            # Convert title to lowercase for consistent comparison
+    
+            # Create a pattern to match the title at the start of the text
+            pattern = re.compile(rf'^{re.escape(title_lower)}\s*', re.IGNORECASE)
+    
+            # Remove the title if it appears at the start of the text
+            text = pattern.sub('', text).strip()
+    
+            # Capitalize the first letter of the remaining text if it is not empty
+            if text:
+                text = text[0].upper() + text[1:]
+    
+            return text
+
+
+        
+        # Tokenize 
+        tokens = self.tokenizer.encode(text, truncation=False)
+        truncated_tokens = tokens[:max_input_tokens]
+        truncated_text = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+        
+        
+        summary = self.summarizer(
+            truncated_text,
+            max_length=summary_max_length,
+            min_length=summary_min_length,
+            do_sample=False,
+            num_beams=4
+        )
+        
+
+        processed_summary = process_summary(summary[0]['summary_text'],title_lower)
+        
+        return processed_summary
