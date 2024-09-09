@@ -2,7 +2,7 @@ import re
 from bs4 import BeautifulSoup
 import os
 import modal
-from modal import Stub, web_endpoint
+from modal import App, build, enter, method, web_endpoint
 from typing import Dict
 import requests
 from PIL import Image
@@ -19,12 +19,14 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install playwright==1.30.0",
     "playwright install-deps chromium",
     "playwright install chromium",
+    "pip install markdownify beautifulsoup4 pillow requests transformers torch sentencepiece"
     "pip install markdownify beautifulsoup4 pillow requests"
+
 )
 
-stub = Stub(name="link-scraper", image=playwright_image)
+app = App(name="link-scraper", image=playwright_image)
 
-@stub.function(secrets=[modal.Secret.from_name("secret_key")])
+@app.function(secrets=[modal.Secret.from_name("secret_key")])
 @web_endpoint(label="scrape", method="POST")
 async def get_links(request: Dict):
     try:
@@ -158,6 +160,16 @@ async def get_links(request: Dict):
                     markdown_code = md(original_html)
                     readable_text = readable_text.replace(placeholder, markdown_code, 1)
 
+                title_lower = title.lower()
+                if readable_text.startswith(title_lower + ' '):
+                    # Remove the duplicate title
+                    summary_text = readable_text[len(title_lower):].lstrip()
+                else:
+                    summary_text=readable_text
+                markdown_output=readable_text
+
+                # Call the summarizer model 
+                summary=SummarizerModel().summarize.remote(summary_text,title)
                 markdown_output = readable_text
 
             except PlaywrightError as e:
@@ -171,6 +183,9 @@ async def get_links(request: Dict):
                 "url": cur_url,
                 "title": title,
                 "content": markdown_output,
+
+                "summary": summary,
+
                 "images": {"data": valid_images}
             }],
             "links": links,
@@ -180,3 +195,52 @@ async def get_links(request: Dict):
         return {"error": str(ve)}
     except Exception as e:
         return {"error": "An unexpected error occurred", "details": str(e)}
+    
+
+@app.cls()  
+class SummarizerModel:
+    @build()
+    @enter()
+    def initialize(self):
+        # Initialize model 
+        from transformers import pipeline, T5TokenizerFast
+        self.model_name = 't5-small'
+        self.tokenizer = T5TokenizerFast.from_pretrained(self.model_name, legacy=False)
+        self.summarizer = pipeline("summarization", model=self.model_name, tokenizer=self.tokenizer)
+
+    @method()
+    def summarize(self, text: str, title: str):
+        max_input_tokens = 256
+        summary_max_length = 100
+        summary_min_length = 30
+        title_lower = title.lower().strip()
+
+        def process_summary(text, title_lower):
+
+            pattern = re.compile(rf'^{re.escape(title_lower)}\s*', re.IGNORECASE)
+            text = pattern.sub('', text).strip()
+            if text:
+                text = text[0].upper() + text[1:]
+    
+            return text
+
+
+        
+        # Tokenize 
+        tokens = self.tokenizer.encode(text, truncation=False)
+        truncated_tokens = tokens[:max_input_tokens]
+        truncated_text = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
+        
+        
+        summary = self.summarizer(
+            truncated_text,
+            max_length=summary_max_length,
+            min_length=summary_min_length,
+            do_sample=False,
+            num_beams=4
+        )
+        
+
+        processed_summary = process_summary(summary[0]['summary_text'],title_lower)
+        
+        return processed_summary
