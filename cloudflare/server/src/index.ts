@@ -61,7 +61,7 @@ app.post(
 			return c.json({ message: 'Invalid Authorization key' }, 400);
 		}
 		const id = db_res[0].id;
-		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN });
+		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
 		const cached_response = (await redis.get(query.trim().toLowerCase() + id.toString())) as { header: string; response: string };
 		let header: Header = { sources: [], images: { data: [] } };
 
