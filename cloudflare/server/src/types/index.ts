@@ -1,4 +1,6 @@
 export type EnvironmentVariables = {
+	UPSTASH_REDIS_REST_URL: string;
+	UPSTASH_REDIS_REST_TOKEN: string;
 	UPSTASH_VECTOR_REST_TOKEN: string;
 	UPSTASH_VECTOR_REST_URL: string;
 	UPSERT_SECRET_KEY: string;
