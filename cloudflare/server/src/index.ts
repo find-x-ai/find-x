@@ -68,6 +68,9 @@ app.post(
 		if (cached_response) {
 			return streamText(c, async (stream) => {
 				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
+				await db(`UPDATE clients SET total_requests = $1 WHERE id = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].id]);
+				await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
+				await stream.close();
 			});
 		}
 
