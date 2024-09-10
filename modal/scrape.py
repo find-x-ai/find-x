@@ -19,9 +19,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install playwright==1.30.0",
     "playwright install-deps chromium",
     "playwright install chromium",
-    "pip install markdownify beautifulsoup4 pillow requests transformers torch sentencepiece"
-    "pip install markdownify beautifulsoup4 pillow requests"
-
+    "pip install markdownify beautifulsoup4 pillow requests "
 )
 
 app = App(name="link-scraper", image=playwright_image)
@@ -163,18 +161,31 @@ async def get_links(request: Dict):
                 title_lower = title.lower()
                 if readable_text.startswith(title_lower + ' '):
                     # Remove the duplicate title
-                    summary_text = readable_text[len(title_lower):].lstrip()
+                    markdown_output= readable_text[len(title_lower):].lstrip()
+                    if markdown_output.startswith(title_lower + ' '):
+                        summary_text= markdown_output[len(title_lower):].lstrip()
+                    else:
+                        summary_text=markdown_output
                 else:
-                    summary_text=readable_text
-                markdown_output=readable_text
+                    markdown_output=readable_text
+                    summary_text=markdown_output
+                def extract_text(text):
+                    if '```' in text:
+                        text = re.sub(r'```[\s\S]*?```', '', text)
+    
+                    if '|' in text or '-' in text:
+                        text = re.sub(r'\|.*?\|', '', text)
+                        text = re.sub(r'-{2,}', '', text)
 
-                # Call the summarizer model 
-                summary=SummarizerModel().summarize.remote(summary_text,title)
-                markdown_output = readable_text
-
+                    sentences=text.split('.')
+                    
+                    return '. '.join(sentences[:2])+ '.'
+                
+                summary=extract_text(summary_text)
+                
             except PlaywrightError as e:
                 return {"error": "Failed to load or process the page", "details": str(e)}
-
+            
             finally:
                 await browser.close()
 
@@ -183,9 +194,7 @@ async def get_links(request: Dict):
                 "url": cur_url,
                 "title": title,
                 "content": markdown_output,
-
-                "summary": summary,
-
+                "summary":summary,
                 "images": {"data": valid_images}
             }],
             "links": links,
@@ -195,52 +204,3 @@ async def get_links(request: Dict):
         return {"error": str(ve)}
     except Exception as e:
         return {"error": "An unexpected error occurred", "details": str(e)}
-    
-
-@app.cls()  
-class SummarizerModel:
-    @build()
-    @enter()
-    def initialize(self):
-        # Initialize model 
-        from transformers import pipeline, T5TokenizerFast
-        self.model_name = 't5-small'
-        self.tokenizer = T5TokenizerFast.from_pretrained(self.model_name, legacy=False)
-        self.summarizer = pipeline("summarization", model=self.model_name, tokenizer=self.tokenizer)
-
-    @method()
-    def summarize(self, text: str, title: str):
-        max_input_tokens = 256
-        summary_max_length = 100
-        summary_min_length = 30
-        title_lower = title.lower().strip()
-
-        def process_summary(text, title_lower):
-
-            pattern = re.compile(rf'^{re.escape(title_lower)}\s*', re.IGNORECASE)
-            text = pattern.sub('', text).strip()
-            if text:
-                text = text[0].upper() + text[1:]
-    
-            return text
-
-
-        
-        # Tokenize 
-        tokens = self.tokenizer.encode(text, truncation=False)
-        truncated_tokens = tokens[:max_input_tokens]
-        truncated_text = self.tokenizer.decode(truncated_tokens, skip_special_tokens=True)
-        
-        
-        summary = self.summarizer(
-            truncated_text,
-            max_length=summary_max_length,
-            min_length=summary_min_length,
-            do_sample=False,
-            num_beams=4
-        )
-        
-
-        processed_summary = process_summary(summary[0]['summary_text'],title_lower)
-        
-        return processed_summary
