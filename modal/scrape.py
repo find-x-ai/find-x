@@ -19,7 +19,7 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install playwright==1.30.0",
     "playwright install-deps chromium",
     "playwright install chromium",
-    "pip install markdownify beautifulsoup4 pillow requests "
+    "pip install markdownify beautifulsoup4 pillow requests"
 )
 
 app = App(name="link-scraper", image=playwright_image)
