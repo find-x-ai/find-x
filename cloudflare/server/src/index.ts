@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { streamText } from 'hono/streaming';
 import { Index } from '@upstash/vector';
+import { Redis } from '@upstash/redis/cloudflare';
 import { instructions } from '../extra/istructions';
 import Groq from 'groq-sdk';
 import { cache } from 'hono/cache';
@@ -18,8 +19,6 @@ app.get('/', (c) => c.text('working fine...'));
 app.post(
 	'/query',
 	async (c) => {
-		const randomIndex = Math.floor(Math.random() * 12) + 1;
-		const t0 = performance.now();
 		const env = c.env as EnvironmentVariables;
 
 		const apiKeys: (keyof EnvironmentVariables)[] = [
@@ -38,13 +37,13 @@ app.post(
 		];
 
 		// const selectedApiKey = env[apiKeys[randomIndex - 1]];
-
-		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, NEON_KEY } = env;
 		const secret = c.req.header('Authorization') as string;
 
 		if (!secret) {
 			return c.json({ message: 'Missing authorization header' }, 401);
 		}
+
+		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, NEON_KEY, UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } = env;
 
 		const key = secret.split('Bearer ')[1];
 
@@ -61,8 +60,19 @@ app.post(
 		if (db_res.length < 1) {
 			return c.json({ message: 'Invalid Authorization key' }, 400);
 		}
-
 		const id = db_res[0].id;
+		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
+		const cached_response = (await redis.get(query.trim().toLowerCase() + id.toString())) as { header: string; response: string };
+		let header: Header = { sources: [], images: { data: [] } };
+
+		if (cached_response) {
+			return streamText(c, async (stream) => {
+				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
+				await db(`UPDATE clients SET total_requests = $1 WHERE id = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].id]);
+				await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
+				await stream.close();
+			});
+		}
 
 		try {
 			const groq = new Groq({ apiKey: env[apiKeys[9]] });
@@ -81,7 +91,6 @@ app.post(
 				includeMetadata: true,
 				includeData: true,
 			})) as Chunk[];
-			let header: Header = { sources: [], images: { data: [] } };
 			let concatenatedHeader = '';
 			let context: String[] = [];
 
@@ -94,7 +103,6 @@ app.post(
 				});
 				context.push(chunk.data);
 				const images = JSON.parse(chunk.metadata.images) as { data: Image[] };
-				console.log(images);
 				header.images.data = [...header.images.data, ...images.data];
 			}
 			// data for AI model
@@ -106,7 +114,6 @@ app.post(
 			// Convert the header object to a JSON string and concatenate with the special symbol
 			concatenatedHeader += JSON.stringify(header) + '<#$#>';
 
-			const t1 = performance.now();
 			return streamText(c, async (stream) => {
 				await stream.write(concatenatedHeader);
 				const chatCompletion = await groq.chat.completions.create({
@@ -125,6 +132,7 @@ app.post(
 					temperature: 0.5,
 				});
 				let oneTime = 0;
+				let full_content = '';
 				for await (const chunk of chatCompletion) {
 					const content = chunk.choices[0].delta.content;
 					if (content) {
@@ -138,10 +146,18 @@ app.post(
 							await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
 							oneTime = 1;
 						}
+						full_content += content;
 						await stream.write(content);
 					}
 				}
-
+				await redis.set(
+					query.toLowerCase() + id.toString(),
+					{
+						header: JSON.stringify(header),
+						response: full_content,
+					},
+					{ ex: 60 * 720 }
+				);
 				await stream.close();
 			});
 		} catch (error) {
