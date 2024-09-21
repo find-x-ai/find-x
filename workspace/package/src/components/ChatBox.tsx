@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, FormEvent } from "react";
 import { ResponseArea, SearchBar, SparkleButton } from "./ui";
 import { useTypeEffect } from "./hooks/useTypeEffect";
 import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
@@ -71,8 +71,8 @@ const ChatBox = ({ config }: { config: Config }) => {
     };
   }, [setIsOpen]);
 
-  const handleSubmit = async (formData: FormData) => {
-    const search = formData.get("search") as string;
+  const handleSubmit = async (e: FormEvent, search: string) => {
+    e.preventDefault();
     if (!search.trim() || isLoading) return;
     (document.querySelector("form") as HTMLFormElement).reset();
     await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
@@ -114,12 +114,12 @@ const ChatBox = ({ config }: { config: Config }) => {
   };
 
   return (
-    <div className="find-x">
+    <div className="find-x f-text-start">
       {isOpen && (
         <div
           className={`f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 ${
             config.theme === "dark" ? "f-bg-zinc-200/80" : "f-bg-zinc-950/80 "
-          } -f-backdrop-blur-[3px] f-overflow-hidden f-top-0 f-z-[100]`}
+          } -f-backdrop-blur-[3px] f-overflow-hidden f-top-0 f-right-0 f-z-[100]`}
         >
           <div
             ref={uiRef}
