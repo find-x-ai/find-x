@@ -19,7 +19,7 @@ const membersList: Member[] = [
     email: "sahil.findx@gmail.com",
     profile: "https://github.com/sahilm416.png",
     role: "Founder and Product Developer",
-    about: `Sahil Mulani is the CEO and founder of Find-X, an AI-powered search engine.\n
+    about: `Sahil Mulani is the founder and product developer at Find-X, an AI-powered search engine.\n
     With a background in data science and software engineering, Sahil is passionate about making online information easier to access and more relevant.\n
     He leads the team at Find-X with a focus on innovation and efficiency, ensuring the search engine delivers accurate results quickly.`,
     x: "https://x.com/sahil__501",
