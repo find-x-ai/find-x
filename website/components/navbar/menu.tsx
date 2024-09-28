@@ -67,4 +67,4 @@ const Menu = ({ links }: { links: LinksArray[] }) => {
   );
 };
 
-export default Menu;
+export { Menu };
