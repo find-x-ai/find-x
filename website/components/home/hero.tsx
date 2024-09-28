@@ -10,7 +10,7 @@ export const Hero = ({ version }: { version: string }) => {
       initial={{ y: -10, filter: "blur(5px)", opacity: 0 }}
       whileInView={{ y: 0, filter: "blur(0px)", opacity: 1 }}
       viewport={{ once: true }}
-      className="w-full max-w-[1200px] text-center flex flex-col gap-5 mx-auto sm:py-20 py-10"
+      className="w-full max-w-[1200px] text-center flex flex-col gap-5 mx-auto py-10"
     >
       <div className="flex flex-col items-center gap-5">
         <Link target="_blank" href={'https://www.npmjs.com/package/find-x-ai'} className="bg-slate-800 no-underline group cursor-pointer relative shadow-2xl shadow-zinc-900 rounded-full p-px text-xs font-semibold leading-6  text-white inline-block">
