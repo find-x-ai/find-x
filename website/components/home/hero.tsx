@@ -46,9 +46,9 @@ export const Hero = ({ version }: { version: string }) => {
         </p>
       </div>
       <div className="flex sm:flex-row  gap-5 items-center justify-center">
-        <button className="py-2 px-5 w-full sm:w-auto bg-white shadow-[0px_0px_200px_#059669]-  rounded-md text-black">
+        <Link href={'/dashboard'} className="py-2 px-5 w-full sm:w-auto bg-white shadow-[0px_0px_200px_#059669]-  rounded-md text-black">
           Get started
-        </button>
+        </Link>
         <Link
           className="border sm:w-auto w-full border-[#232424] py-2 px-5 rounded-md text-white flex items-center justify-center group"
           href={"/docs/getting_started"}
