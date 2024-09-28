@@ -70,7 +70,7 @@ function ImageWithSkeleton({ src, alt }:{src: string, alt: string}) {
         className={`grayscale group-hover:grayscale-0 transition-all duration-300 ${
           isLoading ? 'opacity-0' : 'opacity-100'
         }`}
-        onLoadingComplete={() => setIsLoading(false)}
+        onLoad={() => setIsLoading(false)}
       />
     </>
   );
