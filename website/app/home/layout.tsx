@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="gradient-bg pt-12">
+    <main className="gradient-bg pt-[60px]">
       <div className="w-full flex justify-center">
         <Navbar />
       </div>
