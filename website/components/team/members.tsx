@@ -28,7 +28,7 @@ export function TeamComponent() {
   ];
 
   return (
-    <div className="flex gap-10 flex-col py-5 text-[#f8f9f9]">
+    <div className="flex gap-10 sm:px-0 px-10 flex-col py-5 text-[#f8f9f9]">
       <div>
         <h2 className="text-4xl text-center">
           <span>Building</span> <span className="gradient-text">Future</span>{" "}
