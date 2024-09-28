@@ -17,12 +17,12 @@ export const Navbar = () => {
     <nav
       className={`w-[95%] z-50 ${
         isOpen ? "h-[500px] bg-[#090909]/95 xl:h-[48px]" : "h-[48px]"
-      } overflow-hidden transition-all duration-500 max-w-[1000px] flex flex-col  py-2 px-3 border border-[#232424] bg-[#090909]/80 rounded-xl backdrop-blur-md text-sm fixed top-4 text-[#f7f8f8]`}
+      } overflow-hidden transition-all duration-500 max-w-[1000px] flex flex-col justify-center py-2 px-3 border border-[#232424] bg-[#090909]/80 rounded-xl backdrop-blur-md fixed top-4 text-[#f7f8f8]`}
     >
       <div className="w-full flex justify-between items-center gap-10">
         <div className="flex items-center gap-1">
           <img
-            className="w-[20px] h-[20px] rounded-full"
+            className="w-[30px] h-[30px] rounded-full"
             src="/logo.png"
             alt=""
           />
