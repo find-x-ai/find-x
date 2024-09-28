@@ -16,8 +16,10 @@ export const Navbar = () => {
   return (
     <nav
       className={`w-[95%] z-50 ${
-        isOpen ? "h-[500px] bg-[#090909]/95 xl:h-[48px]" : "h-[48px]"
-      } overflow-hidden transition-all duration-500 max-w-[1000px] flex flex-col justify-center py-2 px-3 border border-[#232424] bg-[#090909]/80 rounded-xl backdrop-blur-md fixed top-4 text-[#f7f8f8]`}
+        isOpen
+          ? "h-[500px] bg-[#090909]/95 xl:h-[48px] justify-start"
+          : "h-[48px] xl:justify-center"
+      } overflow-hidden transition-all duration-500 max-w-[1000px] flex flex-col py-2 px-3 border border-[#232424] bg-[#090909]/80 rounded-xl backdrop-blur-md fixed top-4 text-[#f7f8f8]`}
     >
       <div className="w-full flex justify-between items-center gap-10">
         <div className="flex items-center gap-1">
@@ -69,15 +71,17 @@ export const Navbar = () => {
          Menu for smaller devices
       */}
 
-      <div className="flex w-dull flex-col gap-10 p-10 items-center justify-start xl:hidden text-lg text-white">
-        {links.map((link, i) => {
-          return (
-            <Link onClick={() => setIsOpen(false)} href={link.url} key={i}>
-              {link.name}
-            </Link>
-          );
-        })}
-      </div>
+      {isOpen && (
+        <div className="flex w-dull flex-col gap-10 p-10 items-center justify-start xl:hidden text-lg text-white">
+          {links.map((link, i) => {
+            return (
+              <Link onClick={() => setIsOpen(false)} href={link.url} key={i}>
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </nav>
   );
 };
