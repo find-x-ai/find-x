@@ -3,15 +3,15 @@ import { motion } from "framer-motion";
 export const Video = () => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10, filter: "blur(5px)", scale: 0.7 }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)", scale: 1 }}
+      initial={{ opacity: 0, y: -10, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true }}
     >
-      <div className="w-full">
+      <div className="w-full z-20">
         <div className="relative w-full pt-[56.25%] overflow-hidden rounded-lg">
           <iframe
             className="absolute top-0 left-0 w-full h-full rounded-lg"
-            src="https://www.youtube.com/embed/dNVZFkMcehg?autoplay=1&loop=1&controls=0&playlist=dNVZFkMcehg&mute=1"
+            src="https://www.youtube.com/embed/dNVZFkMcehg?autoplay=0&loop=1&controls=0&playlist=dNVZFkMcehg&mute=1"
             title="YouTube video"
             allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

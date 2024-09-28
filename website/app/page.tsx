@@ -1,37 +1,7 @@
-import {
-  Hero,
-  Video,
-  Features,
-  WeMakeDifference,
-  TotalRequests,
-} from "@/components/home";
-import { db } from "@/lib/db";
-export const revalidate = 0;
-export default async function Home() {
-  let count: number = 0;
-  let version: string = "0.0.77";
-  try {
-    const res = await fetch("https://registry.npmjs.org/find-x-ai", {
-      next: { revalidate: 100 },
-    });
+import React from "react";
 
-    const package_info = await res.json();
-    version = package_info["dist-tags"].latest;
-    const db_res = await db(`SELECT total_requests FROM clients`);
-    db_res.forEach((c) => {
-      count += parseInt(c.total_requests);
-    });
-  } catch (error) {
-    console.log(error);
-  }
+const page = () => {
+  return <h1>Nothing Here</h1>;
+};
 
-  return (
-    <div className="px-5 flex flex-col gap-10 pb-10">
-      <Hero version={version} />
-      <Video />
-      <Features />
-      <TotalRequests count={count} />
-      <WeMakeDifference />
-    </div>
-  );
-}
+export default page;

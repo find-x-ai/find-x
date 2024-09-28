@@ -2,42 +2,34 @@
 import Link from "next/link";
 
 import { motion } from "framer-motion";
+import { ChevronRight } from "lucide-react";
 
 export const Hero = ({ version }: { version: string }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10, filter: "blur(5px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={{ y: -10, filter: "blur(5px)", opacity: 0 }}
+      whileInView={{ y: 0, filter: "blur(0px)", opacity: 1 }}
       viewport={{ once: true }}
-      className="flex flex-col gap-5 justify-center items-center h-[calc(100vh-70px)] sm:max-h-[500px] max-h-[400px]"
+      className="w-full max-w-[1200px] flex flex-col gap-5 mx-auto sm:py-10 py-10"
     >
-      <Link
-        target="_blanc"
-        href={"https://npmjs.org/find-x-ai"}
-        className="py-1 group px-3 cursor-pointer rounded-full border bg-[#F6F7F9] border-zinc-800 text-zinc-800 text-sm"
-      >
-        Just released {version}{" "}
-        <span className="relative group-hover:left-1">-{">"}</span>
-      </Link>
-      <div className="flex flex-col items-center gap-5">
-        <h1 className="md:text-7xl sm:text-6xl text-5xl text-center tracking-tight font-medium text-zinc-700">
-          The most comprehensive <br />{" "}
-          <span className="text-[#20A0B5] font-medium">AI search</span> for web
+      <div className="flex flex-col gap-5">
+        <h1 className=" text-5xl sm:text-6xl text-[#f7f8f8] tracking-wide leading-[1.1]">
+          The most comprehensive <br />
+          <span className="gradient-text"> AI search</span> for web
         </h1>
-        <p>Search for anything, anywhere, instantly.</p>
+        <p className="text-[#b3b4b4]">
+          Upgrade your default search and search better with Find-X.
+        </p>
       </div>
-      <div className="flex gap-5">
-        <Link
-          href={"/request"}
-          className="p-3 w-[120px] bg-zinc-800 hover:bg-zinc-900 text-white rounded-full text-center"
-        >
+      <div className="flex sm:flex-row flex-col gap-5 items-center">
+        <button className="py-2 px-5 w-full sm:w-auto bg-white shadow-[0px_0px_200px_#059669]-  rounded-md text-black">
           Get started
-        </Link>
+        </button>
         <Link
-          href={"/pricing"}
-          className="p-3 w-[120px] bg-[#F6F7F9] hover:bg-zinc-100 border border-zinc-800  rounded-full text-center"
+          className="border sm:w-auto w-full border-[#232424] py-2 px-5 rounded-md text-white flex items-center justify-center group"
+          href={"/docs/getting_started"}
         >
-          Pricing
+          Documentation
         </Link>
       </div>
     </motion.div>

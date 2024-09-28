@@ -1,1 +1,1 @@
-export {Members} from "./members";
+export {TeamComponent} from "./members";

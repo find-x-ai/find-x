@@ -1,38 +1,40 @@
+"use client"
+import { toggleChatBox } from "find-x-ai";
 import { ChevronsUp, Play, Route, Search, TextSearch } from "lucide-react";
 export const Features = () => {
   return (
-    <div className="w-full flex flex-col gap-10 items-center text-center py-10">
+    <div className="w-full flex flex-col gap-10 items-center text-center pt-10 text-[#f7f8f8]">
       <div className=" space-y-3">
         <h3 className="text-xl">Introduction</h3>
-        <h2 className="text-[#20A0B5] text-4xl md:text-5xl">What is it?</h2>
+        <h2 className=" text-4xl md:text-5xl gradient-text">What is it?</h2>
       </div>
       <div className="w-full flex flex-col gap-3">
         <div className="w-full flex flex-col md:flex-row gap-3">
-          <div className="w-full bg-[#F6F7F9] rounded-lg md:rounded-[20px_0px_0px_0px] border p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
+          <div className="w-full bg-[#090909] border-[#181818] rounded-lg md:rounded-[20px_0px_0px_0px] border  p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
             <div className="flex w-full">
-              <div className="w-full h-[50px] bg-[#ffffff] rounded-lg p-2 flex items-center">
+              <div onClick={toggleChatBox} className="w-full cursor-pointer h-[50px] bg-[#070707] border border-[#181818] rounded-lg p-2 flex items-center">
                 <div>
                   <Search className="text-[#20A0B5] stroke-2" />
                 </div>
                 <div className="w-full text-start px-5">
                   <p className="text-zinc-500">Search anything</p>
                 </div>
-                <div className="w-[40px] bg-zinc-200 px-2 py-1 rounded-md text-zinc-600">
+                <div className="w-[40px] bg-[#181818] px-2 py-1 rounded-md text-[#656565]">
                   Esc
                 </div>
               </div>
             </div>
             <div className="flex w-full flex-col gap-2 justify-center items-start text-start p-2">
-              <h3 className="font-[600] text-lg text-zinc-800">
+              <h3 className="text-lg">
                 Advanced Search
               </h3>
-              <p className="text-zinc-600">
+              <p className="text-[#656565]">
                 AI based local search engine for websites that finds exactly
                 what users want.
               </p>
             </div>
           </div>
-          <div className="w-full overflow-hidden bg-[#F6F7F9] rounded-lg md:rounded-[0px_20px_0px_0px] border p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
+          <div className="w-full overflow-hidden bg-[#090909] border-[#181818] rounded-lg md:rounded-[0px_20px_0px_0px] border p-5 md:p-10 flex flex-col gap-5 md:gap-7 items-center justify-center">
             <div className="w-full h-[150px] flex gap-5">
               <div className="w-full h-full flex overflow-hidden gap-3">
                 {/* Left Column */}
@@ -70,17 +72,17 @@ export const Features = () => {
                     alt=""
                   />
                   <div className="absolute flex justify-center items-center top-0 w-full h-full bg-black/80 rounded-md">
-                    <Play className="text-white fill-white w-[30px] h-[30px]" />
+                    <Play className="fill-white opacity-50 w-[30px] h-[30px]" />
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="flex w-full flex-col gap-2 justify-center items-start text-start p-2">
-              <h3 className="font-[600] text-lg text-zinc-800">
+              <h3 className="text-lg">
                 Not Just Text
               </h3>
-              <p className="text-zinc-600">
+              <p className="text-[#656565]">
                 Explore media content with Find-X not just boring text
                 responses.
               </p>
@@ -88,19 +90,19 @@ export const Features = () => {
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-3">
-          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_0px_20px] border flex gap-5 justify-center items-center">
+          <div className="w-full text-center p-10 cursor-default bg-[#090909] border-[#181818] rounded-lg md:rounded-[0px_0px_0px_20px] border flex gap-5 justify-center items-center">
             <h2 className="text-lg tracking-wider font-medium">
-              Faster response time
+              Faster response
             </h2>{" "}
             <ChevronsUp className="w-[30px] h-[30px] text-zinc-500" />
           </div>
-          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-none border flex gap-5 justify-center items-center">
+          <div className="w-full text-center p-10 cursor-default bg-[#090909] border-[#181818] rounded-lg md:rounded-none border flex gap-5 justify-center items-center">
             <h2 className="text-lg tracking-wider font-medium">
               Efficient search
             </h2>{" "}
             <TextSearch className="w-[30px] h-[30px] text-zinc-500" />
           </div>
-          <div className="w-full text-center p-10 cursor-default bg-[#F6F7F9] rounded-lg md:rounded-[0px_0px_20px_0px] border flex gap-5 justify-center items-center">
+          <div className="w-full text-center p-10 cursor-default bg-[#090909] border-[#181818] rounded-lg md:rounded-[0px_0px_20px_0px] border flex gap-5 justify-center items-center">
             <h2 className="text-lg tracking-wider font-medium">
               Easy integration
             </h2>{" "}

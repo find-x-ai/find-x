@@ -1,2 +1,2 @@
-export { Cards } from "./cards";
+export { PricingComponent } from "./cards";
 export { Sales } from "./sales";

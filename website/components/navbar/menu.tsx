@@ -14,17 +14,17 @@ const Menu = ({ links }: { links: LinksArray[] }) => {
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-3 relative w-[40px] h-[40px]"
+        className="p-3 relative w-[30px] h-[30px] top-[2px]"
       >
         <div
-          className={`absolute top-1/2 left-1/2 w-[40px] h-[4px] bg-zinc-700 rounded-full transition-all duration-300 ${
+          className={`absolute top-1/2 left-1/2 w-[30px] h-[3px] bg-zinc-700 rounded-full transition-all duration-300 ${
             isOpen
               ? "transform -translate-x-1/2 -translate-y-1/2 rotate-45"
               : "transform -translate-x-1/2 -translate-y-[10px]"
           }`}
         />
         <div
-          className={`absolute top-1/2 left-1/2 w-[40px] h-[4px] bg-zinc-700 rounded-full transition-all duration-300 ${
+          className={`absolute top-1/2 left-1/2 w-[30px] h-[3px] bg-zinc-700 rounded-full transition-all duration-300 ${
             isOpen
               ? "transform -translate-x-1/2 -translate-y-1/2 -rotate-45"
               : "transform -translate-x-1/2 translate-y-[2px]"
@@ -36,7 +36,7 @@ const Menu = ({ links }: { links: LinksArray[] }) => {
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="w-full h-[calc(100vh-70px)] absolute z-[100] bg-[#ffffff] top-[70px] right-0 flex justify-center items-start py-10"
+          className="w-full h-[calc(100vh-70px)] sticky z-[100] bg-[#353535]/30 backdrop-blur-sm top-[70px] right-0 flex justify-center items-start py-10"
         >
           <motion.ul
             whileInView={{ opacity: 1 }}

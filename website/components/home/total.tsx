@@ -6,7 +6,7 @@ export const TotalRequests = async ({ count }: { count: number }) => {
           Served total
         </h1>
         <div className="flex flex-col md:flex-row md:gap-2 gap-3 items-center space-x-2">
-          <strong className="text-3xl md:text-4xl font-bold text-[#20A0B5]">
+          <strong className="text-3xl md:text-4xl font-bold gradient-text">
             {count}
           </strong>
           <span className="text-2xl md:text-3xl font-medium text-zinc-700">

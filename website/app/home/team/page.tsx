@@ -1,4 +1,4 @@
-import { Members } from "@/components/team";
+import { TeamComponent } from "@/components/team";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,8 +7,8 @@ export const metadata: Metadata = {
 
 const page = () => {
   return (
-    <div className="w-full h-[calc(100vh-70px)]">
-      <Members />
+    <div className="min-h-[calc(100vh-100px)]">
+      <TeamComponent />
     </div>
   );
 };
