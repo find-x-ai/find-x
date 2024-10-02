@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { ChatBox } from "find-x-ai";
-
 export const metadata: Metadata = {
   title: "Find-X",
   description: "The most comprehensive ai search for web",

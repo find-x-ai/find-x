@@ -1,5 +1,5 @@
 "use server";
-import { db } from "@/lib/db";
+import { sql } from "@/lib/db";
 
 export const requestUsage = async ({
   name,
@@ -11,7 +11,7 @@ export const requestUsage = async ({
   email: string;
 }) => {
   try {
-    const checkAlreadyExists = (await db(
+    const checkAlreadyExists = (await sql(
       `SELECT * FROM requests WHERE email = $1 and url = $2 and name = $3 and status = $4`,
       [email, url, name, "waiting"]
     )) as [{}];
@@ -22,7 +22,7 @@ export const requestUsage = async ({
         message: "Already in the queue",
       };
     }
-    await db(
+    await sql(
       `INSERT INTO requests(name,email,url,status,plan) VALUES ($1,$2,$3,$4,$5)`,
       [name, email, url, "waiting", 10]
     );

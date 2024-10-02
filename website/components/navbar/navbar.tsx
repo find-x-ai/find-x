@@ -22,7 +22,11 @@ export function Navbar() {
     <nav className="fixed top-0 right-0 left-0 z-50 text-[#f7f8f8] bg-[#101010]/80 backdrop-blur-xl border-b border-[#181818]">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link onClick={()=> setIsOpen(false)} href="/" className="flex items-center space-x-2">
+          <Link
+            onClick={() => setIsOpen(false)}
+            href="/"
+            className="flex items-center space-x-2"
+          >
             <div className="w-8 h-8 bg-primary rounded-full overflow-hidden">
               <img src="/logo.png" alt="Logo" width={32} height={32} />
             </div>
@@ -40,9 +44,9 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden md:block text-black">
-            <Button variant="outline" size="sm">
+            <Link href={"/login"} className="w-full h-[40px]">
               Log in
-            </Button>
+            </Link>
           </div>
           <div className="md:hidden">
             <Button
@@ -73,9 +77,9 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 p-3 text-black">
-              <Button className="w-full h-[40px]" variant="outline" size="sm">
+              <Link href={"/login"} className="w-full h-[40px]">
                 Log in
-              </Button>
+              </Link>
             </div>
           </div>
         </div>
