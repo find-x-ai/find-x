@@ -44,7 +44,10 @@ export function Navbar() {
             ))}
           </div>
           <div className="hidden md:block text-black">
-            <Link href={"/login"} className="w-full h-[40px]">
+            <Link
+              href={"/login"}
+              className="w-full px-5 py-1 rounded-md bg-[#f8f9f9] flex justify-center items-center"
+            >
               Log in
             </Link>
           </div>
@@ -77,9 +80,12 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-4 p-3 text-black">
-              <Link href={"/login"} className="w-full h-[40px]">
-                Log in
-              </Link>
+            <Link
+              href={"/login"}
+              className="w-full px-5 py-1 rounded-md bg-[#f8f9f9] flex justify-center items-center"
+            >
+              Log in
+            </Link>
             </div>
           </div>
         </div>
