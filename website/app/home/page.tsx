@@ -5,10 +5,11 @@ import {
   WeMakeDifference,
   TotalRequests,
 } from "@/components/home";
+import { sql } from "@/lib/db";
 
 export const revalidate = 0;
 export default async function Home() {
-  let count: number = 1650;
+  let count: number = 0;
   let version: string = "0.0.85";
   try {
     const res = await fetch("https://registry.npmjs.org/find-x-ai", {
@@ -17,10 +18,10 @@ export default async function Home() {
 
     const package_info = await res.json();
     version = package_info["dist-tags"].latest;
-    // const db_res = await db(`SELECT total_requests FROM clients`);
-    // db_res.forEach((c) => {
-    //   count += parseInt(c.total_requests);
-    // });
+    const db_res = await sql`SELECT total_requests FROM clients`;
+    db_res.forEach((c) => {
+      count += parseInt(c.total_requests);
+    });
   } catch (error) {
     console.log(error);
   }
