@@ -1,4 +1,3 @@
-import { getSession } from "@/actions/anjum";
 import { Aside } from "@/components/dashboard";
 export default function DashboardLayout({
   children,
