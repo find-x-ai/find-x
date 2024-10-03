@@ -166,7 +166,7 @@ export const verifyMagicLink = async ({
       INSERT INTO users (email, name, session)
       VALUES (${email}, ${name}, ${session})
       ON CONFLICT (email) 
-      DO UPDATE SET session = ${session}, name = ${name}
+      DO UPDATE SET name = ${name}, session = ${session}
     `;
 
     await setCookies({
