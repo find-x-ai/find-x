@@ -63,9 +63,12 @@ export const sendMagicLink = async ({
     }
 
     if (!name) {
-      name =
-        ((await sql`SELECT name FROM users WHERE email = ${email}`)[0]
-          .name as string) || "Explorer";
+      try {
+        name = (await sql`SELECT name FROM users WHERE email = ${email}`)[0]
+          .name as string;
+      } catch (e) {
+        name = "Explorer";
+      }
     }
 
     const res = await assignJwt({
