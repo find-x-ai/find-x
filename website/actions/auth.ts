@@ -190,6 +190,48 @@ export const verifyMagicLink = async ({
   }
 };
 
+export const signInWithGoogle = async ({
+  email,
+  name,
+  session,
+}: {
+  email: string;
+  name: string;
+  session: string;
+}) => {
+  try {
+    const refresh = await assignJwt({
+      email,
+      name,
+      exp: 60 * 60 * 24 * 30,
+      session,
+    });
+    const access = await assignJwt({
+      email,
+      name,
+      exp: 30,
+      session: Date.now().toString(),
+    });
+
+    if (!refresh.token || !access.token) {
+      throw new Error("Failed to generate access or refresh tokens");
+    }
+    await setCookies({
+      accessToken: access.token,
+      refreshToken: refresh.token,
+    });
+    return {
+      success: true,
+      message: "Signed in successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Something went wrong!",
+    };
+  }
+};
+
 export const logoutUser = async () => {
   cookies().delete("_a_token");
   cookies().delete("_r_token");
