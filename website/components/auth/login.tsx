@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,11 +16,24 @@ import { toast } from "sonner";
 import { sendMagicLink } from "@/actions/auth";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-
+import { getSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 export function Login() {
   const [email, setEmail] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession();
+      if (session?.user) {
+        router.push("/login/?state=success");
+      }
+    };
+    checkSession();
+  }, []);
+
   const handleMagicLinkLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailLoading(true);

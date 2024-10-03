@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,13 +15,26 @@ import { Label } from "@/components/ui/label";
 import { sendMagicLink } from "@/actions/auth";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function Register() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession();
+      if (session?.user) {
+        router.push("/register/?state=success");
+      }
+    };
+    checkSession();
+  }, []);
+
   const handleMagicLinkRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailLoading(true);
