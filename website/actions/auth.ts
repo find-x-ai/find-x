@@ -67,7 +67,10 @@ export const sendMagicLink = async ({
         name = (await sql`SELECT name FROM users WHERE email = ${email}`)[0]
           .name as string;
       } catch (e) {
-        name = "Explorer";
+        return {
+          success: false,
+          message: "No user found!",
+        };
       }
     }
 
