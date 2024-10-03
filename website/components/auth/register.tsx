@@ -15,19 +15,20 @@ import { Label } from "@/components/ui/label";
 import { sendMagicLink } from "@/actions/auth";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { signIn } from "next-auth/react";
 
 export function Register() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const handleMagicLinkRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setEmailLoading(true);
 
     if (!email || !validateEmail(email)) {
       toast.error("Please enter a valid email address.");
-      setLoading(false);
+      setEmailLoading(false);
       return;
     }
 
@@ -35,7 +36,7 @@ export function Register() {
       toast.error(
         "Name must be between 3 and 15 characters and cannot contain HTML."
       );
-      setLoading(false);
+      setEmailLoading(false);
       return;
     }
 
@@ -50,7 +51,7 @@ export function Register() {
     } else {
       toast.error(res.message);
     }
-    setLoading(false);
+    setEmailLoading(false);
   };
 
   // Email validation function
@@ -65,9 +66,15 @@ export function Register() {
     return htmlRegex.test(str);
   };
 
-  const handleGoogleRegister = () => {
-    // Implement Google registration logic here
-    console.log("Google registration initiated");
+  const handleGoogleRegister = async () => {
+    try {
+      setGoogleLoading(true);
+      await signIn("google");
+    } catch (error) {
+      toast.error("Error registering with Google");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -112,12 +119,12 @@ export function Register() {
               />
             </div>
             <Button
-              disabled={loading}
+              disabled={emailLoading || googleLoading}
               className="w-full flex gap-2 items-center mt-4 bg-emerald-700 hover:bg-emerald-800 transition-all duration-300"
               type="submit"
             >
               Register with Magic Link{" "}
-              {loading && (
+              {emailLoading && (
                 <Loader2 className="animate-spin transition-all duration-500 w-[20px] h-[20px]" />
               )}
             </Button>
@@ -136,7 +143,7 @@ export function Register() {
             </div>
           </div>
           <Button
-            disabled={loading}
+            disabled={emailLoading || googleLoading}
             variant="outline"
             className="w-full bg-[#252525] hover:bg-[#202020] text-white hover:text-white border-[#353535] flex gap-3"
             onClick={handleGoogleRegister}
@@ -147,6 +154,9 @@ export function Register() {
               alt="google logo"
             />
             Continue with Google
+            {googleLoading && (
+              <Loader2 className="animate-spin transition-all duration-500 w-[20px] h-[20px]" />
+            )}
           </Button>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 text-sm text-[#656565] text-center">

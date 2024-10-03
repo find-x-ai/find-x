@@ -15,16 +15,18 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { sendMagicLink } from "@/actions/auth";
 import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
 
 export function Login() {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const handleMagicLinkLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setEmailLoading(true);
     if (!email || !validateEmail(email)) {
       toast.error("Please enter a valid email address.");
-      setLoading(false);
+      setEmailLoading(false);
       return;
     }
 
@@ -37,7 +39,7 @@ export function Login() {
     } else {
       toast.error(res.message);
     }
-    setLoading(false);
+    setEmailLoading(false);
   };
 
   const validateEmail = (email: string) => {
@@ -45,9 +47,15 @@ export function Login() {
     return emailRegex.test(email);
   };
 
-  const handleGoogleLogin = () => {
-    // Implement Google login logic here
-    console.log("Google login initiated");
+  const handleGoogleLogin = async () => {
+    try {
+      setGoogleLoading(true);
+      await signIn("google");
+    } catch (error) {
+      toast.error("Failed to sign in with Google");
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -78,12 +86,12 @@ export function Login() {
               />
             </div>
             <Button
-              disabled={loading}
+              disabled={emailLoading || googleLoading}
               className="w-full flex gap-2 items-center mt-4 bg-emerald-700 hover:bg-emerald-800 transition-all duration-300"
               type="submit"
             >
               login with Magic Link{" "}
-              {loading && (
+              {emailLoading && (
                 <Loader2 className="animate-spin transition-all duration-500 w-[20px] h-[20px]" />
               )}
             </Button>
@@ -105,7 +113,7 @@ export function Login() {
             variant="outline"
             className="w-full bg-[#252525] hover:bg-[#202020] text-white hover:text-white border-[#353535] flex gap-3"
             onClick={handleGoogleLogin}
-            disabled={loading}
+            disabled={googleLoading || emailLoading}
           >
             <img
               className="w-[20px] h-[20px]"
@@ -113,6 +121,9 @@ export function Login() {
               alt="google logo"
             />
             Continue with Google
+            {googleLoading && (
+              <Loader2 className="animate-spin transition-all duration-500 w-[20px] h-[20px]" />
+            )}
           </Button>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 text-sm text-[#656565] text-center">
