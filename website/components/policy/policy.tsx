@@ -1,20 +1,22 @@
 export const PrivacyPolicy = () => {
   return (
-    <div className="max-w-4xl mx-auto p-6 rounded-lg">
-      <h1 className="sm:text-3xl text-2xl font-semibold mb-6">
+    <div className=" mx-auto p-6 rounded-lg text-gray-200">
+      <h1 className="sm:text-3xl text-2xl font-semibold mb-6 text-white">
         Privacy Policy for Find-X
       </h1>
-      <p className="text-sm text-gray-600 mb-4">Last updated: July 20, 2024</p>
+      <p className="text-sm text-gray-400 mb-4">Last updated: July 20, 2024</p>
 
       <p className="mb-4">
-        This Privacy Policy outlines how Find-X collects,
-        uses, and discloses your information when you utilise our services. By
-        using our services, you consent to the collection and use of information
-        in accordance with this policy.
+        This Privacy Policy outlines how Find-X collects, uses, and discloses
+        your information when you utilise our services. By using our services,
+        you consent to the collection and use of information in accordance with
+        this policy.
       </p>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-3">Definitions</h2>
-      <ul className="list-disc pl-6 mb-4">
+      <h2 className="text-2xl font-semibold mt-8 mb-4 text-white">
+        Definitions
+      </h2>
+      <ul className="list-disc pl-6 mb-6 space-y-2">
         <li>
           <strong>Account</strong>: A unique account created for you to access
           our service.
@@ -144,7 +146,9 @@ export const PrivacyPolicy = () => {
         <li>Object to or restrict the processing of your data.</li>
       </ul>
 
-      <h2 className="text-2xl font-semibold mt-6 mb-3">Contact Us</h2>
+      <h2 className="text-2xl font-semibold mt-8 mb-4 text-white">
+        Contact Us
+      </h2>
       <p className="mb-4">
         If you have any questions regarding this Privacy Policy, please contact
         us at:
@@ -153,7 +157,7 @@ export const PrivacyPolicy = () => {
         Email:{" "}
         <a
           href="mailto:team@find-x.tech"
-          className="text-blue-600 hover:underline"
+          className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
         >
           team@find-x.tech
         </a>

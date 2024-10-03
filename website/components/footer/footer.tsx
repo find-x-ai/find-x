@@ -14,7 +14,7 @@ export const Footer = () => {
           <h3 className="text-lg mb-2">Quick Links</h3>
           <ul className="text-sm space-y-2 text-zinc-600">
             <li>
-              <Link href="/policy" className="hover:underline">
+              <Link href="/home/policy" className="hover:underline">
                 Privacy Policy
               </Link>
             </li>
