@@ -1,1 +1,1 @@
-export {Aside} from "./aside"
+export {Sidebar} from "./aside"
