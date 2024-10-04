@@ -1,33 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "./actions/session";
+import { checkAccessToken, newAccessToken } from "./actions/jwt";
+import {
+  handleAuthenticatedUser,
+  handleNewAccessToken,
+  handleUnauthenticatedUser,
+} from "./actions/middleware";
 
 export const middleware = async (req: NextRequest) => {
   const url = req.nextUrl.clone();
+
+  // Handle root redirect
   if (url.pathname === "/") {
-    url.pathname = "/home";
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL("/home", req.url));
   }
 
-  const session = await getSession();
-  if (
-    url.pathname === "/login" ||
-    url.pathname === "/register" ||
-    url.pathname.startsWith("/magic")
-  ) {
-    if (session.success) {
-      url.pathname = "/dashboard";
-      return NextResponse.redirect(url);
-    } else {
-      return NextResponse.next();
-    }
+  const access = await checkAccessToken(req);
+
+  if (access.success) {
+    return handleAuthenticatedUser(url);
   }
 
-  if (session.success) {
-    return NextResponse.next();
-  } else {
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+  const newAccess = await newAccessToken(req);
+
+  if (newAccess?.token && newAccess.success) {
+    return handleNewAccessToken(url, newAccess.token);
   }
+
+  return handleUnauthenticatedUser(url);
 };
 
 export const config = {

@@ -6,7 +6,18 @@ import { BarChart3, FileSearch, Settings, Receipt } from "lucide-react";
 import { Button } from "../ui/button";
 import { logoutUser } from "@/actions/auth";
 
-export function Aside() {
+export function Aside({
+  session,
+}: {
+  session: {
+    success: boolean;
+    message: string;
+    data: {
+      name: string;
+      email: string;
+    } | null;
+  };
+}) {
   const pathname = usePathname();
 
   const navItems = [
@@ -50,7 +61,16 @@ export function Aside() {
           })}
         </ul>
       </nav>
-      <Button onClick={async () => await logoutUser()}>Logout</Button>
+      <p className="text-white">{session.data?.name}</p>
+      {session.success && (
+        <Button
+          onClick={async () => {
+            await logoutUser();
+          }}
+        >
+          Logout
+        </Button>
+      )}
     </aside>
   );
 }

@@ -4,9 +4,10 @@ import { z } from "zod";
 import nodemailer from "nodemailer";
 import { magicLinkLogin } from "@/components/email";
 import { sql, redis } from "@/lib/db";
-import { assignJwt, verifyJwt } from "./session";
+import { assignJwt, verifyJwt } from "./jwt";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { setCookie } from "cookies-next";
 
 const key = new TextEncoder().encode(process.env.JWT_SECRET!);
 
@@ -25,17 +26,8 @@ export const setCookies = async ({
   accessToken: string;
   refreshToken: string;
 }) => {
-  const cookieStore = cookies();
-  cookieStore.set("_a_token", accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
-  cookieStore.set("_r_token", refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
+  cookies().set("_a_token", accessToken);
+  cookies().set("_r_token", refreshToken);
 };
 
 export const sendMagicLink = async ({
@@ -232,8 +224,43 @@ export const signInWithGoogle = async ({
   }
 };
 
+export const getSession = async () => {
+  try {
+    const cookieStore = cookies();
+    const refreshToken = cookieStore.get("_r_token")?.value || "";
+
+    if (!refreshToken) {
+      return {
+        success: false,
+        message: "No refresh token found",
+        data: null,
+      };
+    }
+
+    const verificationResult = await verifyJwt({ token: refreshToken });
+
+    return {
+      success: verificationResult.success,
+      message: verificationResult.message,
+      data: verificationResult.data,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      message: "Error occurred while getting session",
+      data: null,
+    };
+  }
+};
+
 export const logoutUser = async () => {
   cookies().delete("_a_token");
   cookies().delete("_r_token");
+
+  const allCookies = cookies().getAll();
+
+  allCookies.map((ck) => {
+    cookies().delete(ck.name);
+  });
   redirect("/login");
 };

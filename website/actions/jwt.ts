@@ -3,6 +3,8 @@ import { jwtVerify, JWTVerifyResult, SignJWT } from "jose";
 import { sql } from "@/lib/db";
 import { cookies } from "next/headers";
 import { setCookie, getCookie } from "cookies-next";
+import { getServerSession } from "next-auth";
+import { NextRequest } from "next/server";
 
 const key = new TextEncoder().encode(process.env.JWT_SECRET!);
 
@@ -70,59 +72,44 @@ export const assignJwt = async ({
   }
 };
 
-export const getSession = async () => {
-  try {
-    const cookieStore = cookies();
-    const accessToken = cookieStore.get("_a_token")?.value || "";
+export const checkAccessToken = async (req: NextRequest) => {
+  const accessToken = req.cookies.get("_a_token")?.value || "";
+  const accessResult = await verifyJwt({ token: accessToken });
+  return accessResult;
+};
 
-    const accessResult = await verifyJwt({ token: accessToken });
-    if (accessResult.success && accessResult.data) {
-      return {
-        success: true,
-        message: "Valid session!",
-        data: accessResult.data,
-      };
-    }
-
-    const refreshToken = cookieStore.get("_r_token")?.value;
-    if (!refreshToken) {
-      throw new Error("Refresh token not found");
-    }
-
-    const refreshResult = await verifyJwt({ token: refreshToken });
-
-    if (!refreshResult.success || !refreshResult.data) {
-      throw new Error("Invalid refresh token");
-    }
-
-    const [user] = await sql`SELECT session FROM users WHERE email = ${refreshResult.data.email}`;
-
-    if (!user || user.session !== refreshResult.data.session) {
-      throw new Error("Session mismatch or user not found");
-    }
-
-    const newAccess = await assignJwt({
-      email: refreshResult.data.email,
-      name: refreshResult.data.name,
-      exp: 30,
-      session: refreshResult.data.session,
-    });
-
-    if (!newAccess.success || !newAccess.token) {
-      throw new Error("Failed to create new access token");
-    }
-
-    setCookie("_a_token", newAccess.token);
-    return {
-      success: true,
-      message: "Valid session!",
-      data: refreshResult.data,
-    };
-  } catch (error) {
+export const newAccessToken = async (req: NextRequest) => {
+  const refreshToken = req.cookies.get("_r_token")?.value;
+  if (!refreshToken) {
     return {
       success: false,
-      message: "Session expired or invalid",
-      data: null,
+      message: "No refresh token found!",
+      token: null,
+      email: null,
+      session: null,
+    };
+  }
+
+  const refreshResult = await verifyJwt({ token: refreshToken });
+  if (refreshResult.success && refreshResult.data) {
+    const { email, name, session } = refreshResult.data;
+    const newAccess = await assignJwt({ name, email, session, exp: 30 });
+    if (newAccess.success) {
+      return {
+        success: true,
+        message: "Assigned new token!",
+        token: newAccess.token,
+        email: email,
+        session: session,
+      };
+    }
+  } else {
+    return {
+      success: false,
+      message: "Failed to assign token!",
+      token: null,
+      email: null,
+      session: null,
     };
   }
 };
