@@ -23,17 +23,19 @@ const authOptions: NextAuthOptions = {
         throw new Error("NO profile email");
       }
       const session = Date.now().toString();
-      await sql`
+      const dbRes = await sql`
       INSERT INTO users (email, name, session)
       VALUES (${profile.email}, ${profile.name}, ${session})
       ON CONFLICT (email) 
       DO UPDATE SET name = ${profile.name}, session = ${session}
+      RETURNING id
     `;
 
       const res = await signInWithGoogle({
         email: profile.email,
         name: profile.name,
         session,
+        id: dbRes[0].id,
       });
 
       if (!res.success) {

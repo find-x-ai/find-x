@@ -1,0 +1,1 @@
+export {AllIndexes} from "./all"

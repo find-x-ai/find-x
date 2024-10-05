@@ -46,39 +46,57 @@ export function Sidebar({
   return (
     <aside className="bg-[#121212] text-white h-screen flex flex-col justify-between border-r border-[#353535]">
       <div className="">
-        <div className="py-5 px-3 border-b border-[#353535]">
+        <div className=" flex sm:justify-start justify-center items-center px-3 border-b h-[70px] border-[#353535]">
           <Link className="flex items-center gap-2" href="/dashboard">
-            <img className="rounded-full" src="/logo.png" width={30} height={30} alt="" /> Find-X
+            <img
+              className="rounded-full"
+              src="/logo.png"
+              width={30}
+              height={30}
+              alt=""
+            />{" "}
+            <span className="sm:block hidden"> Find-X</span>
           </Link>
         </div>
-        <div className="mt-5 px-3 flex flex-col gap-2 ">
+        <div className="mt-5 px-3 flex flex-col sm:items-start items-center gap-2">
           {navItems.map((item, index) => (
             <Link
-              className={`flex items-center gap-2 p-3 rounded-md ${
-                pathname === item.href ? "bg-gradient-to-r from-emerald-700 to-[#121212]" : "hover:bg-gradient-to-r from-[#202020] to-[#121212]"
+              className={`flex items-center sm:w-full sm:h-auto h-[50px] w-[50px] sm:justify-start justify-center gap-2 p-3 sm:rounded-md rounded-full ${
+                pathname === item.href
+                  ? "sm:bg-gradient-to-r bg-emerald-700 from-emerald-700 to-[#121212]"
+                  : "sm:hover:bg-gradient-to-r hover:bg-[#181818] from-[#202020] to-[#121212]"
               }`}
               key={index}
               href={item.href}
             >
               <item.icon className="w-5 h-5" />
-              {item.name}
+              <span className="sm:block hidden">{item.name}</span>
             </Link>
           ))}
         </div>
       </div>
       <div className="flex flex-col gap-2 px-3 py-5">
-        <div className="flex items-center gap-2 p-3 cursor-pointer rounded-md bg-gradient-to-r from-[#202020] to-[#121212] border border-[#353535]">
-          <Avatar>
-            <AvatarImage src={"https://vercel.com/api/www/avatar?teamId=team_cPD9Z2E7EcZEXYV62gPV4zug&s=44"} />
+        <div className="flex sm:flex-row flex-col sm:items-center items-center gap-2 p-3 cursor-pointer rounded-md bg-gradient-to-r from-[#202020] to-[#121212] border border-[#353535]">
+          <Avatar className="">
+            <AvatarImage
+              src={
+                "https://vercel.com/api/www/avatar?teamId=team_cPD9Z2E7EcZEXYV62gPV4zug&s=44"
+              }
+            />
             <AvatarFallback className="bg-[#202020] border-2 border-[#353535]">
               {session.data?.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <div>
+          <div className="hidden sm:block">
             <p className="text-sm font-semibold">{session.data?.name}</p>
-            <p className="text-sm text-gray-400">{session.data?.email.split("@")[0].slice(0, 20)+"..."}</p>
+            <p className="text-sm text-gray-400">
+              {session.data?.email.split("@")[0].slice(0, 20) + "..."}
+            </p>
           </div>
-          <button onClick={async () => await logoutUser()} className="p-2 rounded-md hover:bg-[#202020]">
+          <button
+            onClick={async () => await logoutUser()}
+            className="p-2 rounded-md hover:bg-[#202020]"
+          >
             <LogOut className="w-5 h-5" />
           </button>
         </div>
