@@ -71,6 +71,7 @@ export const sendMagicLink = async ({
       name,
       exp: 60 * 3,
       session: Date.now().toString(),
+      id: "-1",
     });
 
     if (!res.success) {
@@ -148,21 +149,27 @@ export const verifyMagicLink = async ({
       throw new Error("Invalid user data in token");
     }
 
+    const dbRes = await sql`
+    INSERT INTO users (email, name, session)
+    VALUES (${email}, ${name}, ${session})
+    ON CONFLICT (email) 
+    DO UPDATE SET session = ${session}
+    RETURNING id
+  `;
     const [access, refresh] = await Promise.all([
-      assignJwt({ email, name, exp: 30, session }),
-      assignJwt({ email, name, exp: 60 * 60 * 24 * 30, session }),
+      assignJwt({ email, name, exp: 30, session, id: dbRes[0].id }),
+      assignJwt({
+        email,
+        name,
+        exp: 60 * 60 * 24 * 30,
+        session,
+        id: dbRes[0].id,
+      }),
     ]);
 
     if (!access.token || !refresh.token) {
       throw new Error("Failed to generate access or refresh tokens");
     }
-
-    await sql`
-      INSERT INTO users (email, name, session)
-      VALUES (${email}, ${name}, ${session})
-      ON CONFLICT (email) 
-      DO UPDATE SET name = ${name}, session = ${session}
-    `;
 
     await setCookies({
       accessToken: access.token,
@@ -186,10 +193,12 @@ export const signInWithGoogle = async ({
   email,
   name,
   session,
+  id,
 }: {
   email: string;
   name: string;
   session: string;
+  id: string;
 }) => {
   try {
     const refresh = await assignJwt({
@@ -197,12 +206,14 @@ export const signInWithGoogle = async ({
       name,
       exp: 60 * 60 * 24 * 30,
       session,
+      id,
     });
     const access = await assignJwt({
       email,
       name,
       exp: 30,
       session: Date.now().toString(),
+      id,
     });
 
     if (!refresh.token || !access.token) {

@@ -14,6 +14,7 @@ export const verifyJwt = async ({ token }: { token: string }) => {
       name: string;
       email: string;
       session: string;
+      id: string;
     }>;
 
     return {
@@ -22,6 +23,7 @@ export const verifyJwt = async ({ token }: { token: string }) => {
         name: info.payload.name,
         email: info.payload.email,
         session: info.payload.session,
+        id: info.payload.id,
       },
       message: "Valid token!",
     };
@@ -39,17 +41,20 @@ export const assignJwt = async ({
   name,
   exp,
   session,
+  id,
 }: {
   email: string;
   name: string;
   exp: number;
   session: string;
+  id: string;
 }) => {
   try {
     const token = await new SignJWT({
       name,
       email,
       session,
+      id,
     })
       .setProtectedHeader({
         alg: "HS256",
@@ -92,8 +97,8 @@ export const newAccessToken = async (req: NextRequest) => {
 
   const refreshResult = await verifyJwt({ token: refreshToken });
   if (refreshResult.success && refreshResult.data) {
-    const { email, name, session } = refreshResult.data;
-    const newAccess = await assignJwt({ name, email, session, exp: 30 });
+    const { email, name, session, id } = refreshResult.data;
+    const newAccess = await assignJwt({ name, email, session, exp: 30, id });
     if (newAccess.success) {
       return {
         success: true,
