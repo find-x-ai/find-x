@@ -48,7 +48,7 @@ export function Sidebar({
       <div className="">
         <div className="py-5 px-3 border-b border-[#353535]">
           <Link className="flex items-center gap-2" href="/dashboard">
-            <img src="/logo.png" width={30} height={30} alt="" /> Find-X
+            <img className="rounded-full" src="/logo.png" width={30} height={30} alt="" /> Find-X
           </Link>
         </div>
         <div className="mt-5 px-3 flex flex-col gap-2 ">
