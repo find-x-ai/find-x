@@ -26,8 +26,20 @@ export const setCookies = async ({
   accessToken: string;
   refreshToken: string;
 }) => {
-  cookies().set("_a_token", accessToken);
-  cookies().set("_r_token", refreshToken);
+  cookies().set("_a_token", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 30,
+    path: "/",
+  });
+  cookies().set("_r_token", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24 * 30,
+    path: "/",
+  });
 };
 
 export const sendMagicLink = async ({
