@@ -8,36 +8,43 @@
   }
 
   .docs h1 {
-    @apply text-4xl font-bold mb-6 text-zinc-800;
+    @apply text-4xl font-bold mb-6 text-zinc-100;
   }
 
   .docs h2 {
-    @apply text-2xl font-semibold mt-8 mb-4 text-zinc-800;
+    @apply text-2xl font-semibold mt-8 mb-4 text-zinc-200;
   }
 
   .docs h3 {
-    @apply text-lg font-medium mt-6 mb-3 text-zinc-800;
+    @apply text-lg font-medium mt-6 mb-3 text-zinc-300;
   }
 
   .docs ul {
-    @apply list-inside pl-4 mb-4 list-disc;
+    @apply list-inside pl-4 mb-4 list-disc text-zinc-300;
   }
 
   .docs ol {
-    @apply list-decimal list-inside pl-4 mb-4;
+    @apply list-decimal list-inside pl-4 mb-4 text-zinc-300;
   }
 
   .docs p {
-    @apply mb-4 text-zinc-800;
+    @apply mb-4 text-zinc-300;
   }
 
   .docs code {
-    @apply bg-[#F6F7F9] rounded px-1 py-0.5;
+    @apply rounded px-1 py-0.5 text-[#fff];
   }
 
   .docs pre {
-    @apply bg-[#F6F7F9] rounded p-4 mb-4 overflow-x-auto;
+    @apply bg-[#181818] rounded p-4 mb-4 overflow-x-auto;
   }
+  .docs hr {
+    @apply border-[#202020];
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .gradient-text {
     @apply bg-clip-text text-transparent font-semibold bg-gradient-to-br from-emerald-600 via-emerald-800 to-emerald-900;
   }

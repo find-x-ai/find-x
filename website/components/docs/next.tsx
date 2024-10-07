@@ -10,7 +10,7 @@ export const NextLink = ({ prev, next }: { prev?: string; next?: string }) => {
       {prev && (
         <Link
           href={prev}
-          className="py-2 px-10 bg-black text-white rounded-md w-[120px]"
+          className="py-2 px-10 bg-[#181818] hover:bg-[#202020] text-white rounded-md w-[120px]"
         >
           Prev
         </Link>
@@ -18,7 +18,7 @@ export const NextLink = ({ prev, next }: { prev?: string; next?: string }) => {
       {next && (
         <Link
           href={next}
-          className="py-2 px-10  bg-black text-white rounded-md w-[120px]"
+          className="py-2 px-10  bg-[#181818] hover:bg-[#202020] text-white rounded-md w-[120px]"
         >
           Next
         </Link>
