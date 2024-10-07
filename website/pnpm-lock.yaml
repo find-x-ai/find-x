@@ -60,8 +60,8 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1
       find-x-ai:
-        specifier: 0.0.83
-        version: 0.0.83(@types/react@18.3.3)
+        specifier: 0.0.87
+        version: 0.0.87(@types/react@18.3.3)
       framer-motion:
         specifier: ^11.3.2
         version: 11.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -986,8 +986,8 @@ packages:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
 
-  find-x-ai@0.0.83:
-    resolution: {integrity: sha512-hz0cOmbIqGDZO78c/ES4DaSE2jQqVZG+dT4tq09Y+u+uD6+xldy3wZaD3LNIMt8G/HS0Ln0/jEf64swwAoDcYA==}
+  find-x-ai@0.0.87:
+    resolution: {integrity: sha512-Byo4y4Up4UNyokZPGiO6SFamt/Cq7a48ldhcTaQRwTSM/cx4qiLt3uGEr0EKqIWe1WBGq6e5wxmsOX9nb2CpXw==}
 
   foreground-child@3.2.1:
     resolution: {integrity: sha512-PXUUyLqrR2XCWICfv6ukppP96sdFwWbNEnfEMt7jNsISjMsvaLNinAHNDYyvkyU+SZG2BTSbT5NjG+vZslfGTA==}
@@ -2803,7 +2803,7 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  find-x-ai@0.0.83(@types/react@18.3.3):
+  find-x-ai@0.0.87(@types/react@18.3.3):
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
