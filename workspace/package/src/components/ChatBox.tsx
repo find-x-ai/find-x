@@ -117,8 +117,8 @@ const ChatBox = ({ config }: { config: Config }) => {
     <div className="find-x f-text-start">
       {isOpen && (
         <div
-          className={`f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 ${
-            config.theme === "dark" ? "f-bg-zinc-200/80" : "f-bg-zinc-950/80 "
+          className={`f-w-full f-font-[sans-serif] f-fixed f-h-full f-transition-all f-duration-300 f-ease-in-out f-p-5 f-backdrop-blur-md ${
+            config.theme === "dark" ? "f-bg-zinc-200/30" : "f-bg-zinc-950/30 "
           } -f-backdrop-blur-[3px] f-overflow-hidden f-top-0 f-right-0 f-z-[100]`}
         >
           <div
