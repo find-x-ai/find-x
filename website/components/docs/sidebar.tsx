@@ -1,6 +1,15 @@
 "use client";
 
-import { Search, Book, Download, Settings, Puzzle, Command, X, AlignJustify } from "lucide-react";
+import {
+  Search,
+  Book,
+  Download,
+  Settings,
+  Puzzle,
+  Command,
+  X,
+  AlignJustify,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toggleChatBox } from "find-x-ai";
@@ -31,7 +40,7 @@ const links = [
 
 export const SideBar = () => {
   const path = usePathname();
-  const [isOpen, setIsOpen] = useState(true);  // Set initial state to true
+  const [isOpen, setIsOpen] = useState(true); // Set initial state to true
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -46,21 +55,21 @@ export const SideBar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
- 
-  const sidebarClasses = useMemo(() => `
+  const sidebarClasses = useMemo(
+    () => `
     md:w-[300px] align-middle w-full 
-    ${isOpen || !isMobile ? "h-screen" : "h-[60px]"}
+    ${isOpen && isMobile ? "h-screen" : "h-[60px] md:h-screen"}
     z-10 fixed md:static top-0 right-0 
     md:bg-[#101010] bg-[#141414]/95 
     md:backdrop-blur-0 backdrop-blur-lg 
     md:border-r border-b border-[#202020] 
     text-[#fff] md:p-6 py-4 px-4 flex-shrink-0
-  `, [isOpen, isMobile]);
+  `,
+    [isOpen, isMobile]
+  );
 
   return (
-    <aside
-      className={sidebarClasses}
-    >
+    <aside className={sidebarClasses}>
       <div className="space-y-5 select-none mt-auto">
         <div className="flex items-center gap-1">
           <img src="/logo.png" alt="Find-X" className="w-6 h-6 rounded-full" />
@@ -75,7 +84,7 @@ export const SideBar = () => {
           </p>
 
           <div className="ml-auto">
-            {isOpen ? (
+            {isOpen && isMobile ? (
               <X
                 onClick={() => setIsOpen(false)}
                 className="w-7 h-7 cursor-pointer text-[#808080] block md:hidden"
@@ -84,7 +93,7 @@ export const SideBar = () => {
               <div className="flex items-center gap-2">
                 <Search
                   onClick={toggleChatBox}
-                  className="w-6 h-6 text-emerald-700 mr-4 cursor-pointer"
+                  className="w-6 h-6 text-emerald-700 mr-4 cursor-pointer block md:hidden"
                 />
 
                 <AlignJustify
@@ -117,7 +126,7 @@ export const SideBar = () => {
 
       <div
         className={`mt-10 flex-col gap-3 transition-all duration-300 ${
-          isOpen || !isMobile ? "flex" : "hidden"
+          isOpen && isMobile ? "flex" : "hidden md:flex"
         }`}
       >
         {links.map((link, i) => (
