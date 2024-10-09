@@ -1,4 +1,5 @@
 import { codeToHtml } from "shiki";
+import { CodeCopy } from "./copy";
 
 async function CodeBlock({ code, lang }: { code: string; lang: string }) {
   const out = await codeToHtml(code, {
@@ -6,7 +7,7 @@ async function CodeBlock({ code, lang }: { code: string; lang: string }) {
     theme: "aurora-x",
   });
 
-  return <div className="code-block" dangerouslySetInnerHTML={{ __html: out }} />;
+  return <CodeCopy code={code}>{out}</CodeCopy>;
 }
 
 export default CodeBlock;
