@@ -20,11 +20,11 @@
   }
 
   .docs ul {
-    @apply list-inside pl-4 mb-4 list-disc text-zinc-300;
+    @apply list-outside pl-4 mb-4 list-disc text-zinc-300;
   }
 
   .docs ol {
-    @apply list-decimal list-inside pl-4 mb-4 text-zinc-300;
+    @apply list-decimal list-outside pl-4 mb-4 text-zinc-300;
   }
 
   .docs p {
