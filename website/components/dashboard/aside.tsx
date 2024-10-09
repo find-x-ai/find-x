@@ -113,7 +113,7 @@ export const Sidebar = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col justify-between h-full pb-5">
+      <div className="flex flex-col justify-between h-full md:pb-5 pb-10">
         <div
           className={`mt-10 flex-col gap-3 transition-all duration-300 ${
             isOpen && isMobile ? "flex" : "hidden md:flex"
