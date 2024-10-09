@@ -14,6 +14,11 @@ export const middleware = async (req: NextRequest) => {
     return NextResponse.redirect(new URL("/home", req.url));
   }
 
+  // Handle docs redirect
+  if (url.pathname === "/docs") {
+    return NextResponse.redirect(new URL("/docs/getting_started", req.url));
+  }
+
   const access = await checkAccessToken(req);
 
   if (access.success) {
@@ -30,5 +35,12 @@ export const middleware = async (req: NextRequest) => {
 };
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register", "/magic/:path*", "/"],
+  matcher: [
+    "/dashboard/:path*",
+    "/login",
+    "/register",
+    "/magic/:path*",
+    "/",
+    "/docs",
+  ],
 };

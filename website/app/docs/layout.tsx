@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SideBar } from "@/components/docs";
+import { BreadcrumbComponent } from "@/components/docs/bread";
 
 export const metadata: Metadata = {
   title: "Documentation",
@@ -16,8 +17,9 @@ export default async function DocsLayout({
       <div className="md:h-screen w-[100vw] md:w-[300px] relative">
         <SideBar />
       </div>
-      <div className="p-5 w-full h-full md:pt-5 pt-[90px] bg-[#111111] overflow-y-auto scrollbar-hide docs">
-        {children}
+      <div className=" w-full h-full pt-[120px] md:pt-0 bg-[#111111] overflow-y-auto scrollbar-hide">
+        <BreadcrumbComponent />
+        <div className="docs p-5">{children}</div>
       </div>
     </div>
   );

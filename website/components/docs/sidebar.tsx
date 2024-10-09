@@ -57,10 +57,10 @@ export const SideBar = () => {
 
   const sidebarClasses = useMemo(
     () => `
-    md:w-[300px] align-middle w-full 
+    md:w-[300px] align-middle w-full z-20 
     ${isOpen && isMobile ? "h-screen" : "h-[60px] md:h-screen"}
     z-10 fixed md:static top-0 right-0 
-    md:bg-[#101010] bg-[#141414]/95 
+    md:bg-[#101010] bg-[#111111]/90 
     md:backdrop-blur-0 backdrop-blur-lg 
     md:border-r border-b border-[#202020] 
     text-[#fff] md:p-6 py-4 px-4 flex-shrink-0
