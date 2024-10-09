@@ -46,8 +46,10 @@ export const SideBar = () => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      setIsOpen(width > 768);
       setIsMobile(width < 768);
+      if (width >= 768) {
+        setIsOpen(true);
+      }
     };
 
     handleResize();
