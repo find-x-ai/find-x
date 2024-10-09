@@ -12,8 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { toggleChatBox } from "find-x-ai";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { logoutUser } from "@/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -115,7 +114,7 @@ export const Sidebar = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col justify-between h-full md:pb-5 pb-10">
+      <div className="flex flex-col gap-5 md:gap-0 md:justify-between h-full">
         <div
           className={`mt-10 flex-col gap-3 transition-all duration-300 ${
             isOpen && isMobile ? "flex" : "hidden md:flex"
