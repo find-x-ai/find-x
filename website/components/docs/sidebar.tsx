@@ -46,8 +46,7 @@ export const SideBar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
-
+ 
   const sidebarClasses = useMemo(() => `
     md:w-[300px] align-middle w-full 
     ${isOpen || !isMobile ? "h-screen" : "h-[60px]"}
