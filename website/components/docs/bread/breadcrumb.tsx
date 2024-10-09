@@ -20,16 +20,18 @@ export function BreadcrumbComponent() {
           const href = `/${pathArray.slice(0, index + 1).join("/")}`;
           const isLast = index === pathArray.length - 1;
           return (
-            <BreadcrumbItem className="cursor-pointer" key={href}>
+            <div className="flex items-center gap-1" key={href}>
               <BreadcrumbSeparator />
-              {isLast ? (
-                <Link href="#" aria-current="page">
-                  {formatSegment(segment)}
-                </Link>
-              ) : (
-                <Link href={href}>{formatSegment(segment)}</Link>
-              )}
-            </BreadcrumbItem>
+              <BreadcrumbItem className="cursor-pointer" key={href}>
+                {isLast ? (
+                  <Link href="#" aria-current="page">
+                    {formatSegment(segment)}
+                  </Link>
+                ) : (
+                  <Link href={href}>{formatSegment(segment)}</Link>
+                )}
+              </BreadcrumbItem>
+            </div>
           );
         })}
       </BreadcrumbList>
