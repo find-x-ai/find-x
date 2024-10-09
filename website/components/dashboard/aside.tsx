@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toggleChatBox } from "find-x-ai";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { logoutUser } from "@/actions/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
@@ -55,7 +55,7 @@ export const Sidebar = ({
   };
 }) => {
   const path = usePathname();
-  const [isOpen, setIsOpen] = useState(true); // Set initial state to true
+  const [isOpen, setIsOpen] = useState(false); // Set initial state to true
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

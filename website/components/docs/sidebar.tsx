@@ -40,7 +40,7 @@ const links = [
 
 export const SideBar = () => {
   const path = usePathname();
-  const [isOpen, setIsOpen] = useState(true); // Set initial state to true
+  const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
