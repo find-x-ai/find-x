@@ -1,22 +1,10 @@
 "use client";
 
-import {
-  Search,
-  Book,
-  Download,
-  Settings,
-  Puzzle,
-  Command,
-  PanelRight,
-  ChevronRight,
-  AlignJustify,
-  X,
-} from "lucide-react";
+import { Search, Book, Download, Settings, Puzzle, Command, X, AlignJustify } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toggleChatBox } from "find-x-ai";
-import { useEffect, useState } from "react";
-import React from "react";
+import { useEffect, useState, useMemo } from "react";
 
 const links = [
   {
@@ -43,30 +31,36 @@ const links = [
 
 export const SideBar = () => {
   const path = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);  // Set initial state to true
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsOpen(window.innerWidth > 768);
-      setIsMobile(window.innerWidth < 768);
+      const width = window.innerWidth;
+      setIsOpen(width > 768);
+      setIsMobile(width < 768);
     };
 
-    // Initial check
     handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Cleanup
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const sidebarClasses = useMemo(() => `
+    md:w-[300px] align-middle w-full 
+    ${isOpen || !isMobile ? "h-screen" : "h-[60px]"}
+    z-10 fixed md:static top-0 right-0 
+    md:bg-[#101010] bg-[#141414]/95 
+    md:backdrop-blur-0 backdrop-blur-lg 
+    md:border-r border-b border-[#202020] 
+    text-[#fff] md:p-6 py-4 px-4 flex-shrink-0
+  `, [isOpen, isMobile]);
+
   return (
     <aside
-      className={`md:w-[300px] align-middle w-full ${
-        isOpen ? "h-screen" : "h-[60px]"
-      } z-10 fixed md:static top-0 right-0 md:bg-[#101010] bg-[#141414]/95 md:backdrop-blur-0 backdrop-blur-lg md:border-r border-b border-[#202020] text-[#fff] md:p-6 py-4 px-4 flex-shrink-0`}
+      className={sidebarClasses}
     >
       <div className="space-y-5 select-none mt-auto">
         <div className="flex items-center gap-1">
@@ -124,7 +118,7 @@ export const SideBar = () => {
 
       <div
         className={`mt-10 flex-col gap-3 transition-all duration-300 ${
-          isOpen ? "flex" : "hidden"
+          isOpen || !isMobile ? "flex" : "hidden"
         }`}
       >
         {links.map((link, i) => (
