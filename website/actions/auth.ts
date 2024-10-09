@@ -83,7 +83,7 @@ export const sendMagicLink = async ({
       name,
       exp: 60 * 3,
       session: Date.now().toString(),
-      id: "-1",
+      id: -1,
     });
 
     if (!res.success) {
@@ -210,7 +210,7 @@ export const signInWithGoogle = async ({
   email: string;
   name: string;
   session: string;
-  id: string;
+  id: number;
 }) => {
   try {
     const refresh = await assignJwt({

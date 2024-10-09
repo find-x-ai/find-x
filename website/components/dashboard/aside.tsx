@@ -1,28 +1,46 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
-  BarChart3,
   FileSearch,
-  Settings,
+  BarChart3,
   Receipt,
+  Settings,
   LogOut,
   Menu,
   X,
+  AlignJustify,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { toggleChatBox } from "find-x-ai";
+import { useEffect, useState, useMemo } from "react";
 import { logoutUser } from "@/actions/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export function Sidebar({
+const links = [
+  {
+    name: "Indexing",
+    url: "/dashboard/indexing",
+    icon: <FileSearch className="w-5 h-5" />,
+  },
+  {
+    name: "Analytics",
+    url: "/dashboard/analytics",
+    icon: <BarChart3 className="w-5 h-5" />,
+  },
+  {
+    name: "Billing",
+    url: "/dashboard/billing",
+    icon: <Receipt className="w-5 h-5" />,
+  },
+  {
+    name: "Settings",
+    url: "/dashboard/settings",
+    icon: <Settings className="w-5 h-5" />,
+  },
+];
+
+export const Sidebar = ({
   session,
 }: {
   session: {
@@ -31,76 +49,129 @@ export function Sidebar({
     data: {
       name: string;
       email: string;
+      id: number;
+      session: string;
     } | null;
   };
-}) {
-  const pathname = usePathname();
+}) => {
+  const path = usePathname();
+  const [isOpen, setIsOpen] = useState(true); // Set initial state to true
+  const [isMobile, setIsMobile] = useState(false);
 
-  const navItems = [
-    { name: "Indexing", href: "/dashboard/indexing", icon: FileSearch },
-    { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-    { name: "Billing", href: "/dashboard/billing", icon: Receipt },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
-  ];
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsOpen(width > 768);
+      setIsMobile(width < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const sidebarClasses = useMemo(
+    () => `
+    md:w-[300px] align-middle w-full z-20 
+    ${isOpen && isMobile ? "h-screen" : "h-[60px] md:h-screen"}
+    z-10 fixed md:static top-0 right-0 
+    md:bg-[#101010] bg-[#111111]/90 
+    md:backdrop-blur-0 backdrop-blur-lg 
+    md:border-r border-b border-[#202020] 
+    text-[#fff] md:p-6 py-4 px-4 flex-shrink-0
+  `,
+    [isOpen, isMobile]
+  );
 
   return (
-    <aside className="bg-[#121212] text-white h-screen flex flex-col justify-between border-r border-[#353535]">
-      <div className="">
-        <div className=" flex sm:justify-start justify-center items-center px-3 border-b h-[70px] border-[#353535]">
-          <Link className="flex items-center gap-2" href="/dashboard">
-            <img
-              className="rounded-full"
-              src="/logo.png"
-              width={30}
-              height={30}
-              alt=""
-            />{" "}
-            <span className="sm:block hidden"> Find-X</span>
-          </Link>
+    <aside className={sidebarClasses}>
+      <div className="space-y-5 select-none mt-auto">
+        <div className="flex items-center gap-1">
+          <img src="/logo.png" alt="Find-X" className="w-6 h-6 rounded-full" />
+          <p>
+            <Link href="/home">
+              <span className="pr-3">Find-X</span>
+            </Link>
+            |{" "}
+            <Link className="pl-3" href="/dashboard">
+              <span className="text-[#808080]">Dashboard</span>
+            </Link>
+          </p>
+
+          <div className="ml-auto">
+            {isOpen && isMobile ? (
+              <X
+                onClick={() => setIsOpen(false)}
+                className="w-7 h-7 cursor-pointer text-[#808080] block md:hidden"
+              />
+            ) : (
+              <AlignJustify
+                onClick={() => setIsOpen(true)}
+                className="w-7 h-7 cursor-pointer text-[#808080] block md:hidden"
+              />
+            )}
+          </div>
         </div>
-        <div className="mt-5 px-3 flex flex-col sm:items-start items-center gap-2">
-          {navItems.map((item, index) => (
-            <Link
-              className={`flex items-center sm:w-full sm:h-auto h-[50px] w-[50px] sm:justify-start justify-center gap-2 p-3 sm:rounded-md rounded-full ${
-                pathname === item.href
-                  ? "sm:bg-gradient-to-r bg-emerald-700 from-emerald-700 to-[#121212]"
-                  : "sm:hover:bg-gradient-to-r hover:bg-[#181818] from-[#202020] to-[#121212]"
-              }`}
-              key={index}
-              href={item.href}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="sm:block hidden">{item.name}</span>
+      </div>
+      <div className="flex flex-col justify-between h-full pb-5">
+        <div
+          className={`mt-10 flex-col gap-3 transition-all duration-300 ${
+            isOpen && isMobile ? "flex" : "hidden md:flex"
+          }`}
+        >
+          {links.map((link, i) => (
+            <Link href={link.url} key={i}>
+              <div
+                onClick={async () => {
+                  await new Promise((res) => setTimeout(res, 300));
+                  if (isMobile) {
+                    setIsOpen(!isOpen);
+                  }
+                }}
+                key={i}
+                className={`flex items-center gap-2 py-2 px-3 rounded-md  ${
+                  path === link.url ? "bg-emerald-700" : "hover:bg-[#141414]"
+                }`}
+              >
+                {link.icon}
+                <p>{link.name}</p>
+              </div>
             </Link>
           ))}
         </div>
-      </div>
-      <div className="flex flex-col gap-2 px-3 py-5">
-        <div className="flex sm:flex-row flex-col sm:items-center items-center gap-2 p-3 cursor-pointer rounded-md bg-gradient-to-r from-[#202020] to-[#121212] border border-[#353535]">
-          <Avatar className="">
-            <AvatarImage
-              src={
-                "https://vercel.com/api/www/avatar?teamId=team_cPD9Z2E7EcZEXYV62gPV4zug&s=44"
-              }
-            />
-            <AvatarFallback className="bg-[#202020] border-2 border-[#353535]">
-              {session.data?.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="hidden sm:block">
-            <p className="text-sm font-semibold">{session.data?.name}</p>
-            <p className="text-sm text-gray-400">
-              {session.data?.email.split("@")[0].slice(0, 20) + "..."}
-            </p>
+        <div
+          className={`flex-row gap-2 py-5 ${
+            isOpen && isMobile ? "flex" : "hidden md:flex"
+          }`}
+        >
+          <div className="flex w-full flex-row items-center justify-between p-3 cursor-pointer rounded-md bg-gradient-to-r from-[#202020] to-[#121212] border border-[#353535]">
+            <div className="flex items-center gap-2">
+              <Avatar className="">
+                <AvatarImage
+                  src={
+                    "https://vercel.com/api/www/avatar?teamId=team_cPD9Z2E7EcZEXYV62gPV4zug&s=44"
+                  }
+                />
+                <AvatarFallback className="bg-[#202020] border-2 border-[#353535]">
+                  {session.data?.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-semibold">{session.data?.name}</p>
+                <p className="text-sm text-gray-400">
+                  {session.data?.email.split("@")[0].slice(0, 20) + "..."}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={async () => await logoutUser()}
+              className="p-2 rounded-md hover:bg-[#202020]"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={async () => await logoutUser()}
-            className="p-2 rounded-md hover:bg-[#202020]"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </aside>
   );
-}
+};

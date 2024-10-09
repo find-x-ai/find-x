@@ -14,7 +14,7 @@ export const verifyJwt = async ({ token }: { token: string }) => {
       name: string;
       email: string;
       session: string;
-      id: string;
+      id: number;
     }>;
 
     return {
@@ -47,7 +47,7 @@ export const assignJwt = async ({
   name: string;
   exp: number;
   session: string;
-  id: string;
+  id: number;
 }) => {
   try {
     const token = await new SignJWT({
