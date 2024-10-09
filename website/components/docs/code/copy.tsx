@@ -30,7 +30,7 @@ function CodeCopy({
     <div className="relative">
       <div className="absolute top-1 right-1">
         <button
-          className="w-6 h-6 flex items-center justify-center rounded-[2px] text-[#303030] border border-[#202020] bg-[#111111]"
+          className="w-7 h-7 flex items-center justify-center rounded-[2px] text-[#404040] border border-[#303030] bg-[#141414]"
           onClick={handleCopy}
         >
           {copied ? (
