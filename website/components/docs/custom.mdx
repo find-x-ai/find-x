@@ -1,4 +1,5 @@
 import { CustomChatComponent , NextLink } from "@/components/docs"
+import CodeBlock from "@/components/docs/code/code";
 
 # Custom Component
 
@@ -10,15 +11,14 @@ of the screen. Its completely your choice to keep it or create a **custom** comp
 To configure custom component you need to change the props passed to the `<ChatBox/>` component.
 Here is the example code for it.
 
-```typescript
-<ChatBox
+<CodeBlock code={`<ChatBox
   config={{
     findx_key: process.env.NEXT_PUBLIC_FINDX_KEY!,
     theme: "dark",
     default: false,
   }}
 />
-```
+`} lang="typescript" />
 
 The value for `default` is a boolean value that indicates whether you want to use the default UI component or not.
 Making the value **false** will remove the default UI component from bottom-right corner of the screen.
@@ -30,8 +30,7 @@ Making the value **false** will remove the default UI component from bottom-righ
 Triggering the chat UI is a simple process that just consists of a function that needs to be called to toggle the chat.
 Here is how you can do it.
 
-```typescript
-"use client"
+<CodeBlock code={`"use client"
 // Fuction to toggle the chat
 import { toggleChatBox } from "find-x-ai";
 
@@ -42,7 +41,8 @@ export function CustomChatComponent(){
     </button>
   )
 }
-```
+`} lang="typescript" />
+
 Here is how it will look : 
 <CustomChatComponent/>
 

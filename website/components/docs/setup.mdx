@@ -1,4 +1,5 @@
 import { NextLink } from "@/components/docs";
+import CodeBlock from "@/components/docs/code/code";
 
 # Setup Instructions
 
@@ -6,17 +7,14 @@ import { NextLink } from "@/components/docs";
 The UI required to use the search is provided by the `ChatBox` component included in the npm package.
 To use it you need to import and add it into root layout file of your application. 
 
-```typescript
-import { ChatBox } from "find-x-ai"
-```
+<CodeBlock code={`import { ChatBox } from "find-x-ai";`} lang="typescript" />
 
 ## Add the component
 Now to see it in action include in your application.
 For **React** you need to add it in `app.jsx/tsx` and for **Next js** add the component in `layout.jsx/tsx` in app directory of your 
 project.
 
-```typescript
-import type { Metadata } from "next";
+<CodeBlock code={` import type { Metadata } from "next";
  import "./globals.css";
 
 /* Import the Chat component */
@@ -46,8 +44,8 @@ import type { Metadata } from "next";
       </body>
     </html>
   );
- }
-```
+ }`} lang="typescript" />
+
 The `ChatBox` component takes in `config` prop which has two properties
 - findx_key (This is the public api key sent to you)
 - theme (Here you have two options either `dark` or `light`)

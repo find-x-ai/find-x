@@ -24,22 +24,25 @@
   }
 
   .docs ol {
-    @apply list-decimal list-outside pl-4 mb-4 text-zinc-300;
+    @apply list-decimal px-2 list-outside mb-4 text-zinc-300;
+  }
+
+  .docs ol li {
+    @apply ml-2;
   }
 
   .docs p {
     @apply mb-4 text-zinc-300;
   }
 
-  .docs code {
-    @apply rounded px-1 py-0.5 text-[#fff];
-  }
-
   .docs pre {
-    @apply bg-[#181818] rounded p-4 mb-4 overflow-x-auto;
+    @apply bg-[#181818] rounded p-4 mb-4 overflow-x-auto text-sm;
   }
   .docs hr {
     @apply border-[#202020];
+  }
+  .docs .code-block > * {
+    @apply !bg-[#101010] rounded border border-[#202020] p-4 mb-4 overflow-x-auto text-sm;
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
