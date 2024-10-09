@@ -3,14 +3,14 @@ import Link from "next/link";
 export const NextLink = ({ prev, next }: { prev?: string; next?: string }) => {
   return (
     <div
-      className={`w-full flex ${
+      className={`w-full max-w-[900px] flex ${
         prev ? "justify-between" : "justify-end"
       } items-center py-5`}
     >
       {prev && (
         <Link
           href={prev}
-          className="py-2 px-10 bg-[#181818] hover:bg-[#202020] text-white rounded-md w-[120px]"
+          className="py-2 px-10 bg-[#141414] border border-[#202020] hover:bg-[#181818] text-white rounded-md w-[120px]"
         >
           Prev
         </Link>
@@ -18,7 +18,7 @@ export const NextLink = ({ prev, next }: { prev?: string; next?: string }) => {
       {next && (
         <Link
           href={next}
-          className="py-2 px-10  bg-[#181818] hover:bg-[#202020] text-white rounded-md w-[120px]"
+          className="py-2 px-10 bg-[#141414] border border-[#202020] hover:bg-[#181818] text-white rounded-md w-[120px]"
         >
           Next
         </Link>
