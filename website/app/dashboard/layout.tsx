@@ -8,9 +8,9 @@ export default async function DashboardLayout({
   return (
     <main className="flex">
       <Sidebar session={session} />
-      <div className=" w-full min-h-screen pt-[120px] md:pt-0 bg-[#111111] overflow-y-auto scrollbar-hide">
+      <div className=" w-full h-full pt-[120px] md:pt-0 bg-[#111111] overflow-y-auto scrollbar-hide">
         <BreadcrumbComponent />
-        <div>{children}</div>
+        <div className="h-full">{children}</div>
       </div>
     </main>
   );
