@@ -72,6 +72,10 @@ async def get_links(request: Dict):
                     (baseUrl) => {
                         const images = [];
                         for (const element of document.querySelectorAll('img[src]')) {
+                            // Check if the image is inside a <nav> or <aside> element
+                            if (element.closest('nav') || element.closest('aside')) {
+                                continue;
+                            }
                             let src = element.src;
                             if (!src.startsWith('http://') && !src.startsWith('https://')) {
                                 src = new URL(src, baseUrl).href;
@@ -97,10 +101,13 @@ async def get_links(request: Dict):
                                 if response.status == 200:
                                     img = Image.open(BytesIO(await response.read()))
                                     width, height = img.size
-                                    return width >= min_width and height >= min_height
+                                    # Check if the image is not too small and not too wide or tall (common for logos)
+                                    if width >= min_width and height >= min_height and (width / height < 3) and (height / width < 3):
+                                        return True
                     except Exception as e:
                         print(f"Error processing image {img_url}: {e}")
                     return False
+
 
                 valid_images = []
                 seen_alts = set()
