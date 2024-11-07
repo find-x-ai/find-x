@@ -50,7 +50,7 @@
   }
 
   .gradient-text {
-    @apply bg-clip-text text-transparent font-semibold bg-gradient-to-br from-emerald-600 via-emerald-800 to-emerald-900;
+    @apply bg-clip-text text-transparent font-semibold bg-gradient-to-br from-[#fff] via-[#f7f7f7] to-[#f8f8f8];
   }
   :root {
     --background: 0 0% 100%;
@@ -108,13 +108,7 @@
 }
 
 .gradient-bg {
-  background: radial-gradient(
-      circle at top left,
-      rgba(255, 255, 255, 0.03),
-      transparent 20%
-    ),
-    linear-gradient(to bottom, #0f0f0f, #0a0a0a, #080808);
-  width: 100%;
+   @apply bg-[#0a0a0a]
 }
 
 @layer base {
