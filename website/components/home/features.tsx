@@ -25,7 +25,7 @@ export const Features = () => {
               </div>
             </div>
             <div className="flex w-full flex-col gap-2 justify-center items-start text-start p-2">
-              <h3 className="text-lg">
+              <h3 className="text-xl md:text-2xl">
                 Advanced Search
               </h3>
               <p className="text-[#656565]">
@@ -79,10 +79,10 @@ export const Features = () => {
             </div>
 
             <div className="flex w-full flex-col gap-2 justify-center items-start text-start p-2">
-              <h3 className="text-lg">
+              <h3 className="text-xl md:text-2xl">
                 Not Just Text
               </h3>
-              <p className="text-[#656565]">
+              <p className="text-muted-foreground">
                 Explore media content with Find-X not just boring text
                 responses.
               </p>
@@ -91,19 +91,19 @@ export const Features = () => {
         </div>
         <div className="flex flex-col md:flex-row gap-3">
           <div className="w-full text-center p-10 cursor-default bg-[#090909] border-[#181818] rounded-lg md:rounded-[0px_0px_0px_20px] border flex gap-5 justify-center items-center">
-            <h2 className="text-lg tracking-wider font-medium">
+            <h2 className="text-xl tracking-wider">
               Faster response
             </h2>{" "}
             <ChevronsUp className="w-[30px] h-[30px] text-zinc-500" />
           </div>
           <div className="w-full text-center p-10 cursor-default bg-[#090909] border-[#181818] rounded-lg md:rounded-none border flex gap-5 justify-center items-center">
-            <h2 className="text-lg tracking-wider font-medium">
+            <h2 className="text-xl tracking-wider">
               Efficient search
             </h2>{" "}
             <TextSearch className="w-[30px] h-[30px] text-zinc-500" />
           </div>
           <div className="w-full text-center p-10 cursor-default bg-[#090909] border-[#181818] rounded-lg md:rounded-[0px_0px_20px_0px] border flex gap-5 justify-center items-center">
-            <h2 className="text-lg tracking-wider font-medium">
+            <h2 className="text-xl tracking-wider">
               Easy integration
             </h2>{" "}
             <Route className="w-[30px] h-[30px] text-zinc-500" />
