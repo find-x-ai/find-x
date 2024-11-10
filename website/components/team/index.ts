@@ -1,1 +1,0 @@
-export {TeamComponent} from "./members";

@@ -1,4 +1,4 @@
-import { TeamComponent } from "@/components/team";
+import { TeamComponent } from "./components";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
