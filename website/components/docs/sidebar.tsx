@@ -77,7 +77,7 @@ export const SideBar = () => {
           <img src="/logo.png" alt="Find-X" className="w-6 h-6 rounded-full" />
           <p>
             <Link href="/home">
-              <span className="pr-3">Find-X</span>
+              <span className="pr-3">FIND-X</span>
             </Link>
             |{" "}
             <Link className="pl-3" href="/docs/getting_started">
@@ -95,7 +95,7 @@ export const SideBar = () => {
               <div className="flex items-center gap-2">
                 <Search
                   onClick={toggleChatBox}
-                  className="w-6 h-6 text-emerald-700 mr-4 cursor-pointer block md:hidden"
+                  className="w-6 h-6 text-muted-foreground mr-4 cursor-pointer block md:hidden"
                 />
 
                 <AlignJustify

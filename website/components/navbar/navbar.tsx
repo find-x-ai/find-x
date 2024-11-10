@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { AlignJustify, Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -25,12 +25,12 @@ export function Navbar() {
           <Link
             onClick={() => setIsOpen(false)}
             href="/"
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-1 relative bottom-[2px]"
           >
-            <div className="w-8 h-8 bg-primary rounded-full overflow-hidden">
+            <div className="w-6 h-6 bg-primary rounded-full overflow-hidden">
               <img src="/logo.png" alt="Logo" width={32} height={32} />
             </div>
-            <span>Find-X</span>
+            <span>FIND-X</span>
           </Link>
           <div className="hidden md:flex items-center justify-center flex-1 space-x-6">
             {links.map((link) => (
@@ -52,20 +52,25 @@ export function Navbar() {
             </Link>
           </div>
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(!isOpen)}
-            >
+            <div className="ml-auto md:hidden relative bottom-[2px]">
               {isOpen ? (
-                <X className="h-6 w-6" />
+                <X
+                  onClick={() => setIsOpen(false)}
+                  className="w-7 h-7 cursor-pointer text-muted-foreground block md:hidden"
+                />
               ) : (
-                <Menu className="h-6 w-6 focus:bg-[#353535]" />
+                <div className="flex items-center gap-2">
+                  <AlignJustify
+                    onClick={() => setIsOpen(true)}
+                    className="w-7 h-7 cursor-pointer text-muted-foreground block md:hidden"
+                  />
+                </div>
               )}
-            </Button>
+            </div>
           </div>
         </div>
       </div>
+
       {isOpen && (
         <div className="md:hidden h-screen">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
@@ -74,18 +79,18 @@ export function Navbar() {
                 onClick={() => setIsOpen(false)}
                 key={link.name}
                 href={link.url}
-                className="block px-3 py-2 text-base font-medium text-[#656565] hover:text-[#f7f8f8] transition-colors"
+                className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-[#f7f8f8] transition-colors"
               >
                 {link.name}
               </Link>
             ))}
             <div className="mt-4 p-3 text-black">
-            <Link
-              href={"/login"}
-              className="w-full px-5 py-1 rounded-md bg-[#f8f9f9] flex justify-center items-center"
-            >
-              Log in
-            </Link>
+              <Link
+                href={"/login"}
+                className="w-full px-5 py-1 rounded-md bg-[#f8f9f9] flex justify-center items-center"
+              >
+                Log in
+              </Link>
             </div>
           </div>
         </div>
