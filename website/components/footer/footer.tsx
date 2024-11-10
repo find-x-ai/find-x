@@ -14,12 +14,12 @@ export const Footer = () => {
           <h3 className="text-lg mb-2">Quick Links</h3>
           <ul className="text-sm space-y-2 text-zinc-600">
             <li>
-              <Link href="/home/policy" className="hover:underline">
+              <Link href="/policy" className="hover:underline">
                 Privacy Policy
               </Link>
             </li>
             <li>
-              <a href="/home/terms" className="hover:underline">
+              <a href="/terms" className="hover:underline">
                 Terms of Service
               </a>
             </li>

@@ -10,8 +10,8 @@ export const middleware = async (req: NextRequest) => {
   const url = req.nextUrl.clone();
 
   // Handle root redirect
-  if (url.pathname === "/") {
-    return NextResponse.redirect(new URL("/home", req.url));
+  if (url.pathname === "/home") {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   // Handle docs redirect
@@ -42,5 +42,6 @@ export const config = {
     "/magic/:path*",
     "/",
     "/docs",
+    "/home",
   ],
 };

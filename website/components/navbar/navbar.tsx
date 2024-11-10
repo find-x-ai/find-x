@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   { name: "Features", url: "/" },
-  { name: "Pricing", url: "/home/pricing" },
-  { name: "Team", url: "/home/team" },
+  { name: "Pricing", url: "/pricing" },
+  { name: "Team", url: "/team" },
   { name: "Company", url: "/" },
   { name: "Blogs", url: "/blogs" },
   { name: "Contact", url: "mailto:team@find-x.tech" },
