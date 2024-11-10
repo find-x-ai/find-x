@@ -45,6 +45,59 @@
   .docs .code-block > * {
     @apply !bg-[#101010] rounded border border-[#202020] p-4 mb-4 overflow-x-auto text-sm;
   }
+
+  .blogs h1 {
+    @apply text-3xl text-white text-center font-semibold pb-5;
+  }
+
+  .blogs img  {
+    @apply w-full md:h-96 h-64 object-cover rounded-lg;
+  }
+
+  .blogs p {
+    @apply text-muted-foreground w-full;
+  }
+
+  .blogs pre {
+    @apply bg-[#181818] rounded p-4 mb-4 overflow-x-auto text-sm;
+  }
+
+  .blogs hr {
+    @apply border-[#202020];
+  }
+
+  .blogs .code-block > * {
+    @apply !bg-[#101010] rounded border border-[#202020] p-4 mb-4 overflow-x-auto text-sm;
+  }
+
+  .blogs .code-block {
+    @apply mb-4;
+  }
+
+  .blogs ol li {
+    @apply ml-2 ;
+  }
+
+  .blogs h2 {
+    @apply text-2xl font-semibold mt-8 mb-4 text-zinc-400;
+  }
+
+  .blogs h3 {
+    @apply text-lg font-medium mt-6 mb-3 text-zinc-400;
+  }
+
+  .blogs ul {
+    @apply list-outside pl-4 mb-4 list-disc text-zinc-300;
+  }
+
+  .blogs ol {
+    @apply list-decimal px-2 list-outside mb-4 text-zinc-300;
+  }
+
+  .blogs a {
+    @apply text-blue-600 hover:underline;
+  }
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }

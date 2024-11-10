@@ -3,7 +3,7 @@ import Link from "next/link";
 export const NextLink = ({ prev, next }: { prev?: string; next?: string }) => {
   return (
     <div
-      className={`w-full max-w-[900px] flex ${
+      className={`w-full flex ${
         prev ? "justify-between" : "justify-end"
       } items-center py-5`}
     >
