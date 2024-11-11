@@ -1,4 +1,4 @@
-import Setup from "@/components/docs/setup.mdx";
+import Setup from "../_components/setup.mdx";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

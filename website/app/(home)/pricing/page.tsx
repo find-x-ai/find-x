@@ -1,4 +1,4 @@
-import { PricingComponent, Sales } from "./components";
+import { PricingComponent, Sales } from "./_components";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

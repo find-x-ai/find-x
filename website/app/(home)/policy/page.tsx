@@ -1,4 +1,4 @@
-import { PrivacyPolicy } from "./components";
+import { PrivacyPolicy } from "./_components";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

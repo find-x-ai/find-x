@@ -1,4 +1,4 @@
-import GettingStarted from "@/components/docs/getting_started.mdx"
+import GettingStarted from "../_components/getting_started.mdx"
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

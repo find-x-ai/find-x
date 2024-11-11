@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { SideBar } from "@/components/docs";
-import { BreadcrumbComponent } from "@/components/docs/bread";
+import { SideBar } from "@/app/docs/_components";
+import { BreadcrumbComponent } from "@/app/docs/_components/bread";
 
 export const metadata: Metadata = {
   title: "Documentation",

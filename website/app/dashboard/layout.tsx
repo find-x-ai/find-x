@@ -1,6 +1,6 @@
 import { getSession } from "@/actions/auth";
 import { Sidebar } from "@/components/dashboard";
-import { BreadcrumbComponent } from "@/components/docs/bread";
+import { BreadcrumbComponent } from "@/app/docs/_components/bread";
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

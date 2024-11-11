@@ -1,4 +1,4 @@
-import Installation from "@/components/docs/installation.mdx"
+import Installation from "../_components/installation.mdx"
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,4 +1,4 @@
-import CustomDocs from "@/components/docs/custom.mdx"
+import CustomDocs from "../_components/custom.mdx"
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
