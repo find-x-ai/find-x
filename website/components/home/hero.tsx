@@ -15,7 +15,7 @@ export const Hero = ({ version }: { version: string }) => (
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="max-w-2xl text-white text-center font-regular text-5xl tracking-tighter md:text-7xl">
-            The future of internal search for websites
+            The Future of Internal Search for Websites
           </h1>
           <p className="max-w-2xl text-center text-lg text-muted-foreground leading-relaxed tracking-tight md:text-xl">
             Searching for right thing with old keyword based searches is a thing of the past. Transform your website into data and search with the power of AI.
