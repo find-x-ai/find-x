@@ -51,8 +51,8 @@ importers:
         specifier: ^1.1.7
         version: 1.1.7
       '@upstash/workflow':
-        specifier: ^0.1.4
-        version: 0.1.4
+        specifier: ^0.1.5
+        version: 0.1.5
       '@vercel/postgres':
         specifier: ^0.10.0
         version: 0.10.0
@@ -665,8 +665,8 @@ packages:
   '@upstash/vector@1.1.7':
     resolution: {integrity: sha512-yxgXdH/Z2uX8XUVrLeo6ZNci2Z8EzXGwjIZ8EZwctF5+oiBIKwz8tsh/yUesyGrbuQ+ViBPGtZWV5vLFbp649w==}
 
-  '@upstash/workflow@0.1.4':
-    resolution: {integrity: sha512-ppQBz5qr5VepQ/RwOH6sNobWlEfV5WhBNtmUzQondvuXUstTiGFz/hnVi5ZhcjGXZQN4zcZXoUlWwnt1gVSb4g==}
+  '@upstash/workflow@0.1.5':
+    resolution: {integrity: sha512-EK0CfjRY+UpAkVntzTGCYb2nTsIZXFFeBKccQRP5CTWmKjV6SrpsxfBuDPfzWunWUEXUGqZKNOZiLkpttYNoQw==}
 
   '@vercel/postgres@0.10.0':
     resolution: {integrity: sha512-fSD23DxGND40IzSkXjcFcxr53t3Tiym59Is0jSYIFpG4/0f0KO9SGtcp1sXiebvPaGe7N/tU05cH4yt2S6/IPg==}
@@ -2551,7 +2551,7 @@ snapshots:
 
   '@upstash/vector@1.1.7': {}
 
-  '@upstash/workflow@0.1.4':
+  '@upstash/workflow@0.1.5':
     dependencies:
       '@upstash/qstash': 2.7.16
 

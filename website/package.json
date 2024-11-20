@@ -23,7 +23,7 @@
     "@types/mdx": "^2.0.13",
     "@upstash/redis": "^1.34.0",
     "@upstash/vector": "^1.1.7",
-    "@upstash/workflow": "^0.1.4",
+    "@upstash/workflow": "^0.1.5",
     "@vercel/postgres": "^0.10.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
