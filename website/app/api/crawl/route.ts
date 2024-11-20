@@ -2,32 +2,33 @@ import { serve } from "@upstash/workflow/nextjs";
 import { CrawlerService } from "./crawl-website";
 import { EmbeddingsService } from "./embeddings";
 import { nanoid } from "nanoid";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
 export const GET = async () => {
   return NextResponse.json({ message: "Hello World" });
 };
 
-export const POST = async (request: NextRequest) => {
-  const { url, indexId } = await request.json() as {
-    url: string;
-    indexId: string;
-  };
+export const { POST } = serve<{ url: string; indexId: string }>(
+  async (context) => {
+    const { url, indexId } = context.requestPayload;
 
-  const { POST: handler } = serve(async (context) => {
     if (!indexId) {
       console.error("Index ID is required");
       throw new Error("Index ID is required");
     }
     const sessionId = nanoid();
     const crawlerService = new CrawlerService(sessionId);
-    
+    /**
+     * crawl whole website by depth first search
+     */
     const { scrapedData, totalLinks } = await context.run(
       "crawl-website",
       async () => {
         console.log("crawling website...");
-        const { scrapedData, totalLinks } = await crawlerService.crawlWebsite(url);
+        const { scrapedData, totalLinks } = await crawlerService.crawlWebsite(
+          url
+        );
 
         if (!scrapedData || scrapedData.length === 0) {
           await sql`update indexes set status = 'failed' where id = ${indexId}`;
@@ -39,6 +40,9 @@ export const POST = async (request: NextRequest) => {
       }
     );
 
+    /**
+     * generate vector embeddings for each chunk
+     */
     const embeddingsService = new EmbeddingsService(indexId);
     const res = await context.run("generate-embeddings", async () => {
       const result = await embeddingsService.createNewWebsite(scrapedData);
@@ -53,7 +57,5 @@ export const POST = async (request: NextRequest) => {
       }
       return result;
     });
-  });
-
-  return await handler(request);
-};
+  }
+);
