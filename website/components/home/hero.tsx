@@ -22,7 +22,7 @@ export const Hero = ({ version }: { version: string }) => (
           </p>
         </div>
         <div className="flex flex-row gap-3">
-          <Button size="lg" className="gap-4" variant="outline" asChild>
+          <Button size="lg" className="gap-4 bg-white text-black hover:bg-white/80 hover:text-black" variant="outline" asChild>
             <Link href="/dashboard">
               Get started <MoveRight className="h-4 w-4" />
             </Link>

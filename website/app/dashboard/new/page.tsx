@@ -7,9 +7,14 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 const NewIndexPage = () => {
-  return <div className="container mx-auto p-6"></div>;
+  return (
+    <div className="w-full h-full mx-auto">
+     
+    </div>
+  );
 };
 
 export default NewIndexPage;

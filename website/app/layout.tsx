@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans overflow-y-scroll`}>
+      <body className={`font-sans overflow-y-scroll text-white`}>
         {children}
         <Toaster richColors={false} />
         <ChatBox

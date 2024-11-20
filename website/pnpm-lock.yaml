@@ -47,6 +47,12 @@ importers:
       '@upstash/redis':
         specifier: ^1.34.0
         version: 1.34.0
+      '@upstash/vector':
+        specifier: ^1.1.7
+        version: 1.1.7
+      '@upstash/workflow':
+        specifier: ^0.1.4
+        version: 0.1.4
       '@vercel/postgres':
         specifier: ^0.10.0
         version: 0.10.0
@@ -71,6 +77,9 @@ importers:
       lucide-react:
         specifier: ^0.407.0
         version: 0.407.0(react@18.3.1)
+      nanoid:
+        specifier: ^5.0.8
+        version: 5.0.8
       next:
         specifier: 14.2.4
         version: 14.2.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -647,8 +656,17 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
+  '@upstash/qstash@2.7.16':
+    resolution: {integrity: sha512-1G1FP+P0/HxQsUe2n+Di8hJBSA3ZV6Y0mF5o0rdnxbmXXHEzCqsrSsRCFbllhd8SS6rzwPhtEQssk2ZKppnGMg==}
+
   '@upstash/redis@1.34.0':
     resolution: {integrity: sha512-TrXNoJLkysIl8SBc4u9bNnyoFYoILpCcFJcLyWCccb/QSUmaVKdvY0m5diZqc3btExsapcMbaw/s/wh9Sf1pJw==}
+
+  '@upstash/vector@1.1.7':
+    resolution: {integrity: sha512-yxgXdH/Z2uX8XUVrLeo6ZNci2Z8EzXGwjIZ8EZwctF5+oiBIKwz8tsh/yUesyGrbuQ+ViBPGtZWV5vLFbp649w==}
+
+  '@upstash/workflow@0.1.4':
+    resolution: {integrity: sha512-ppQBz5qr5VepQ/RwOH6sNobWlEfV5WhBNtmUzQondvuXUstTiGFz/hnVi5ZhcjGXZQN4zcZXoUlWwnt1gVSb4g==}
 
   '@vercel/postgres@0.10.0':
     resolution: {integrity: sha512-fSD23DxGND40IzSkXjcFcxr53t3Tiym59Is0jSYIFpG4/0f0KO9SGtcp1sXiebvPaGe7N/tU05cH4yt2S6/IPg==}
@@ -1392,8 +1410,17 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@5.0.8:
+    resolution: {integrity: sha512-TcJPw+9RV9dibz1hHUzlLVy8N4X9TnwirAjrU08Juo6BNKggzVfP2ZJ/3ZUSq15Xl5i85i+Z89XBO90pB2PghQ==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+
+  neverthrow@7.2.0:
+    resolution: {integrity: sha512-iGBUfFB7yPczHHtA8dksKTJ9E8TESNTAx1UQWW6TzMF280vo9jdPYpLUXrMN1BCkPdHFdNG3fxOt2CUad8KhAw==}
+    engines: {node: '>=18'}
 
   next-auth@4.24.8:
     resolution: {integrity: sha512-SLt3+8UCtklsotnz2p+nB4aN3IHNmpsQFAZ24VLxGotWGzSxkBh192zxNhm/J5wgkcrDWVp0bwqvW0HksK/Lcw==}
@@ -2512,9 +2539,21 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
+  '@upstash/qstash@2.7.16':
+    dependencies:
+      crypto-js: 4.2.0
+      jose: 5.9.3
+      neverthrow: 7.2.0
+
   '@upstash/redis@1.34.0':
     dependencies:
       crypto-js: 4.2.0
+
+  '@upstash/vector@1.1.7': {}
+
+  '@upstash/workflow@0.1.4':
+    dependencies:
+      '@upstash/qstash': 2.7.16
 
   '@vercel/postgres@0.10.0':
     dependencies:
@@ -3534,7 +3573,11 @@ snapshots:
 
   nanoid@3.3.7: {}
 
+  nanoid@5.0.8: {}
+
   neo-async@2.6.2: {}
+
+  neverthrow@7.2.0: {}
 
   next-auth@4.24.8(next@14.2.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@6.9.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

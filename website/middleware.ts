@@ -19,6 +19,11 @@ export const middleware = async (req: NextRequest) => {
     return NextResponse.redirect(new URL("/docs/getting_started", req.url));
   }
 
+  //Handle dashboard redirect
+  if (url.pathname === "/dashboard") {
+    return NextResponse.redirect(new URL("/dashboard/indexing", req.url));
+  }
+
   const access = await checkAccessToken(req);
 
   if (access.success) {

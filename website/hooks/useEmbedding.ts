@@ -1,0 +1,143 @@
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { nanoid as uuidv4 } from "nanoid";
+import { sql as db } from "@/lib/db";
+import { LogMessage, ScrapedData } from "@/types";
+import { index } from "@/lib/db";
+
+interface Info {
+    name: string;
+    url: string;
+    plan: string;
+    email: string;
+    id: string;
+    update: boolean;
+}
+
+interface EmbeddingResult {
+    success: boolean;
+    failedChunks: number[];
+    embeddedChunks: number[];
+    clientId: string;
+}
+
+const CHUNK_SIZE = 5;
+const COUNTDOWN_TIME = 5;
+const MAX_RETRIES = 3;
+
+export const useEmbedding = (
+    info: Info,
+    scrapedData: ScrapedData[],
+    setLogMessages: React.Dispatch<React.SetStateAction<LogMessage[]>>,
+    router: ReturnType<typeof useRouter>
+) => {
+    const [isEmbedding, setIsEmbedding] = useState(false)
+    const [disableEmbedding, setDisableEmbedding] = useState(false)
+    const abortControllerRef = useRef<AbortController | null>(null)
+    const beepSoundRef = useRef<HTMLAudioElement | null>(null)
+
+    useEffect(() => {
+        beepSoundRef.current = new Audio("/beep.mp3")
+        return () => {
+            beepSoundRef.current?.pause()
+            beepSoundRef.current = null
+            abortControllerRef.current?.abort()
+        }
+    }, [])
+
+    const logMessage = useCallback((message: string, tag: string, color: string) => {
+        setLogMessages(prev => [...prev, { tag, message, color }])
+    }, [setLogMessages])
+
+    const validateInfo = useCallback((info: Info): boolean => {
+        if (!info.name || !info.url || !info.plan || !info.email) {
+            logMessage("Missing required information", "[ERROR]", "text-red-500")
+            return false
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) {
+            logMessage("Invalid email format", "[ERROR]", "text-red-500")
+            return false
+        }
+        return true
+    }, [logMessage])
+
+    const handleEmbedding = useCallback(async () => {
+        if (!validateInfo(info)) return
+
+        setIsEmbedding(true)
+        logMessage(`Attention: This action cannot be undone!`, "[IMPORTANT]", "text-red-500")
+
+        const controller = new AbortController()
+        abortControllerRef.current = controller
+
+        const countDown = async (timeLeft: number) => {
+            if (controller.signal.aborted) {
+                logMessage(`Embedding cancelled by user`, "[USER]", "text-red-500")
+                return
+            }
+
+            beepSoundRef.current?.play().catch(console.error)
+            logMessage(
+                `Embedding will start in ${timeLeft.toString().padStart(2, "0")} sec(s)`,
+                "[WARNING]",
+                "text-amber-500"
+            )
+
+            if (timeLeft > 0) {
+                setTimeout(() => countDown(timeLeft - 1), 1000)
+            } else {
+                await startEmbedding()
+            }
+        }
+
+        const startEmbedding = async () => {
+            setIsEmbedding(false)
+            setDisableEmbedding(true)
+
+            try {
+                const chunks = chunkArray(scrapedData, CHUNK_SIZE)
+                const response = await fetch('/api/embed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ info, chunks })
+                })
+
+                const result = await response.json()
+
+                if (result.success) {
+                    logMessage(`Embedding process completed successfully`, "[SUCCESS]", "text-green-500")
+                    if (!info.update) {
+                        setTimeout(() => router.push("/all"), 1500)
+                    }
+                } else {
+                    logMessage(`Embedding process failed.`, "[WARNING]", "text-yellow-500")
+                    logMessage(
+                        `Failed chunks: ${result.failedChunks.join(", ")}`,
+                        "[INFO]",
+                        "text-blue-500"
+                    )
+                }
+            } catch (error) {
+                console.error(error)
+                logMessage(`${error}`, "[ERROR]", "text-red-500")
+            } finally {
+                setDisableEmbedding(false)
+            }
+        }
+
+        countDown(COUNTDOWN_TIME)
+    }, [info, scrapedData, router, logMessage, validateInfo])
+
+    const cancelEmbedding = useCallback(() => {
+        setIsEmbedding(false)
+        abortControllerRef.current?.abort()
+    }, [])
+
+    return { isEmbedding, disableEmbedding, handleEmbedding, cancelEmbedding }
+}
+
+function chunkArray<T>(array: T[], size: number): T[][] {
+    return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+        array.slice(i * size, i * size + size)
+    );
+}
