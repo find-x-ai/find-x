@@ -20,7 +20,10 @@ export const getIndexes = async (): Promise<Index[]> => {
   }
 };
 
-export const createIndex = async (name: string, url: string): Promise<{ success: boolean; message: string; id: string | null }> => {
+export const createIndex = async (
+  name: string,
+  url: string
+): Promise<{ success: boolean; message: string; id: string | null }> => {
   const { success, data } = await getSession();
   if (!success || !data) {
     return { success: false, message: "Unauthorized", id: null };
@@ -41,10 +44,10 @@ export const createIndex = async (name: string, url: string): Promise<{ success:
       nanoid(16) +
       "-" +
       nanoid(16);
-    const [newIndex] = await sql`
+    const [newIndex] = (await sql`
       insert into indexes (name, url, user_id, total_links, api_key, last_deploy, status) 
       values (${name}, ${url}, ${id}, 0, ${apiKey}, now(), 'deploying') 
-      returning *` as Index[];
+      returning *`) as Index[];
 
     if (!newIndex) {
       console.error("Failed to create index");
@@ -52,16 +55,19 @@ export const createIndex = async (name: string, url: string): Promise<{ success:
     }
 
     const res = await fetch(
-      `${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`,
+      `${process.env.UPSTASH_WORKFLOW_URL}/api/crawl?url=${url}&indexId=${newIndex.id}`,
       {
         method: "POST",
-        body: JSON.stringify({ url: url, indexId: newIndex.id }),
         headers: {
           "Content-Type": "application/json",
         },
       }
     );
-    return { success: true, message: "Index created successfully", id: newIndex.id.toString() };
+    return {
+      success: true,
+      message: "Index created successfully",
+      id: newIndex.id.toString(),
+    };
   } catch (error) {
     console.error("Failed to create index", error);
     return { success: false, message: "Something went wrong!", id: null };
