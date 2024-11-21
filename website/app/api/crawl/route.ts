@@ -12,7 +12,6 @@ export const GET = async () => {
 export const { POST } = serve<{ url: string; indexId: string }>(
   async (context) => {
     const { url, indexId } = context.requestPayload;
-
     if (!indexId) {
       console.error("Index ID is required");
       throw new Error("Index ID is required");

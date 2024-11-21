@@ -51,8 +51,8 @@ importers:
         specifier: ^1.1.7
         version: 1.1.7
       '@upstash/workflow':
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: ^0.2.0
+        version: 0.2.0
       '@vercel/postgres':
         specifier: ^0.10.0
         version: 0.10.0
@@ -656,8 +656,8 @@ packages:
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  '@upstash/qstash@2.7.16':
-    resolution: {integrity: sha512-1G1FP+P0/HxQsUe2n+Di8hJBSA3ZV6Y0mF5o0rdnxbmXXHEzCqsrSsRCFbllhd8SS6rzwPhtEQssk2ZKppnGMg==}
+  '@upstash/qstash@2.7.17':
+    resolution: {integrity: sha512-EJW4BwK7KfIpqBHp2rTohwtY+lvP8TtFC+G/nMFLmSiClpD2DzcPDZ0SxXO6QEOZWtfqQTXVCSYppQZgRxH/tQ==}
 
   '@upstash/redis@1.34.0':
     resolution: {integrity: sha512-TrXNoJLkysIl8SBc4u9bNnyoFYoILpCcFJcLyWCccb/QSUmaVKdvY0m5diZqc3btExsapcMbaw/s/wh9Sf1pJw==}
@@ -665,8 +665,8 @@ packages:
   '@upstash/vector@1.1.7':
     resolution: {integrity: sha512-yxgXdH/Z2uX8XUVrLeo6ZNci2Z8EzXGwjIZ8EZwctF5+oiBIKwz8tsh/yUesyGrbuQ+ViBPGtZWV5vLFbp649w==}
 
-  '@upstash/workflow@0.1.5':
-    resolution: {integrity: sha512-EK0CfjRY+UpAkVntzTGCYb2nTsIZXFFeBKccQRP5CTWmKjV6SrpsxfBuDPfzWunWUEXUGqZKNOZiLkpttYNoQw==}
+  '@upstash/workflow@0.2.0':
+    resolution: {integrity: sha512-z0SlkhzH1F13djDk98sB//vVpYomsIiesL8BSDqMmylLwIlWHhPEdB3vZkjmUppCJ4EieybXJjYUmRHGdhITRQ==}
 
   '@vercel/postgres@0.10.0':
     resolution: {integrity: sha512-fSD23DxGND40IzSkXjcFcxr53t3Tiym59Is0jSYIFpG4/0f0KO9SGtcp1sXiebvPaGe7N/tU05cH4yt2S6/IPg==}
@@ -2539,7 +2539,7 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@upstash/qstash@2.7.16':
+  '@upstash/qstash@2.7.17':
     dependencies:
       crypto-js: 4.2.0
       jose: 5.9.3
@@ -2551,9 +2551,9 @@ snapshots:
 
   '@upstash/vector@1.1.7': {}
 
-  '@upstash/workflow@0.1.5':
+  '@upstash/workflow@0.2.0':
     dependencies:
-      '@upstash/qstash': 2.7.16
+      '@upstash/qstash': 2.7.17
 
   '@vercel/postgres@0.10.0':
     dependencies:
