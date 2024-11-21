@@ -55,7 +55,7 @@ export const createIndex = async (name: string, url: string): Promise<{ success:
       `${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`,
       {
         method: "POST",
-        body: JSON.stringify({ url, indexId: newIndex.id }),
+        body: JSON.stringify({ url: url, indexId: newIndex.id }),
         headers: {
           "Content-Type": "application/json",
         },

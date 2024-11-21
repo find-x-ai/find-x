@@ -205,6 +205,7 @@ app.post('/upsert', async (c) => {
 	const key = token.split('Bearer ')[1];
 
 	if (!key || !token) {
+		console.log('No authorization key provided');
 		return c.json({ mssage: 'No authorization key provided' }, 400);
 	}
 
@@ -212,6 +213,7 @@ app.post('/upsert', async (c) => {
 		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
 
 		if (key !== UPSERT_SECRET_KEY) {
+			console.log('Invalid key provided');
 			return c.json({ mssage: 'Invalid key provided' }, 400);
 		}
 
@@ -235,6 +237,7 @@ app.post('/upsert', async (c) => {
 		};
 
 		if (!client || !data || data.length < 1) {
+			console.log('Missing parameters,', client, data);
 			return c.json({ message: 'Missing parameters' }, 400);
 		}
 
