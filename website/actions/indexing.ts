@@ -55,7 +55,7 @@ export const createIndex = async (
     }
 
     const res = await fetch(
-      `${process.env.UPSTASH_WORKFLOW_URL}/api/crawl?url=${url}&indexId=${newIndex.id}`,
+      `${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`,
       {
         method: "POST",
         headers: {

@@ -18,44 +18,54 @@ export const { POST } = serve(async (context) => {
     console.error("Index ID is required");
     throw new Error("Index ID is required");
   }
-  const sessionId = nanoid();
-  const crawlerService = new CrawlerService(sessionId);
-  /**
-   * crawl whole website by depth first search
-   */
-  const { scrapedData, totalLinks } = await context.run(
-    "crawl-website",
-    async () => {
-      console.log("crawling website...");
-      const { scrapedData, totalLinks } = await crawlerService.crawlWebsite(
-        url
-      );
 
-      if (!scrapedData || scrapedData.length === 0) {
-        await sql`update indexes set status = 'failed' where id = ${indexId}`;
-        console.error("No data scraped");
-        throw new Error("No data scraped");
-      }
-      await sql`update indexes set total_links = ${totalLinks} where id = ${indexId}`;
-      return { scrapedData, totalLinks };
+  await context.call("Scraper", {
+    url: `${process.env.SCRAPING_URL}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: {
+      url: url,
+      secret_key: process.env.SCRAPING_KEY || "",
     }
-  );
+  })
+  // const sessionId = nanoid();
+  // const crawlerService = new CrawlerService(sessionId);
+  // /**
+  //  * crawl whole website by depth first search
+  //  */
+  // const { scrapedData, totalLinks } = await context.run(
+  //   "crawl-website",
+  //   async () => {
+  //     console.log("crawling website...");
+  //     const { scrapedData, totalLinks } = await crawlerService.crawlWebsite(
+  //       url
+  //     );
 
-  /**
-   * generate vector embeddings for each chunk
-   */
-  const embeddingsService = new EmbeddingsService(indexId);
-  const res = await context.run("generate-embeddings", async () => {
-    const result = await embeddingsService.createNewWebsite(scrapedData);
-    if (result.success) {
-      console.log(
-        `successfully generated ${result.embeddedChunks?.length} embeddings for ${result.clientId}`
-      );
-      await sql`update indexes set status = 'success' where id = ${indexId}`;
-    } else {
-      console.error("Failed to generate embeddings", result);
-      await sql`update indexes set status = 'failed' where id = ${indexId}`;
-    }
-    return result;
-  });
+  //     if (!scrapedData || scrapedData.length === 0) {
+  //       await sql`update indexes set status = 'failed' where id = ${indexId}`;
+  //       console.error("No data scraped");
+  //       throw new Error("No data scraped");
+  //     }
+  //     await sql`update indexes set total_links = ${totalLinks} where id = ${indexId}`;
+  //     return { scrapedData, totalLinks };
+  //   }
+  // );
+
+  // /**
+  //  * generate vector embeddings for each chunk
+  //  */
+  // const embeddingsService = new EmbeddingsService(indexId);
+  // const res = await context.run("generate-embeddings", async () => {
+  //   const result = await embeddingsService.createNewWebsite(scrapedData);
+  //   if (result.success) {
+  //     console.log(
+  //       `successfully generated ${result.embeddedChunks?.length} embeddings for ${result.clientId}`
+  //     );
+  //     await sql`update indexes set status = 'success' where id = ${indexId}`;
+  //   } else {
+  //     console.error("Failed to generate embeddings", result);
+  //     await sql`update indexes set status = 'failed' where id = ${indexId}`;
+  //   }
+  //   return result;
+  // });
 });
