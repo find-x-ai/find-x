@@ -1,1 +1,2 @@
-export {AllIndexes} from "./all"
+export { AllIndexes } from "./all";
+import { Logger } from "./logger";

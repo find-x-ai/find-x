@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/db";
+import { redis, sql } from "@/lib/db";
 import { getSession } from "@/actions/auth";
 
 type Log = {
@@ -17,7 +17,14 @@ export async function GET(request: NextRequest) {
 
     const id = request.nextUrl.searchParams.get("id");
     const logs = (await redis.lrange(`process_logs:${id}`, 0, -1)) as string[];
-
+    const index = await sql`SELECT * FROM indexes WHERE id = ${id}`;
+    if (!index || index.length === 0 || index[0].user_id !== session.data.id) {
+      return NextResponse.json(
+        { error: "Failed to find index" },
+        { status: 404 }
+      );
+    }
+    const isOver = index[0].status != "deploying";
     const parsedLogs = logs.map((log) => {
       try {
         const jsonString = log.replace(/'/g, '"');
@@ -31,7 +38,10 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ logs: parsedLogs });
+    return NextResponse.json({
+      logs: parsedLogs.reverse(),
+      isOver,
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
