@@ -1,9 +1,27 @@
 import { serve } from "@upstash/workflow/nextjs";
-import { CrawlerService } from "./crawl-website";
-import { EmbeddingsService } from "./embeddings";
-import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { redis } from "@/lib/db";
+
+interface ScrapedImage {
+  src: string;
+  alt: string;
+}
+
+interface ScrapedPageData {
+  url: string;
+  title: string;
+  content: string;
+  summary: string;
+  images: {
+    data: ScrapedImage[];
+  };
+}
+
+interface ScraperResponse {
+  data: ScrapedPageData[];
+  totalLinks: number;
+}
 
 export const GET = async () => {
   return NextResponse.json({ message: "Hello World" });
@@ -18,54 +36,36 @@ export const { POST } = serve(async (context) => {
     console.error("Index ID is required");
     throw new Error("Index ID is required");
   }
-
-  await context.call("Scraper", {
+  // Crawl whole website
+  const response = await context.call<ScraperResponse>("crawling-website", {
     url: `${process.env.SCRAPING_URL}`,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: {
       url: url,
       secret_key: process.env.SCRAPING_KEY || "",
-    }
-  })
-  // const sessionId = nanoid();
-  // const crawlerService = new CrawlerService(sessionId);
-  // /**
-  //  * crawl whole website by depth first search
-  //  */
-  // const { scrapedData, totalLinks } = await context.run(
-  //   "crawl-website",
-  //   async () => {
-  //     console.log("crawling website...");
-  //     const { scrapedData, totalLinks } = await crawlerService.crawlWebsite(
-  //       url
-  //     );
+      id: indexId,
+    },
+  });
 
-  //     if (!scrapedData || scrapedData.length === 0) {
-  //       await sql`update indexes set status = 'failed' where id = ${indexId}`;
-  //       console.error("No data scraped");
-  //       throw new Error("No data scraped");
-  //     }
-  //     await sql`update indexes set total_links = ${totalLinks} where id = ${indexId}`;
-  //     return { scrapedData, totalLinks };
-  //   }
-  // );
+  // check if response isof type ScraperResponse
+  if (!response || typeof response !== "object" || !("data" in response)) {
+    console.error("Invalid response from crawling-website");
 
-  // /**
-  //  * generate vector embeddings for each chunk
-  //  */
-  // const embeddingsService = new EmbeddingsService(indexId);
-  // const res = await context.run("generate-embeddings", async () => {
-  //   const result = await embeddingsService.createNewWebsite(scrapedData);
-  //   if (result.success) {
-  //     console.log(
-  //       `successfully generated ${result.embeddedChunks?.length} embeddings for ${result.clientId}`
-  //     );
-  //     await sql`update indexes set status = 'success' where id = ${indexId}`;
-  //   } else {
-  //     console.error("Failed to generate embeddings", result);
-  //     await sql`update indexes set status = 'failed' where id = ${indexId}`;
-  //   }
-  //   return result;
-  // });
+    await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
+
+    await redis.lpush(
+      `scraper_logs:${indexId}`,
+      JSON.stringify({
+        tag: "error",
+        message: "Invalid response from crawling-website",
+        timestamp: new Date().toISOString(),
+      })
+    );
+
+    throw new Error("Invalid response from crawling-website");
+  }
+  // Generate embeddings
+
+  console.log(response);
 });
