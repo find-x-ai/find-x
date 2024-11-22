@@ -8,8 +8,7 @@ export const GET = async () => {
   return NextResponse.json({ message: "Hello World" });
 };
 
-export const POST = async (request: NextRequest) => {
-  const { POST: handler } = serve(async (context) => {
+export const {POST} = serve(async (context) => {
     // const { url, indexId } = context.requestPayload;
     // if (!indexId) {
     //   console.error("Index ID is required");
@@ -52,6 +51,3 @@ export const POST = async (request: NextRequest) => {
       // return result;
     });
   });
-
-  return await handler(request);
-};
