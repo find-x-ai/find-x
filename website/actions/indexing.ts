@@ -59,8 +59,9 @@ export const createIndex = async (
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "text/plain",
         },
+        body: `${url}#${newIndex.id}`,
       }
     );
     return {
