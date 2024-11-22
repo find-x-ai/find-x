@@ -32,10 +32,6 @@ export const { POST } = serve(async (context) => {
     url: string;
     indexId: string;
   };
-  if (!indexId) {
-    console.error("Index ID is required");
-    throw new Error("Index ID is required");
-  }
   // Crawl whole website
   const response = await context.call<ScraperResponse>("crawling-website", {
     url: `${process.env.SCRAPING_URL}`,
@@ -48,8 +44,10 @@ export const { POST } = serve(async (context) => {
     },
   });
 
+  console.log(response);
+
   // check if response isof type ScraperResponse
-  if (!response || typeof response !== "object" || !("data" in response)) {
+  if (response.status !== 200) {
     console.error("Invalid response from crawling-website");
 
     await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
@@ -65,7 +63,25 @@ export const { POST } = serve(async (context) => {
 
     throw new Error("Invalid response from crawling-website");
   }
-  // Generate embeddings
+  
+  await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
 
-  console.log(response);
+  const { status } = await context.call("generate-embeddings", {
+    url: `${process.env.UPSERT_URL}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: {
+      data: response.body.data,
+      secret: process.env.UPSERT_KEY || "",
+      client: indexId.toString(),
+    },
+  });
+
+  if (status !== 200) {
+    console.error("Invalid response from generate-embeddings");
+    await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
+    throw new Error("Invalid response from generate-embeddings");
+  }
+
+  await sql`UPDATE indexes SET status = 'success' WHERE id = ${indexId}`;
 });
