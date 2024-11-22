@@ -63,7 +63,7 @@ export const { POST } = serve(async (context) => {
 
     throw new Error("Invalid response from crawling-website");
   }
-  
+
   await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
 
   const { status } = await context.call("generate-embeddings", {
