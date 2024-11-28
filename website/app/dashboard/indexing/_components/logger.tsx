@@ -1,7 +1,10 @@
 "use client";
 
+import { Loader } from "@/components/ui/loader";
+import { ChevronRight, CircleCheckBig } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-
+import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 type LogType = "success" | "warning" | "info" | "error";
 
 interface Log {
@@ -11,92 +14,118 @@ interface Log {
 }
 
 export const Logger = ({ id }: { id: string }) => {
-  const [logs, setLogs] = useState<Log[]>([]);
-  const logsEndRef = useRef<HTMLDivElement>(null);
-  const [isOver, setIsOver] = useState(false);
+  const searchParams = useSearchParams();
+  const logsOpen = searchParams.get("logs");
+  const [isOpen, setIsOpen] = useState(logsOpen === "open");
+  const [logs, setLogs] = useState<Log[] | []>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isOver, setIsOver] = useState<boolean>(false);
+  const router = useRouter();
+  const path = usePathname();
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const response = await fetch(`/api/logs?id=${id}`);
-        const data = await response.json();
-        setLogs(data.logs);
-        setIsOver(data.isOver);
+        logs.length < 1 && setLoading(true);
+        const res = await fetch(`/api/logs?id=${id}`);
+        const result = (await res.json()) as {
+          logs: Log[];
+          isOver: boolean;
+          status: "deploying" | "failed" | "success";
+        };
+        setLogs(result.logs);
+        setIsOver(result.isOver);
       } catch (error) {
-        console.error("Failed to fetch logs:", error);
+        console.log(error);
+        setLogs([
+          ...logs,
+          {
+            type: "error",
+            message: "Failed to load logs",
+            timestamp: performance.now(),
+          },
+        ]);
+      } finally {
+        logs.length > 0 && setLoading(false);
       }
     };
 
-    // Initial fetch
-    fetchLogs();
-
-    // Set up periodic fetching only if not over
-    let interval: NodeJS.Timeout | null = null;
+    let timeInterval: NodeJS.Timeout | undefined;
     if (!isOver) {
-      interval = setInterval(fetchLogs, 3000);
+      fetchLogs();
+      timeInterval = setInterval(fetchLogs, 5000);
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (timeInterval) {
+        clearInterval(timeInterval);
+      }
     };
-  }, [isOver]);
+  }, [isOpen, id, isOver]);
 
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs]);
-
-  const getLogColor = (type: LogType) => {
-    switch (type) {
-      case "success":
-        return "text-green-400";
-      case "warning":
-        return "text-yellow-400";
-      case "error":
-        return "text-red-400";
-      default:
-        return "text-blue-400";
-    }
-  };
-
-  const getLogIcon = (type: LogType) => {
-    switch (type) {
-      case "success":
-        return "✓";
-      case "warning":
-        return "⚠";
-      case "error":
-        return "✕";
-      default:
-        return "ℹ";
-    }
-  };
+    isOver && router.push(`${path}?update=true`);
+  }, [isOver]);
 
   return (
-    <div className="bg-[#111111] rounded-lg border border-[#202020] p-4 max-h-[600px] overflow-y-auto">
-      <h2 className="text-lg font-semibold mb-4 text-white">System Logs</h2>
-      <div className="space-y-2">
-        {logs.map((log, index) => (
-          <div
-            key={index}
-            className="flex items-start p-2 rounded-md hover:bg-[#202020] transition-colors"
-          >
-            <span className={`${getLogColor(log.type)} mr-2`}>
-              {getLogIcon(log.type)}
-            </span>
-            <div className="flex-1">
-              <p className="text-gray-200">{log.message}</p>
-              <p className="text-xs text-gray-400">
-                {new Date(log.timestamp).toLocaleString()}
-              </p>
-            </div>
+    <div className="w-full px-3 py-5">
+      <div className="w-full bg-[#090909] overflow-x-auto border border-[#191919] rounded-md">
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full p-5 flex justify-between cursor-pointer"
+        >
+          <div className="flex gap-2 items-center">
+            {isOver ? (
+              <CircleCheckBig className="h-5 w-5" />
+            ) : (
+              <Loader className="text-blue-600" />
+            )}
+            <span className="text-[#757575]">Process Logs</span>
           </div>
-        ))}
-        {logs.length === 0 && (
-          <div className="text-center text-gray-400 py-4">
-            No logs available
+
+          <ChevronRight
+            className={`text-[#656565] transition-transform duration-200 ${
+              isOpen ? "rotate-90" : ""
+            }`}
+          />
+        </div>
+
+        <div
+          className={`overflow-hidden transition-all duration-200 ${
+            isOpen ? "h-[250px]" : "h-0"
+          }`}
+        >
+          <div className="px-4 pb-4 h-full overflow-y-auto">
+            {/* Placeholder for logs */}
+            {loading && logs.length < 1 && (
+              <div className="text-[#656565] flex justify-center items-center h-full text-xl">
+                {loading ? (
+                  <span>Loading logs...</span>
+                ) : (
+                  <span>No logs available</span>
+                )}
+              </div>
+            )}
+            {logs.map((log) => (
+              <div key={log.timestamp} className="py-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400">{log.timestamp}</span>
+                  <span
+                    className={`text-${
+                      log.type === "success"
+                        ? "green-600"
+                        : log.type === "error"
+                        ? "red-600"
+                        : "f0f0f0"
+                    }`}
+                  >
+                    {log.message}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-        <div ref={logsEndRef} />
+        </div>
       </div>
     </div>
   );

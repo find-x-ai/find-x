@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       logs: parsedLogs.reverse(),
       isOver,
+      status: index[0].status,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

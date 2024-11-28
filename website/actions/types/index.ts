@@ -1,4 +1,5 @@
 export type Index = {
+  created_at: Date,
   id: number;
   url: string;
   api_key: string;
@@ -6,4 +7,5 @@ export type Index = {
   total_links: number;
   name: string;
   last_deploy: Date;
+  user_id: number
 };

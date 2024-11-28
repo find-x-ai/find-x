@@ -15,12 +15,14 @@ import {
   DialogContent,
   DialogTrigger,
   DialogClose,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { createIndex } from "@/actions/indexing";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Loader } from "@/components/ui/loader";
 
 export function CreateIndex({
   text,
@@ -37,12 +39,12 @@ export function CreateIndex({
     setLoading(true);
     const url = formData.get("url") as string;
     const name = formData.get("name") as string;
-    const res = await createIndex(name, url);
-    if (res.success && res.id) {
+    const res = await createIndex(name, url, new Date());
+    if (res.success && res.name) {
       toast.success(res.message);
       setOpen(false);
       router.refresh();
-      router.push(`/dashboard/indexing/${res.id}`);
+      router.push(`/dashboard/indexing/${res.name}`);
     } else {
       toast.error(res.message);
     }
@@ -68,7 +70,7 @@ export function CreateIndex({
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-[#FFF] hover:bg-[#FFF] text-black">
+          <Button className="bg-emerald-700 hover:bg-emerald-800 border-emerald-300 border">
             {text}
           </Button>
         </DialogTrigger>
@@ -76,7 +78,7 @@ export function CreateIndex({
           <Card className="bg-[#111111]  border-[#202020] rounded-md">
             <CardHeader>
               <CardTitle className=" text-2xl font-semibold text-white">
-                Add New Index
+                Create New Index
               </CardTitle>
               <CardDescription className="text-sm text-gray-500">
                 Fill the details below to create a new index
@@ -107,11 +109,16 @@ export function CreateIndex({
                       minLength={3}
                       maxLength={50}
                       placeholder="Enter a name for the index"
-                      className="border-[#202020]"
+                      className="border-[#202020] autofill:fill-[#111]"
                     />
                   </div>
                 </div>
+                <p className="text-sm text-[#757575] pt-5 px-1">
+                  By clicking create you agree to the rules and regulations of
+                  fnd-x.
+                </p>
               </CardContent>
+
               <CardFooter className="flex justify-end gap-3">
                 <DialogClose asChild>
                   <Button
@@ -125,9 +132,14 @@ export function CreateIndex({
                 <Button
                   disabled={loading}
                   type="submit"
-                  className="bg-emerald-700 w-[100px] hover:bg-emerald-800 text-white"
+                  className="bg-emerald-700 w-[110px] border border-emerald-300 hover:bg-emerald-800 text-white flex items-center gap-2"
                 >
-                  Create {loading && <Loader2 className="animate-spin ml-2" />}
+                  {loading && (
+                    <Loader className="animate-spin transition-all" />
+                  )}
+                  <span className="transition-all duration-300">
+                    {loading ? "Creating..." : "Create"}
+                  </span>
                 </Button>
               </CardFooter>
             </form>

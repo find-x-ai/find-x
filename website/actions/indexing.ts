@@ -3,6 +3,7 @@ import { sql } from "@/lib/db";
 import { getSession } from "./auth";
 import { nanoid } from "nanoid";
 import { Index } from "./types/index";
+import { revalidatePath } from "next/cache";
 
 export const getIndexes = async (): Promise<Index[]> => {
   try {
@@ -22,56 +23,93 @@ export const getIndexes = async (): Promise<Index[]> => {
 
 export const createIndex = async (
   name: string,
-  url: string
-): Promise<{ success: boolean; message: string; id: string | null }> => {
-  const { success, data } = await getSession();
-  if (!success || !data) {
-    return { success: false, message: "Unauthorized", id: null };
-  }
+  url: string,
+  timeNow: Date
+): Promise<{ success: boolean; message: string; name: string | null }> => {
   try {
+    const { success, data } = await getSession();
+    if (!success || !data) {
+      return { success: false, message: "Unauthorized", name: null };
+    }
+
+    // Extract main domain from URL
+    let mainUrl: string;
+    try {
+      const urlObject = new URL(url);
+      mainUrl =
+        urlObject.protocol + "//" + urlObject.hostname.replace("www.", "");
+      mainUrl = mainUrl.endsWith("/") ? mainUrl : mainUrl + "/";
+    } catch (error) {
+      return { success: false, message: "Invalid URL format", name: null };
+    }
+
     const { id } = data;
-    // const checkAlreadyExists =
-    //   await sql`select * from indexes where url = ${url} and user_id = ${id}`;
-    // if (checkAlreadyExists.length > 0) {
-    //   return { success: false, message: "Index already exists" };
-    // }
+    // Modified query to compare with main URL
+    const checkAlreadyExists = await sql`
+      select * from indexes 
+      where (url = ${mainUrl} OR name = ${name}) 
+      and user_id = ${id}`;
+    if (checkAlreadyExists.length > 0) {
+      const duplicateField =
+        checkAlreadyExists[0].url === mainUrl ? "URL" : "name";
+      return {
+        success: false,
+        message: `Index with this ${duplicateField} already exists`,
+        name: null,
+      };
+    }
     const apiKey =
       "fx_" +
       nanoid(16) +
       "-" +
-      nanoid(16) +
-      "-" +
-      nanoid(16) +
-      "-" +
-      nanoid(16);
+      nanoid(16)
     const [newIndex] = (await sql`
       insert into indexes (name, url, user_id, total_links, api_key, last_deploy, status) 
-      values (${name}, ${url}, ${id}, 0, ${apiKey}, now(), 'deploying') 
+      values (${name}, ${mainUrl}, ${id}, 0, ${apiKey}, ${timeNow}, 'deploying') 
       returning *`) as Index[];
 
     if (!newIndex) {
       console.error("Failed to create index");
-      return { success: false, message: "Something went wrong!", id: null };
+      return { success: false, message: "Something went wrong!", name: null };
     }
 
-    const res = await fetch(
-      `${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url, indexId: newIndex.id }),
-      }
-
-    );
+    await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url, indexId: newIndex.id }),
+    });
+    revalidatePath("/dashboard/indexing");
     return {
       success: true,
       message: "Index created successfully",
-      id: newIndex.id.toString(),
+      name: newIndex.name,
     };
   } catch (error) {
     console.error("Failed to create index", error);
-    return { success: false, message: "Something went wrong!", id: null };
+    return { success: false, message: "Something went wrong!", name: null };
   }
 };
+
+export const getIndex = async (id:string) => {
+    const session = await getSession();
+    if(!session || !session.data){
+      return { success: false , message: "Unauthorized" , data : null}
+    }
+    try {
+      const res = await sql`select * from indexes where id=${id} and user_id=${session.data.id}` as Index[];
+      return {
+        success: true,
+        message: "Successfully fetched",
+        data: res[0]
+      }
+    } catch (error) {
+        console.log(error);
+        return {
+          success: false,
+          message: "something went wrong",
+          data: null
+        }
+    }
+}

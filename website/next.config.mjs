@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 import createMDX from '@next/mdx'
+import { StrictMode } from 'react';
 
 const nextConfig = {
     images: {
@@ -11,6 +12,7 @@ const nextConfig = {
         ]
     },
     pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
+    reactStrictMode: false,
 };
 const withMDX = createMDX({
   // Add markdown plugins here, as desired

@@ -6,7 +6,6 @@ import {
   Receipt,
   Settings,
   LogOut,
-  Menu,
   X,
   AlignJustify,
 } from "lucide-react";
@@ -131,7 +130,7 @@ export const Sidebar = ({
                 }}
                 key={i}
                 className={`flex items-center gap-2 py-2 px-3 rounded-md  ${
-                  path === link.url ? "bg-emerald-700" : "hover:bg-[#141414]"
+                  path.startsWith(link.url) ? "bg-emerald-700" : "hover:bg-[#141414]"
                 }`}
               >
                 {link.icon}
