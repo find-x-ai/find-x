@@ -44,7 +44,7 @@ export function CreateIndex({
       toast.success(res.message);
       setOpen(false);
       router.refresh();
-      router.push(`/dashboard/indexing/${res.name}`);
+      router.push(`/dashboard/indexing/${res.name}?logs=open`);
     } else {
       toast.error(res.message);
     }
@@ -122,6 +122,7 @@ export function CreateIndex({
               <CardFooter className="flex justify-end gap-3">
                 <DialogClose asChild>
                   <Button
+                    disabled={loading}
                     type="button"
                     variant={"outline"}
                     className="bg-transparent w-[100px] text-white border-[#202020] hover:bg-transparent hover:text-white"

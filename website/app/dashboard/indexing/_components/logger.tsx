@@ -1,10 +1,9 @@
-"use client";
-
 import { Loader } from "@/components/ui/loader";
 import { ChevronRight, CircleCheckBig } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, SetStateAction } from "react";
 import { useSearchParams } from "next/navigation";
-import { useRouter, usePathname } from "next/navigation";
+import { Index } from "@/actions/types";
+
 type LogType = "success" | "warning" | "info" | "error";
 
 interface Log {
@@ -13,28 +12,37 @@ interface Log {
   timestamp: number;
 }
 
-export const Logger = ({ id }: { id: string }) => {
+export const Logger = ({
+  id,
+  setStatus,
+  logs,
+  setLogs,
+}: {
+  id: string;
+  setStatus: React.Dispatch<SetStateAction<Index["status"]>>;
+  logs: Log[] | [];
+  setLogs: React.Dispatch<SetStateAction<Log[]>>;
+}) => {
   const searchParams = useSearchParams();
   const logsOpen = searchParams.get("logs");
   const [isOpen, setIsOpen] = useState(logsOpen === "open");
-  const [logs, setLogs] = useState<Log[] | []>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isOver, setIsOver] = useState<boolean>(false);
-  const router = useRouter();
-  const path = usePathname();
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
         logs.length < 1 && setLoading(true);
+        setIsOver(false);
         const res = await fetch(`/api/logs?id=${id}`);
         const result = (await res.json()) as {
           logs: Log[];
           isOver: boolean;
-          status: "deploying" | "failed" | "success";
+          status: Index["status"];
         };
-        setLogs(result.logs);
+        result.logs.length > 0 && setLogs(result.logs);
         setIsOver(result.isOver);
+        setStatus(result.status);
       } catch (error) {
         console.log(error);
         setLogs([
@@ -64,8 +72,8 @@ export const Logger = ({ id }: { id: string }) => {
   }, [isOpen, id, isOver]);
 
   useEffect(() => {
-    isOver && router.push(`${path}?update=true`);
-  }, [isOver]);
+    logs.length < 1 && setIsOver(false);
+  }, [logs]);
 
   return (
     <div className="w-full px-3 py-5">

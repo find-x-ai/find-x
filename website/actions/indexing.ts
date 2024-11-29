@@ -1,5 +1,5 @@
 "use server";
-import { sql } from "@/lib/db";
+import { index, redis, sql } from "@/lib/db";
 import { getSession } from "./auth";
 import { nanoid } from "nanoid";
 import { Index } from "./types/index";
@@ -58,11 +58,7 @@ export const createIndex = async (
         name: null,
       };
     }
-    const apiKey =
-      "fx_" +
-      nanoid(16) +
-      "-" +
-      nanoid(16)
+    const apiKey = "fx_" + nanoid(16) + "-" + nanoid(16);
     const [newIndex] = (await sql`
       insert into indexes (name, url, user_id, total_links, api_key, last_deploy, status) 
       values (${name}, ${mainUrl}, ${id}, 0, ${apiKey}, ${timeNow}, 'deploying') 
@@ -92,24 +88,71 @@ export const createIndex = async (
   }
 };
 
-export const getIndex = async (id:string) => {
-    const session = await getSession();
-    if(!session || !session.data){
-      return { success: false , message: "Unauthorized" , data : null}
-    }
-    try {
-      const res = await sql`select * from indexes where id=${id} and user_id=${session.data.id}` as Index[];
-      return {
-        success: true,
-        message: "Successfully fetched",
-        data: res[0]
-      }
-    } catch (error) {
-        console.log(error);
-        return {
-          success: false,
-          message: "something went wrong",
-          data: null
-        }
-    }
-}
+export const getIndex = async (id: string) => {
+  const session = await getSession();
+  if (!session || !session.data) {
+    return { success: false, message: "Unauthorized", data: null };
+  }
+  try {
+    const res =
+      (await sql`select * from indexes where id=${id} and user_id=${session.data.id}`) as Index[];
+    return {
+      success: true,
+      message: "Successfully fetched",
+      data: res[0],
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "something went wrong",
+      data: null,
+    };
+  }
+};
+
+export const redeploy = async (
+  id: string,
+  url: string,
+  tag: "override" | "new"
+) => {
+  const session = await getSession();
+  if (!session || !session.data) {
+    return { success: false, message: "Unauthorized" };
+  }
+  try {
+    await redis.del(`process_logs:${id}`);
+
+    await sql`UPDATE indexes SET status = 'deploying' WHERE id = ${id} and user_id = ${session.data.id}`;
+
+    tag === "new" && (await index.deleteNamespace(id));
+
+    await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url, indexId: id }),
+    });
+
+    return { success: true, message: "Deployement started" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to deploy" };
+  }
+};
+
+export const deleteIndex = async (id: string) => {
+  const session = await getSession();
+  if (!session || !session.data) {
+    return { success: false, message: "Unauthorized" };
+  }
+  try {
+    await sql`DELETE FROM indexes where id = ${id} and user_id = ${session.data.id}`;
+    await index.deleteNamespace(id);
+    return { success: true, message: "Deleted index" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Failed to deploy" };
+  }
+};
