@@ -53,7 +53,7 @@ export const { POST } = serve(async (context) => {
   console.log(response);
 
   // check if response isof type ScraperResponse
-  if (response.status !== 200 || !response.body || !response.body.data || response.body.totalLinks < 1) {
+  if (response.status !== 200 || !response.body || !response.body.data || response.body.data.length === 0) {
     console.error("Invalid response from crawling-website");
 
     await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
