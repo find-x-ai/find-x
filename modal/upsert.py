@@ -71,12 +71,12 @@ def generate_embedding(requestData: Dict):
 
         log_event("success", f"Successfully processed all {len(data)} pages", client_id)
         return {
-            "Status": "success",
+            "status": "success",
             "message": f"Successfully processed {len(data)} pages",
         }
     except Exception as e:
         log_event("error", f"Upsert failed: {str(e)}", client_id)
         return {
-            "Status": "error",
+            "status": "error",
             "message": str(e),
         }
