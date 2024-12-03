@@ -46,6 +46,7 @@ export const { POST } = serve(async (context) => {
       url: url,
       secret_key: process.env.SCRAPING_KEY || "",
       id: indexId,
+      maxURLs: 500,
     },
   });
 
