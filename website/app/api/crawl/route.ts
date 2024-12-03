@@ -23,6 +23,11 @@ interface ScraperResponse {
   totalLinks: number;
 }
 
+type UpsertResponse = {
+  status: "success" | "error";
+  message: string;
+};
+
 export const GET = async () => {
   return NextResponse.json({ message: "Hello World" });
 };
@@ -47,7 +52,7 @@ export const { POST } = serve(async (context) => {
   console.log(response);
 
   // check if response isof type ScraperResponse
-  if (response.status !== 200) {
+  if (response.status !== 200 || !response.body || !response.body.data || response.body.totalLinks < 1) {
     console.error("Invalid response from crawling-website");
 
     await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
@@ -66,7 +71,7 @@ export const { POST } = serve(async (context) => {
 
   await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
 
-  const { status } = await context.call("generate-embeddings", {
+  const { status, body } = await context.call<UpsertResponse>("generate-embeddings", {
     url: `${process.env.UPSERT_URL}`,
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -77,7 +82,7 @@ export const { POST } = serve(async (context) => {
     },
   });
 
-  if (status !== 200) {
+  if (status !== 200 || !body || body.status !== "success") {
     console.error("Invalid response from generate-embeddings");
     await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
     throw new Error("Invalid response from generate-embeddings");
