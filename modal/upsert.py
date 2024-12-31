@@ -49,7 +49,7 @@ def generate_embedding(requestData: Dict):
         upsert_url = os.environ["UPSERT_URL"]
         
         # Define batch size
-        BATCH_SIZE = 100
+        BATCH_SIZE = 10
         total_processed = 0
         
         # Process data in batches

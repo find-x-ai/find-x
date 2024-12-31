@@ -163,8 +163,16 @@ async def crawl_website(request: Dict):
                             await log_event("info", f"Skipping {url} - disallowed by robots.txt")
                             return None
 
-                        await page.goto(url, timeout=30000, wait_until="networkidle")
+                        # Modified navigation options
+                        await page.goto(
+                            url,
+                            timeout=45000,  # Increased timeout to 45 seconds
+                            wait_until="domcontentloaded"  # Changed from "networkidle" to "domcontentloaded"
+                        )
                         
+                        # Add a small delay to allow for dynamic content
+                        await asyncio.sleep(2)
+
                         # Gather tasks concurrently
                         links_task = page.eval_on_selector_all("a[href]", """
                             (baseUrl) => {
