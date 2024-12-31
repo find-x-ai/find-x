@@ -108,14 +108,14 @@ app.post(
 				token: UPSTASH_VECTOR_REST_TOKEN,
 				cache: false,
 			});
-			const namespace = index.namespace(id.toString());
 
-			const res = (await namespace.query({
+			const res = (await index.query({
 				data: query.toLowerCase(),
 				topK: 3,
 				includeVectors: false,
 				includeMetadata: true,
 				includeData: true,
+				filter: `namespace = "${id.toString()}"`,
 			})) as Chunk[];
 			let concatenatedHeader = '';
 			let context: String[] = [];
@@ -247,14 +247,13 @@ app.post('/upsert', async (c) => {
 			cache: false,
 		});
 
-		const namespace = index.namespace(client.toString());
-
 		for (let chunk of data) {
 			if (chunk.content.trim().length > 50) {
-				await namespace.upsert({
+				await index.upsert({
 					id: `${chunk.url}`,
 					data: chunk.content,
 					metadata: {
+						namespace: client.toString(),
 						title: chunk.title,
 						client: client,
 						url: chunk.url,
