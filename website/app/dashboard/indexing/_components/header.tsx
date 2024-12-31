@@ -40,10 +40,8 @@ import {
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
-type LogType = "success" | "warning" | "info" | "error";
-
 interface Log {
-  type: LogType;
+  tag?: string;
   message: string;
   timestamp: number;
 }

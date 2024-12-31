@@ -12,8 +12,6 @@ import { useSearchParams } from "next/navigation";
 import { Index } from "@/actions/types";
 import { format } from "date-fns";
 
-type LogType = "success" | "warning" | "info" | "error";
-
 interface Log {
   tag?: string;
   message: string;

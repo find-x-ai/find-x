@@ -8,7 +8,7 @@ import { useState } from "react";
 type LogType = "success" | "warning" | "info" | "error";
 
 interface Log {
-  type: LogType;
+  tag?: string;
   message: string;
   timestamp: number;
 }
