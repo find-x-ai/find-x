@@ -14,6 +14,11 @@ import asyncio
 from collections import deque
 from upstash_redis import Redis
 import time
+from tenacity import retry, stop_after_attempt, wait_exponential
+from urllib.robotparser import RobotFileParser
+import traceback
+import json
+from datetime import datetime
 
 playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "apt-get update",
@@ -69,17 +74,31 @@ async def crawl_website(request: Dict):
         redis = Redis(url=upstash_url, token=upstash_password)
         
         async def log_event(type: str, message: str):
-            log_entry = {
-                "type": type,
+            # Truncate URLs list if it's too long
+            if len(message) > 500:  # Set a reasonable limit for message length
+                if "Successfully processed URLs" in message:
+                    url_count = message.count("https://")
+                    message = f"Successfully processed {url_count} URLs in batch"
+                elif "Failed to process URLs" in message:
+                    url_count = message.count("https://")
+                    message = f"Failed to process {url_count} URLs in batch"
+
+            # Create log entry matching the frontend's expected format
+            log_entry = json.dumps({
+                "tag": type,  # Changed from 'type' to 'tag' to match frontend
                 "message": message,
-                "timestamp": int(time.time())
-            }
+                "timestamp": datetime.utcnow().isoformat()  # Changed to ISO string format
+            })
+            
             log_key = f"process_logs:{process_id}"
-            redis.lpush(log_key, str(log_entry))
+            redis.lpush(log_key, log_entry)
             redis.ltrim(log_key, 0, 999)
-            redis.expire(log_key, 86400)
+
+        # Get base_url before using it
+        base_url = get_base_url(start_url)
 
         await log_event("info", f"Starting crawl for {start_url}")
+        await log_event("info", f"Base URL identified as: {base_url}")
 
         # Initialize crawling state
         queue = deque([normalize_url(start_url)])
@@ -88,10 +107,26 @@ async def crawl_website(request: Dict):
         batch_size = 20
         request_delay = 0.2
 
-        base_url = get_base_url(start_url)
+        # Initialize robots.txt parser
+        robot_parser = None
+        async with aiohttp.ClientSession() as session:
+            try:
+                await log_event("info", "Fetching robots.txt...")
+                async with session.get(f"{base_url}/robots.txt") as response:
+                    if response.status == 200:
+                        robot_parser = RobotFileParser()
+                        robot_parser.set_url(f"{base_url}/robots.txt")
+                        content = await response.text()
+                        robot_parser.parse(content.splitlines())
+                        await log_event("info", "Successfully parsed robots.txt")
+                    else:
+                        await log_event("info", f"No robots.txt found (status code: {response.status})")
+            except Exception as e:
+                await log_event("warning", f"Could not fetch robots.txt: {str(e)}")
 
         async with async_playwright() as p:
             browser = await p.chromium.launch()
+            await log_event("info", "Browser launched successfully")
 
             batch_number = 0
             while queue:
@@ -109,243 +144,268 @@ async def crawl_website(request: Dict):
                 if not current_batch:
                     continue
 
+                await log_event("info", f"Processing batch {batch_number} with {len(current_batch)} URLs")
+                await log_event("info", f"Queue size: {len(queue)}, Visited URLs: {len(visited)}")
+
                 # Process batch concurrently
+                async def process_url_with_retry(url, page):
+                    try:
+                        # Add user agent
+                        await page.set_extra_http_headers({
+                            'User-Agent': 'Mozilla/5.0 (compatible; CustomBot/1.0; +http://example.com/bot)'
+                        })
+                        
+                        if robot_parser and not robot_parser.can_fetch("*", url):
+                            await log_event("info", f"Skipping {url} - disallowed by robots.txt")
+                            return None
+
+                        await page.goto(url, timeout=30000, wait_until="networkidle")
+                        
+                        # Gather tasks concurrently
+                        links_task = page.eval_on_selector_all("a[href]", """
+                            (baseUrl) => {
+                                const uniqueLinks = new Set();
+                                const base = new URL(baseUrl);
+                                const normalizedBase = (base.origin + base.pathname).replace(/\/+$/, '').replace('://www.', '://');
+
+                                for (const element of document.querySelectorAll('a[href]')) {
+                                    let href = element.href;
+
+                                    if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
+                                        href = href.split(/[?#]/)[0];
+                                        const normalizedHref = href.replace(/\/+$/, '').replace('://www.', '://');
+
+                                        if (normalizedHref !== normalizedBase && ((normalizedHref + '/') !== normalizedBase)) {
+                                            uniqueLinks.add(normalizedHref);
+                                        }
+                                    }
+                                }
+
+                                return Array.from(uniqueLinks);
+                            }
+                        """, url)
+
+                        images_task = page.eval_on_selector_all("img[src]", """
+                            (baseUrl) => {
+                                const images = [];
+                                for (const element of document.querySelectorAll('img[src]')) {
+                                    // Check if the image is inside a <nav> or <aside> element
+                                    if (element.closest('nav') || element.closest('aside')) {
+                                        continue;
+                                    }
+                                    let src = element.src;
+                                    if (!src.startsWith('http://') && !src.startsWith('https://')) {
+                                        src = new URL(src, baseUrl).href;
+                                    }
+                                    const alt = element.alt || 'No description available';
+                                    images.push({src, alt});
+                                }
+                                return images;
+                            }
+                        """, url)
+
+                        html_content_task = page.content()
+
+                        links, images, html_content = await asyncio.gather(
+                            links_task, images_task, html_content_task
+                        )
+
+                        # Process new links
+                        for link in links:
+                            if is_internal_link(link, base_url):
+                                normalized_link = normalize_url(link)
+                                if normalized_link not in visited and normalized_link not in queue:
+                                    queue.append(normalized_link)
+
+                        min_width = 200
+                        min_height = 200
+
+                        async def is_valid_image(img_url):
+                            try:
+                                async with aiohttp.ClientSession() as session:
+                                    async with session.get(img_url, timeout=10) as response:
+                                        if response.status == 200:
+                                            img_data = await response.read()
+                                            img = Image.open(BytesIO(img_data))
+                                            width, height = img.size
+                                            if width >= min_width and height >= min_height and (width / height < 3) and (height / width < 3):
+                                                return True
+                            except Exception as e:
+                                await log_event("warning", f"Error processing image {img_url}: {str(e)}")
+                            return False
+
+                        valid_images = []
+                        seen_alts = set()
+
+                        try:
+                            # Process images in smaller batches to avoid overwhelming the server
+                            batch_size = 5
+                            for i in range(0, len(images), batch_size):
+                                batch = images[i:i + batch_size]
+                                image_validation_tasks = [
+                                    is_valid_image(img['src']) 
+                                    for img in batch 
+                                    if img['alt'] not in seen_alts
+                                ]
+                                
+                                try:
+                                    valid_flags = await asyncio.gather(*image_validation_tasks, return_exceptions=True)
+                                    
+                                    # Process results, handling any exceptions
+                                    for img, result in zip(batch, valid_flags):
+                                        if isinstance(result, Exception):
+                                            await log_event("warning", f"Failed to validate image {img['src']}: {str(result)}")
+                                            continue
+                                            
+                                        if result and img['alt'] not in seen_alts:
+                                            valid_images.append(img)
+                                            seen_alts.add(img['alt'])
+                                                
+                                        if len(valid_images) >= 10:
+                                            break
+                                                
+                                except Exception as e:
+                                    await log_event("warning", f"Error processing image batch: {str(e)}")
+                                    continue
+                                        
+                        except Exception as e:
+                            await log_event("error", f"Error in image processing for {url}: {str(e)}")
+                            # Continue with empty images rather than failing
+                            valid_images = []
+
+                        soup = BeautifulSoup(html_content, 'html.parser')
+
+                        exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select', 'a']
+                        exclude_classes = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu']
+                        exclude_ids = ['footer', 'sidebar', 'menu', 'button', 'navbar', 'nav']
+
+                        for tag in exclude_tags:
+                            for element in soup.find_all(tag):
+                                element.decompose()
+
+                        for class_name in exclude_classes:
+                            for element in soup.find_all(class_=class_name):
+                                element.decompose()
+
+                        for id in exclude_ids:
+                            for element in soup.find_all(attrs={'id': id}):
+                                element.decompose()
+
+                        # Keep track of placeholders for tables and code blocks
+                        table_placeholders = []
+                        code_placeholders = []
+
+                        for table in soup.find_all("table"):
+                            placeholder = "<#t#>"
+                            table_placeholders.append((placeholder, str(table)))
+                            table.replace_with(placeholder)
+
+                        for pre_tag in soup.find_all("pre"):
+                            placeholder = "<#p#>"
+                            code_placeholders.append((placeholder, str(pre_tag)))
+                            pre_tag.replace_with(placeholder)
+
+                        for code_tag in soup.find_all("code"):
+                            placeholder = "<#c#>"
+                            code_placeholders.append((placeholder, str(code_tag)))
+                            code_tag.replace_with(placeholder)
+
+                        try:
+                            title = await page.title()
+                        except PlaywrightError:
+                            parsed_url = urlparse(url)
+                            title = parsed_url.netloc
+
+                        # Extract text with spaces between tag contents
+                        readable_text = soup.get_text(separator=' ').lower().replace('\n', ' ').strip()
+                        readable_text = re.sub(r'[^\x00-\x7F]', '', readable_text)
+
+                        # Replace placeholders with corresponding markdown content
+                        for placeholder, original_html in table_placeholders:
+                            markdown_table = md(original_html)
+                            readable_text = readable_text.replace(placeholder, markdown_table, 1)
+
+                        for placeholder, original_html in code_placeholders:
+                            markdown_code = md(original_html)
+                            readable_text = readable_text.replace(placeholder, markdown_code, 1)
+                      
+                        title_lower = title.lower()
+                        if readable_text.startswith(title_lower + ' '):
+                            # Remove the duplicate title
+                            markdown_output = readable_text[len(title_lower):].lstrip()
+                            if markdown_output.startswith(title_lower + ' '):
+                                summary_text = markdown_output[len(title_lower):].lstrip()
+                            else:
+                                summary_text = markdown_output
+                        else:
+                            markdown_output = readable_text
+                            summary_text = markdown_output
+
+                        def extract_text(text):
+                            if '```' in text:
+                                text = re.sub(r'```[\s\S]*?```', '', text)
+
+                            if '|' in text or '-' in text:
+                                text = re.sub(r'\|.*?\|', '', text)
+                                text = re.sub(r'-{2,}', '', text)
+
+                            sentences = text.split('.')
+
+                            return '. '.join(sentences[:2]) + '.'
+
+                        summary = extract_text(summary_text)
+
+                        return {
+                            "url": url,
+                            "title": title,
+                            "content": markdown_output,
+                            "summary": summary,
+                            "images": {"data": valid_images}
+                        }
+
+                    except PlaywrightError as e:
+                        await log_event("error", f"Failed to process {url}: {str(e)}")
+                        return None
+
                 async def process_url(url):
                     try:
                         page = await browser.new_page()
                         try:
-                            await page.goto(url, timeout=30000, wait_until="networkidle")
-                            
-                            # Gather tasks concurrently
-                            links_task = page.eval_on_selector_all("a[href]", """
-                                (baseUrl) => {
-                                    const uniqueLinks = new Set();
-                                    const base = new URL(baseUrl);
-                                    const normalizedBase = (base.origin + base.pathname).replace(/\/+$/, '').replace('://www.', '://');
-
-                                    for (const element of document.querySelectorAll('a[href]')) {
-                                        let href = element.href;
-
-                                        if ((href.startsWith('http://') || href.startsWith('https://')) && href !== base.href) {
-                                            href = href.split(/[?#]/)[0];
-                                            const normalizedHref = href.replace(/\/+$/, '').replace('://www.', '://');
-
-                                            if (normalizedHref !== normalizedBase && ((normalizedHref + '/') !== normalizedBase)) {
-                                                uniqueLinks.add(normalizedHref);
-                                            }
-                                        }
-                                    }
-
-                                    return Array.from(uniqueLinks);
-                                }
-                            """, url)
-
-                            images_task = page.eval_on_selector_all("img[src]", """
-                                (baseUrl) => {
-                                    const images = [];
-                                    for (const element of document.querySelectorAll('img[src]')) {
-                                        // Check if the image is inside a <nav> or <aside> element
-                                        if (element.closest('nav') || element.closest('aside')) {
-                                            continue;
-                                        }
-                                        let src = element.src;
-                                        if (!src.startsWith('http://') && !src.startsWith('https://')) {
-                                            src = new URL(src, baseUrl).href;
-                                        }
-                                        const alt = element.alt || 'No description available';
-                                        images.push({src, alt});
-                                    }
-                                    return images;
-                                }
-                            """, url)
-
-                            html_content_task = page.content()
-
-                            links, images, html_content = await asyncio.gather(
-                                links_task, images_task, html_content_task
-                            )
-
-                            # Process new links
-                            for link in links:
-                                if is_internal_link(link, base_url):
-                                    normalized_link = normalize_url(link)
-                                    if normalized_link not in visited and normalized_link not in queue:
-                                        queue.append(normalized_link)
-
-                            min_width = 200
-                            min_height = 200
-
-                            async def is_valid_image(img_url):
-                                try:
-                                    async with aiohttp.ClientSession() as session:
-                                        async with session.get(img_url, timeout=10) as response:
-                                            if response.status == 200:
-                                                img_data = await response.read()
-                                                img = Image.open(BytesIO(img_data))
-                                                width, height = img.size
-                                                if width >= min_width and height >= min_height and (width / height < 3) and (height / width < 3):
-                                                    return True
-                                except Exception as e:
-                                    await log_event("warning", f"Error processing image {img_url}: {str(e)}")
-                                return False
-
-                            valid_images = []
-                            seen_alts = set()
-
-                            try:
-                                # Process images in smaller batches to avoid overwhelming the server
-                                batch_size = 5
-                                for i in range(0, len(images), batch_size):
-                                    batch = images[i:i + batch_size]
-                                    image_validation_tasks = [
-                                        is_valid_image(img['src']) 
-                                        for img in batch 
-                                        if img['alt'] not in seen_alts
-                                    ]
-                                    
-                                    try:
-                                        valid_flags = await asyncio.gather(*image_validation_tasks, return_exceptions=True)
-                                        
-                                        # Process results, handling any exceptions
-                                        for img, result in zip(batch, valid_flags):
-                                            if isinstance(result, Exception):
-                                                await log_event("warning", f"Failed to validate image {img['src']}: {str(result)}")
-                                                continue
-                                            
-                                            if result and img['alt'] not in seen_alts:
-                                                valid_images.append(img)
-                                                seen_alts.add(img['alt'])
-                                                
-                                            if len(valid_images) >= 10:
-                                                break
-                                                
-                                        if len(valid_images) >= 10:
-                                            break
-                                            
-                                    except Exception as e:
-                                        await log_event("warning", f"Error processing image batch: {str(e)}")
-                                        continue
-                                        
-                            except Exception as e:
-                                await log_event("error", f"Error in image processing for {url}: {str(e)}")
-                                # Continue with empty images rather than failing
-                                valid_images = []
-
-                            soup = BeautifulSoup(html_content, 'html.parser')
-
-                            exclude_tags = ['script', 'style', 'noscript', 'iframe', 'object', 'embed', 'nav', 'aside', 'footer', 'button', 'svg', 'form', 'textarea', 'select', 'a']
-                            exclude_classes = ['nav', 'navbar', 'header', 'footer', 'sidebar', 'menu']
-                            exclude_ids = ['footer', 'sidebar', 'menu', 'button', 'navbar', 'nav']
-
-                            for tag in exclude_tags:
-                                for element in soup.find_all(tag):
-                                    element.decompose()
-
-                            for class_name in exclude_classes:
-                                for element in soup.find_all(class_=class_name):
-                                    element.decompose()
-
-                            for id in exclude_ids:
-                                for element in soup.find_all(attrs={'id': id}):
-                                    element.decompose()
-
-                            # Keep track of placeholders for tables and code blocks
-                            table_placeholders = []
-                            code_placeholders = []
-
-                            for table in soup.find_all("table"):
-                                placeholder = "<#t#>"
-                                table_placeholders.append((placeholder, str(table)))
-                                table.replace_with(placeholder)
-
-                            for pre_tag in soup.find_all("pre"):
-                                placeholder = "<#p#>"
-                                code_placeholders.append((placeholder, str(pre_tag)))
-                                pre_tag.replace_with(placeholder)
-
-                            for code_tag in soup.find_all("code"):
-                                placeholder = "<#c#>"
-                                code_placeholders.append((placeholder, str(code_tag)))
-                                code_tag.replace_with(placeholder)
-
-                            try:
-                                title = await page.title()
-                            except PlaywrightError:
-                                parsed_url = urlparse(url)
-                                title = parsed_url.netloc
-
-                            # Extract text with spaces between tag contents
-                            readable_text = soup.get_text(separator=' ').lower().replace('\n', ' ').strip()
-                            readable_text = re.sub(r'[^\x00-\x7F]', '', readable_text)
-
-                            # Replace placeholders with corresponding markdown content
-                            for placeholder, original_html in table_placeholders:
-                                markdown_table = md(original_html)
-                                readable_text = readable_text.replace(placeholder, markdown_table, 1)
-
-                            for placeholder, original_html in code_placeholders:
-                                markdown_code = md(original_html)
-                                readable_text = readable_text.replace(placeholder, markdown_code, 1)
-                          
-                            title_lower = title.lower()
-                            if readable_text.startswith(title_lower + ' '):
-                                # Remove the duplicate title
-                                markdown_output = readable_text[len(title_lower):].lstrip()
-                                if markdown_output.startswith(title_lower + ' '):
-                                    summary_text = markdown_output[len(title_lower):].lstrip()
-                                else:
-                                    summary_text = markdown_output
-                            else:
-                                markdown_output = readable_text
-                                summary_text = markdown_output
-
-                            def extract_text(text):
-                                if '```' in text:
-                                    text = re.sub(r'```[\s\S]*?```', '', text)
-
-                                if '|' in text or '-' in text:
-                                    text = re.sub(r'\|.*?\|', '', text)
-                                    text = re.sub(r'-{2,}', '', text)
-
-                                sentences = text.split('.')
-
-                                return '. '.join(sentences[:2]) + '.'
-
-                            summary = extract_text(summary_text)
-
-                            return {
-                                "url": url,
-                                "title": title,
-                                "content": markdown_output,
-                                "summary": summary,
-                                "images": {"data": valid_images}
-                            }
-
-                        except PlaywrightError as e:
-                            await log_event("error", f"Failed to process {url}: {str(e)}")
-                            return None
+                            return await process_url_with_retry(url, page)
                         finally:
                             await page.close()
                             await asyncio.sleep(request_delay)
-
                     except Exception as e:
-                        await log_event("error", f"Failed to process {url}: {str(e)}")
+                        await log_event("error", f"Failed to create page for {url}: {str(e)}")
                         return None
 
                 results = await asyncio.gather(
                     *[process_url(url) for url in current_batch]
                 )
                 
-                # Only log failed URLs
+                # Log batch results
+                successful_urls = [url for url, r in zip(batch_urls, results) if r is not None]
                 failed_urls = [url for url, r in zip(batch_urls, results) if r is None]
+                
+                if successful_urls:
+                    await log_event("info", f"Batch {batch_number}: Successfully processed {len(successful_urls)} URLs")
+                    # Log individual URLs at debug level if needed
+                    for url in successful_urls:
+                        await log_event("debug", f"Successfully processed: {url}")
+
                 if failed_urls:
-                    await log_event("error", f"Failed to process URLs: {', '.join(failed_urls)}")
+                    await log_event("error", f"Batch {batch_number}: Failed to process {len(failed_urls)} URLs")
+                    # Log individual failed URLs separately
+                    for url in failed_urls:
+                        await log_event("error", f"Failed to process: {url}")
 
                 # Add successful results to scraped_data
-                scraped_data.extend([r for r in results if r is not None])
+                new_results = [r for r in results if r is not None]
+                scraped_data.extend(new_results)
+                await log_event("info", f"Added {len(new_results)} new pages to scraped data. Total pages scraped: {len(scraped_data)}")
 
             await browser.close()
-            await log_event("success", f"Crawl completed. Successfully processed {len(scraped_data)} of {len(visited)} URLs")
+            await log_event("success", f"Crawl completed. Successfully processed {len(scraped_data)} of {len(visited)} URLs. Total unique URLs discovered: {len(visited)}")
 
         return {
             "data": scraped_data,
@@ -357,4 +417,5 @@ async def crawl_website(request: Dict):
         return {"error": str(ve)}
     except Exception as e:
         await log_event("error", f"Unexpected error: {str(e)}")
+        await log_event("error", f"Error traceback: {traceback.format_exc()}")
         return {"error": "An unexpected error occurred", "details": str(e)}
