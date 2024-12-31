@@ -73,6 +73,10 @@ async def crawl_website(request: Dict):
         # Initialize Redis client
         redis = Redis(url=upstash_url, token=upstash_password)
         
+        # Clear existing logs for this process
+        log_key = f"process_logs:{process_id}"
+        redis.delete(log_key)
+        
         async def log_event(type: str, message: str):
             # Truncate URLs list if it's too long
             if len(message) > 500:  # Set a reasonable limit for message length

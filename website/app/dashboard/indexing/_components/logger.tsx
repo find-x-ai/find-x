@@ -1,16 +1,37 @@
 import { Loader } from "@/components/ui/loader";
 import { ChevronRight, CircleCheckBig } from "lucide-react";
-import React, { useEffect, useState, useRef, SetStateAction } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  SetStateAction,
+  useMemo,
+  useCallback,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { Index } from "@/actions/types";
+import { format } from "date-fns";
 
 type LogType = "success" | "warning" | "info" | "error";
 
 interface Log {
-  type: LogType;
+  tag?: string;
   message: string;
   timestamp: number;
 }
+
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
+
+const getLogTypeColor = (tag?: string): string => {
+  const colors: Record<string, string> = {
+    success: "text-green-500",
+    error: "text-red-500",
+    warning: "text-yellow-500",
+    info: "text-blue-500",
+  };
+  return colors[tag?.toLowerCase() ?? ""] || "text-gray-500";
+};
 
 export const Logger = ({
   id,
@@ -28,36 +49,56 @@ export const Logger = ({
   const [isOpen, setIsOpen] = useState(logsOpen === "open");
   const [loading, setLoading] = useState<boolean>(false);
   const [isOver, setIsOver] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const logsContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchLogs = async () => {
+  const fetchLogs = useCallback(
+    async (retry = 0) => {
       try {
-        logs.length < 1 && setLoading(true);
+        setLoading(true);
         setIsOver(false);
+
         const res = await fetch(`/api/logs?id=${id}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const result = (await res.json()) as {
           logs: Log[];
           isOver: boolean;
           status: Index["status"];
         };
-        result.logs.length > 0 && setLogs(result.logs);
+
+        console.log("result", result.logs.length);
+
+        setLogs(result.logs);
         setIsOver(result.isOver);
         setStatus(result.status);
+        setRetryCount(0);
       } catch (error) {
-        console.log(error);
-        setLogs([
-          ...logs,
-          {
-            type: "error",
-            message: "Failed to load logs",
-            timestamp: performance.now(),
-          },
-        ]);
-      } finally {
-        logs.length > 0 && setLoading(false);
-      }
-    };
+        console.error("Error fetching logs:", error);
 
+        if (retry < MAX_RETRIES) {
+          setTimeout(() => fetchLogs(retry + 1), RETRY_DELAY * (retry + 1));
+          setRetryCount(retry + 1);
+        } else {
+          setLogs((prev) => [
+            ...prev,
+            {
+              type: "error",
+              message: `Failed to load logs after ${MAX_RETRIES} attempts`,
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, setLogs, setStatus]
+  );
+
+  useEffect(() => {
     let timeInterval: NodeJS.Timeout | undefined;
     if (!isOver) {
       fetchLogs();
@@ -69,10 +110,16 @@ export const Logger = ({
         clearInterval(timeInterval);
       }
     };
-  }, [isOpen, id, isOver]);
+  }, [isOpen, id, isOver, fetchLogs]);
 
   useEffect(() => {
     logs.length < 1 && setIsOver(false);
+  }, [logs]);
+
+  useEffect(() => {
+    if (logsContainerRef.current && logs.length > 0) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
+    }
   }, [logs]);
 
   return (
@@ -103,35 +150,39 @@ export const Logger = ({
             isOpen ? "h-[250px]" : "h-0"
           }`}
         >
-          <div className="px-4 pb-4 h-full overflow-y-auto">
-            {/* Placeholder for logs */}
-            {loading && logs.length < 1 && (
+          <div ref={logsContainerRef} className="px-4 pb-4 h-full overflow-y-auto">
+            {loading && logs.length < 1 ? (
+              <div className="text-[#656565] flex flex-col gap-2 justify-center items-center h-full text-xl">
+                <Loader className="text-blue-600" />
+                <span>
+                  Loading logs
+                  {retryCount > 0
+                    ? ` (Retry ${retryCount}/${MAX_RETRIES})`
+                    : ""}
+                  ...
+                </span>
+              </div>
+            ) : logs.length === 0 ? (
               <div className="text-[#656565] flex justify-center items-center h-full text-xl">
-                {loading ? (
-                  <span>Loading logs...</span>
-                ) : (
-                  <span>No logs available</span>
-                )}
+                <span>No logs available</span>
               </div>
-            )}
-            {logs.map((log) => (
-              <div key={log.timestamp} className="py-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">{log.timestamp}</span>
-                  <span
-                    className={`text-${
-                      log.type === "success"
-                        ? "green-600"
-                        : log.type === "error"
-                        ? "red-600"
-                        : "f0f0f0"
-                    }`}
-                  >
-                    {log.message}
-                  </span>
+            ) : (
+              logs.map((log, i) => (
+                <div key={log.timestamp} className="py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#656565]">
+                      {format(new Date(log.timestamp), "HH:mm:ss")}
+                    </span>
+                    <span className={`${getLogTypeColor(log.tag)}`}>
+                      [{log.tag}]
+                    </span>
+                    <span className={`${getLogTypeColor(log.tag)}`}>
+                      {log.message}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

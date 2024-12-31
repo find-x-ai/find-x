@@ -16,21 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     const id = request.nextUrl.searchParams.get("id");
-    console.log("id", id);
     const logs = (await redis.lrange(`process_logs:${id}`, 0, -1)) as string[];
-    console.log("logs", logs);
-    const parsedLogs = logs.map((log) => {
-      try {
-        const jsonString = log.replace(/'/g, '"');
-        return JSON.parse(jsonString) as Log;
-      } catch (parseError) {
-        return {
-          tag: "error",
-          message: `Failed to parse log entry: ${log}`,
-          timestamp: new Date().toISOString(),
-        } as Log;
-      }
-    });
     const index = await sql`SELECT * FROM indexes WHERE id = ${id}`;
     if (!index || index.length === 0 || index[0].user_id !== session.data.id) {
       return NextResponse.json(
@@ -57,6 +43,7 @@ export async function GET(request: NextRequest) {
     //   isOver,
     //   status: index[0].status,
     // });
+    console.log("logs", logs.length);
     return NextResponse.json({
       logs: logs.reverse(),
       isOver,
