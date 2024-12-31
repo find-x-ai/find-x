@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     //   status: index[0].status,
     // });
     return NextResponse.json({
-      logs: logs,
+      logs: logs.reverse(),
       isOver,
       status: index[0].status,
     });
