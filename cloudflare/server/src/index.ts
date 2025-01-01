@@ -246,11 +246,12 @@ app.post('/upsert', async (c) => {
 			token: UPSTASH_VECTOR_REST_TOKEN,
 			cache: false,
 		});
-
-		for (let chunk of data) {
-			if (chunk.content.trim().length > 50) {
+		// const baseDomain = new URL(data[0].url).hostname;
+		for (let i = 0; i < data.length; i++) {
+			const chunk = data[i];
+			if (chunk && chunk.content.trim().length > 50) {
 				await index.upsert({
-					id: `${chunk.url}`,
+					id: `${client}-${chunk.url}`,
 					data: chunk.content,
 					metadata: {
 						namespace: client.toString(),

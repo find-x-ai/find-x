@@ -13,11 +13,14 @@ interface Log {
   timestamp: number;
 }
 
-export const Screen = ({ index }: { index: Index }) => {
-  const [indexObj, setIndexObj] = useState<Index>(index);
+export const Screen = ({
+  index,
+}: {
+  index: Index;
+}) => {
+  const [indexObj, _setIndexObj] = useState<Index>(index);
   const [status, setStatus] = useState<Index["status"]>(index.status);
   const [logs, setLogs] = useState<Log[] | []>([]);
-
   return (
     <main>
       <Header

@@ -109,6 +109,6 @@ export const { POST } = serve(async (context) => {
   if (creditExists?.length === 0 || !creditExists) {
     await sql`INSERT INTO credits(index_id, total_requests, user_email) VALUES (${indexId}, 0, ${email})`;
   }
-  await sql`UPDATE indexes SET status = 'success' WHERE id = ${indexId}`;
+  await sql`UPDATE indexes SET status = 'success', content = ${response.body} WHERE id = ${indexId}`;
   return;
 });

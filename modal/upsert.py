@@ -63,7 +63,7 @@ def generate_embedding(requestData: Dict):
                 },
                 json={
                     "client": client_id,
-                    "data": batch
+                    "data": batch 
                 }
             )
             
