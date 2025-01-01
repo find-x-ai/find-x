@@ -23,41 +23,49 @@ const authOptions: NextAuthOptions = {
         throw new Error("NO profile email");
       }
       const session = Date.now().toString();
-      const userExists =
-        await sql`SELECT * FROM users WHERE email = ${profile.email}`;
+      const userExists = await sql`SELECT * FROM users WHERE email = ${profile.email}`;
 
-      if (userExists.length === 0 || !userExists) {
-        const dbRes = await sql`
-        INSERT INTO users (email, name, session)
-        VALUES (${profile.email}, ${profile.name}, ${session})
-        ON CONFLICT (email) 
-        DO UPDATE SET name = ${profile.name}, session = ${session}
-        RETURNING id
-      `;
-
-        await sql`
-          INSERT INTO plans (user_email, name, paid) 
-          VALUES (${profile.email}, 'free', 0) 
+      try {
+        // For new users
+        if (userExists.length === 0) {
+          const dbRes = await sql`
+            INSERT INTO users (email, name, session)
+            VALUES (${profile.email}, ${profile.name}, ${session})
+            RETURNING id
           `;
 
-        const res = await signInWithGoogle({
-          email: profile.email,
-          name: profile.name,
-          session,
-          id: dbRes[0].id,
-        });
+          await sql`
+            INSERT INTO plans (user_email, name, paid) 
+            VALUES (${profile.email}, 'free', 0) 
+          `;
 
-        if (!res.success) {
-          throw new Error("Failed to sign in with Google");
+          await signInWithGoogle({
+            email: profile.email,
+            name: profile.name,
+            session,
+            id: dbRes[0].id,
+          });
+        } else {
+          // For existing users, update their session
+          await sql`
+            UPDATE users 
+            SET session = ${session}, name = ${profile.name}
+            WHERE email = ${profile.email}
+          `;
+
+          await signInWithGoogle({
+            email: profile.email,
+            name: profile.name,
+            session,
+            id: userExists[0].id,
+          });
         }
+
+        return true;
+      } catch (error) {
+        console.error('Sign in error:', error);
+        return false;
       }
-      const res = await signInWithGoogle({
-        email: profile.email,
-        name: profile.name,
-        session,
-        id: userExists[0].id,
-      });
-      return true;
     },
   },
 };
