@@ -11,7 +11,9 @@ export default async function DashboardLayout({
       <Sidebar session={session} />
       <div className=" w-full h-full pt-[120px] md:pt-0 overflow-y-auto scrollbar-hide">
         <BreadcrumbComponent />
-        <div className="w-full h-[calc(100vh-120px)] md:h-[calc(100vh-60px)]">{children}</div>
+        <div className="w-full h-[calc(100vh-120px)] md:h-[calc(100vh-60px)]">
+          {children}
+        </div>
       </div>
     </main>
   );

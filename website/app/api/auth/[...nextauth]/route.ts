@@ -23,23 +23,36 @@ const authOptions: NextAuthOptions = {
         throw new Error("NO profile email");
       }
       const session = Date.now().toString();
-      const dbRes = await sql`
-      INSERT INTO users (email, name, session)
-      VALUES (${profile.email}, ${profile.name}, ${session})
-      ON CONFLICT (email) 
-      DO UPDATE SET name = ${profile.name}, session = ${session}
-      RETURNING id
-    `;
+      const userExists =
+        await sql`SELECT * FROM users WHERE email = ${profile.email}`;
 
-      const res = await signInWithGoogle({
-        email: profile.email,
-        name: profile.name,
-        session,
-        id: dbRes[0].id,
-      });
+      if (userExists.length === 0 || !userExists) {
+        const dbRes = await sql`
+        INSERT INTO users (email, name, session)
+        VALUES (${profile.email}, ${profile.name}, ${session})
+        ON CONFLICT (email) 
+        DO UPDATE SET name = ${profile.name}, session = ${session}
+        RETURNING id
+      `;
 
-      if (!res.success) {
-        throw new Error("Failed to sign in with Google");
+
+        if (dbRes[0]?.id) {
+          await sql`
+          INSERT INTO plans (user_email, name, paid) 
+          VALUES (${profile.email}, 'free', 0) 
+          `;
+        }
+
+        const res = await signInWithGoogle({
+          email: profile.email,
+          name: profile.name,
+          session,
+          id: dbRes[0].id,
+        });
+
+        if (!res.success) {
+          throw new Error("Failed to sign in with Google");
+        }
       }
       return true;
     },

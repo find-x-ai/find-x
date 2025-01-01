@@ -68,14 +68,24 @@ export const createIndex = async (
       console.error("Failed to create index");
       return { success: false, message: "Something went wrong!", name: null };
     }
+    try {
+      const res = await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url,
+          indexId: newIndex.id,
+          email: data.email,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to create index", error);
+      await sql`UPDATE indexes SET status = 'failed' WHERE id = ${newIndex.id}`;
+      return { success: false, message: "Something went wrong!", name: null };
+    }
 
-    await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ url, indexId: newIndex.id }),
-    });
     revalidatePath("/dashboard/indexing");
     return {
       success: true,

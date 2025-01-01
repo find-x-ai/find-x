@@ -2,7 +2,6 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
@@ -11,7 +10,7 @@ import { usePathname } from "next/navigation";
 
 export function BreadcrumbComponent() {
   const path = usePathname();
-  const pathArray = path.split("/").filter(Boolean);
+  const pathArray = path.split("/").filter(Boolean).map((segment) => decodeURIComponent(segment));
 
   return (
     <Breadcrumb className="z-10 md:sticky md:top-0 fixed top-[60px] right-0 w-full bg-[#111111]/90 border-b border-[#202020] backdrop-blur-md md:p-5 p-4">

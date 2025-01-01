@@ -12,8 +12,11 @@ const page = async ({ params }: { params: { name: string } }) => {
     redirect("/login");
   }
 
+  // decode the name
+  const name = decodeURIComponent(params.name);
+
   const indexes =
-    (await sql`SELECT * FROM indexes WHERE name = ${params.name} and user_id = ${session.data.id}`) as Index[];
+    (await sql`SELECT * FROM indexes WHERE name = ${name} and user_id = ${session.data.id}`) as Index[];
   if (
     !indexes ||
     indexes.length === 0 ||

@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     //   isOver,
     //   status: index[0].status,
     // });
-    console.log("logs", logs.length);
+
     return NextResponse.json({
       logs: logs.reverse(),
       isOver,
