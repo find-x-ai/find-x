@@ -35,13 +35,10 @@ const authOptions: NextAuthOptions = {
         RETURNING id
       `;
 
-
-        if (dbRes[0]?.id) {
-          await sql`
+        await sql`
           INSERT INTO plans (user_email, name, paid) 
           VALUES (${profile.email}, 'free', 0) 
           `;
-        }
 
         const res = await signInWithGoogle({
           email: profile.email,
@@ -54,6 +51,12 @@ const authOptions: NextAuthOptions = {
           throw new Error("Failed to sign in with Google");
         }
       }
+      const res = await signInWithGoogle({
+        email: profile.email,
+        name: profile.name,
+        session,
+        id: userExists[0].id,
+      });
       return true;
     },
   },
