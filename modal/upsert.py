@@ -30,22 +30,8 @@ def generate_embedding(requestData: Dict):
     upstash_redis_url = os.environ["UPSTASH_URL"]
     upstash_redis_password = os.environ["UPSTASH_PASSWORD"]
     redis = Redis(url=upstash_redis_url, token=upstash_redis_password)
-    
-    def log_event(type: str, message: str, client_id: str):
-        # Create log entry matching the frontend's expected format
-        log_entry = json.dumps({
-            "tag": type,  # Changed from 'type' to 'tag' to match frontend
-            "message": message,
-            "timestamp": datetime.utcnow().isoformat()  # Changed to ISO string format
-        })
-        log_key = f"process_logs:{client_id}"
-        redis.lpush(log_key, log_entry)
-        redis.ltrim(log_key, 0, 999)  # Keep only the last 1000 logs
 
     try:
-        log_event("info", f"Starting upserting...", client_id)
-        log_event("info", f"Processing {len(data)} pages", client_id)
-        
         upsert_url = os.environ["UPSERT_URL"]
         
         # Define batch size
@@ -71,15 +57,12 @@ def generate_embedding(requestData: Dict):
                 raise Exception(f"Upsert failed with status {response.status_code}: {response.text}")
             
             total_processed += len(batch)
-            log_event("info", f"Processed batch: {total_processed}/{len(data)} pages", client_id)
 
-        log_event("success", f"Successfully processed all {len(data)} pages", client_id)
         return {
             "status": "success",
             "message": f"Successfully processed {len(data)} pages",
         }
     except Exception as e:
-        log_event("error", f"Upsert failed: {str(e)}", client_id)
         return {
             "status": "error",
             "message": str(e),
