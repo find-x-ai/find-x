@@ -239,7 +239,6 @@ export const Header = ({
           <AlertDialog open={alertOpen}>
             <AlertDialogTrigger asChild>
               <button
-                disabled={status === "deploying"}
                 onClick={() => setAlertOpen(true)}
                 className={`px-3 disabled:cursor-not-allowed disabled:opacity-50 py-2 md:w-[120px] group bg-red-600 ${
                   status !== "deploying" && "hover:bg-red-700"

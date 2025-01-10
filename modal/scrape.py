@@ -73,36 +73,8 @@ async def crawl_website(request: Dict):
         # Initialize Redis client
         redis = Redis(url=upstash_url, token=upstash_password)
         
-        # Clear existing logs for this process
-        log_key = f"process_logs:{process_id}"
-        redis.delete(log_key)
-        
-        async def log_event(type: str, message: str):
-            # Truncate URLs list if it's too long
-            if len(message) > 500:  # Set a reasonable limit for message length
-                if "Successfully processed URLs" in message:
-                    url_count = message.count("https://")
-                    message = f"Successfully processed {url_count} URLs in batch"
-                elif "Failed to process URLs" in message:
-                    url_count = message.count("https://")
-                    message = f"Failed to process {url_count} URLs in batch"
-
-            # Create log entry matching the frontend's expected format
-            log_entry = json.dumps({
-                "tag": type,  # Changed from 'type' to 'tag' to match frontend
-                "message": message,
-                "timestamp": datetime.utcnow().isoformat()  # Changed to ISO string format
-            })
-            
-            log_key = f"process_logs:{process_id}"
-            redis.lpush(log_key, log_entry)
-            redis.ltrim(log_key, 0, 999)
-
         # Get base_url before using it
         base_url = get_base_url(start_url)
-
-        await log_event("info", f"Starting crawl for {start_url}")
-        await log_event("info", f"Base URL identified as: {base_url}")
 
         # Initialize crawling state
         queue = deque([normalize_url(start_url)])
@@ -111,26 +83,32 @@ async def crawl_website(request: Dict):
         batch_size = 20
         request_delay = 0.2
 
+        # Try to load existing state from Redis
+        process_key = f"process_{process_id}"
+        existing_state = redis.get(process_key)
+        if existing_state:
+            state_dict = json.loads(existing_state)
+            queue = deque(state_dict.get('queue', []))
+            scraped_data = state_dict.get('scrapedData', [])
+            visited = set(state_dict.get('visited', []))
+
         # Initialize robots.txt parser
         robot_parser = None
         async with aiohttp.ClientSession() as session:
             try:
-                await log_event("info", "Fetching robots.txt...")
                 async with session.get(f"{base_url}/robots.txt") as response:
                     if response.status == 200:
                         robot_parser = RobotFileParser()
                         robot_parser.set_url(f"{base_url}/robots.txt")
                         content = await response.text()
                         robot_parser.parse(content.splitlines())
-                        await log_event("info", "Successfully parsed robots.txt")
                     else:
-                        await log_event("info", f"No robots.txt found (status code: {response.status})")
+                        pass
             except Exception as e:
-                await log_event("warning", f"Could not fetch robots.txt: {str(e)}")
+                pass
 
         async with async_playwright() as p:
             browser = await p.chromium.launch()
-            await log_event("info", "Browser launched successfully")
 
             batch_number = 0
             while queue:
@@ -148,9 +126,6 @@ async def crawl_website(request: Dict):
                 if not current_batch:
                     continue
 
-                await log_event("info", f"Processing batch {batch_number} with {len(current_batch)} URLs")
-                await log_event("info", f"Queue size: {len(queue)}, Visited URLs: {len(visited)}")
-
                 # Process batch concurrently
                 async def process_url_with_retry(url, page):
                     try:
@@ -160,7 +135,6 @@ async def crawl_website(request: Dict):
                         })
                         
                         if robot_parser and not robot_parser.can_fetch("*", url):
-                            await log_event("info", f"Skipping {url} - disallowed by robots.txt")
                             return None
 
                         # Modified navigation options
@@ -243,7 +217,7 @@ async def crawl_website(request: Dict):
                                             if width >= min_width and height >= min_height and (width / height < 3) and (height / width < 3):
                                                 return True
                             except Exception as e:
-                                await log_event("warning", f"Error processing image {img_url}: {str(e)}")
+                                pass
                             return False
 
                         valid_images = []
@@ -266,7 +240,6 @@ async def crawl_website(request: Dict):
                                     # Process results, handling any exceptions
                                     for img, result in zip(batch, valid_flags):
                                         if isinstance(result, Exception):
-                                            await log_event("warning", f"Failed to validate image {img['src']}: {str(result)}")
                                             continue
                                             
                                         if result and img['alt'] not in seen_alts:
@@ -277,11 +250,9 @@ async def crawl_website(request: Dict):
                                             break
                                                 
                                 except Exception as e:
-                                    await log_event("warning", f"Error processing image batch: {str(e)}")
                                     continue
                                         
                         except Exception as e:
-                            await log_event("error", f"Error in image processing for {url}: {str(e)}")
                             # Continue with empty images rather than failing
                             valid_images = []
 
@@ -376,7 +347,6 @@ async def crawl_website(request: Dict):
                         }
 
                     except PlaywrightError as e:
-                        await log_event("error", f"Failed to process {url}: {str(e)}")
                         return None
 
                 async def process_url(url):
@@ -388,7 +358,6 @@ async def crawl_website(request: Dict):
                             await page.close()
                             await asyncio.sleep(request_delay)
                     except Exception as e:
-                        await log_event("error", f"Failed to create page for {url}: {str(e)}")
                         return None
 
                 results = await asyncio.gather(
@@ -400,24 +369,28 @@ async def crawl_website(request: Dict):
                 failed_urls = [url for url, r in zip(batch_urls, results) if r is None]
                 
                 if successful_urls:
-                    await log_event("info", f"Batch {batch_number}: Successfully processed {len(successful_urls)} URLs")
                     # Log individual URLs at debug level if needed
                     for url in successful_urls:
-                        await log_event("debug", f"Successfully processed: {url}")
+                        pass
 
                 if failed_urls:
-                    await log_event("error", f"Batch {batch_number}: Failed to process {len(failed_urls)} URLs")
                     # Log individual failed URLs separately
                     for url in failed_urls:
-                        await log_event("error", f"Failed to process: {url}")
+                        pass
 
                 # Add successful results to scraped_data
                 new_results = [r for r in results if r is not None]
                 scraped_data.extend(new_results)
-                await log_event("info", f"Added {len(new_results)} new pages to scraped data. Total pages scraped: {len(scraped_data)}")
+
+                # Update Redis with current state after each batch
+                current_state = {
+                    'queueLength': len(queue),
+                    'scrapedDataLength': len(scraped_data),
+                    'visitedLength': len(visited)
+                }
+                redis.set(process_key, json.dumps(current_state))
 
             await browser.close()
-            await log_event("success", f"Crawl completed. Successfully processed {len(scraped_data)} of {len(visited)} URLs. Total unique URLs discovered: {len(visited)}")
 
         return {
             "data": scraped_data,
@@ -425,9 +398,6 @@ async def crawl_website(request: Dict):
         }
 
     except ValueError as ve:
-        await log_event("error", f"Validation error: {str(ve)}")
         return {"error": str(ve)}
     except Exception as e:
-        await log_event("error", f"Unexpected error: {str(e)}")
-        await log_event("error", f"Error traceback: {traceback.format_exc()}")
         return {"error": "An unexpected error occurred", "details": str(e)}
