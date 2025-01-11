@@ -13,7 +13,7 @@ export const Key = ({ api_key }: { api_key: string }) => {
   };
 
   return (
-    <div className="w-full px-3 flex flex-col gap-2">
+    <div className="w-full px-3 flex flex-col gap-2 p-5">
       <span className="w-full text-start px-2">API KEY</span>
       <div className="flex w-full max-w-[400px] items-center gap-2 p-4 bg-[#141414] rounded-lg border border-[#202020]">
         <code className="flex-1 font-mono text-sm text-gray-200">

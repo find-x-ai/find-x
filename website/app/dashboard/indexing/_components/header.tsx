@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { useIndex } from "@/context/index-context";
 
 interface Log {
   tag?: string;
@@ -46,19 +47,8 @@ interface Log {
   timestamp: number;
 }
 
-export const Header = ({
-  id,
-  url,
-  status,
-  name,
-  created_at,
-}: {
-  id: string;
-  url: string;
-  status: Index["status"];
-  name: string;
-  created_at: Date;
-}) => {
+export const Header = () => {
+  const { index, setIndex } = useIndex();
   const [deployementType, setDeployementType] = useState<
     "override" | "new" | undefined
   >();
@@ -74,9 +64,14 @@ export const Header = ({
     if (!deployementType) return;
     await new Promise((res) => setTimeout(res, 0));
     setRedeployLoading(true);
-    const res = await redeploy(id, url, deployementType);
+    const res = await redeploy(
+      index!.id.toString(),
+      index!.url,
+      deployementType
+    );
     if (res.success) {
       toast.success(res.message);
+      setIndex({ ...index!, status: "deploying" });
       router.refresh();
     } else {
       toast.error(res.message);
@@ -89,7 +84,7 @@ export const Header = ({
 
   const handleDelete = async () => {
     setDeleteLoading(true);
-    const res = await deleteIndex(id);
+    const res = await deleteIndex(index!.id.toString());
     if (res.success) {
       toast.success(res.message);
     } else {
@@ -104,17 +99,17 @@ export const Header = ({
   return (
     <div className="w-full p-4 border-b border-[#202020] flex md:flex-row flex-col gap-5 justify-between items-center">
       <div className="flex flex-col gap-2 w-full">
-        <h1 className="text-2xl font-semibold">{name}</h1>
+        <h1 className="text-2xl font-semibold">{index?.name}</h1>
         <p className="text-[#656565] text-sm">
-          {created_at.toLocaleString("en-us")}
+          {index?.created_at.toLocaleString("en-us")}
         </p>
       </div>
       <div className="flex w-full md:justify-end justify-start gap-3">
         <div
           className={`flex items-center gap-2 border px-3 py-1 rounded-md ${
-            status === "success"
+            index?.status === "success"
               ? "border-green-500 text-green-500 bg-green-600/10"
-              : status === "deploying"
+              : index?.status === "deploying"
               ? "border-yellow-500 text-yellow-500 bg-yellow-600/10"
               : "border-red-500 text-red-500 bg-red-600/10"
           }`}
@@ -122,18 +117,18 @@ export const Header = ({
           <span className="relative flex h-3 w-3">
             <span
               className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                status === "success"
+                index?.status === "success"
                   ? "bg-green-600"
-                  : status === "deploying"
+                  : index?.status === "deploying"
                   ? "bg-yellow-600"
                   : "bg-red-600"
               }`}
             ></span>
             <span
               className={`relative inline-flex rounded-full h-3 w-3 ${
-                status === "success"
+                index?.status === "success"
                   ? "bg-green-600"
-                  : status === "deploying"
+                  : index?.status === "deploying"
                   ? "bg-yellow-600"
                   : "bg-red-600"
               }`}
@@ -141,9 +136,9 @@ export const Header = ({
           </span>
           <div>
             <span className="text-sm sm:text-md">
-              {status === "success"
+              {index?.status === "success"
                 ? "Ready"
-                : status === "deploying"
+                : index?.status === "deploying"
                 ? "Deploying"
                 : "Failed"}
             </span>
@@ -153,13 +148,13 @@ export const Header = ({
           <DialogTrigger asChild>
             <div>
               <button
-                disabled={status === "deploying"}
+                disabled={index?.status === "deploying"}
                 className="px-3 py-2 md:w-[120px] group hover:bg-[#181818] disabled:cursor-not-allowed disabled:opacity-50 rounded-md border border-[#202020] flex items-center justify-center gap-2"
               >
                 <span className="sm:block hidden">Redeploy</span>{" "}
                 <RotateCw
                   className={`w-5 h-5 transition-transform duration-700 ${
-                    status !== "deploying" && "group-hover:rotate-[360deg]"
+                    index?.status !== "deploying" && "group-hover:rotate-[360deg]"
                   } text-[#656565]`}
                 />
               </button>
@@ -251,13 +246,13 @@ export const Header = ({
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
                   This action cannot be undone. This will permanently delete{" "}
-                  <b className="text-white">{name}</b> and remove its data from
-                  our servers.
+                  <b className="text-white">{index?.name}</b> and remove its
+                  data from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <div className="mt-4 flex flex-col space-y-4">
                 <Label className="text-white">
-                  Type "delete {name}" to confirm:
+                  Type "delete {index?.name}" to confirm:
                 </Label>
                 <Input
                   type="text"
@@ -277,9 +272,11 @@ export const Header = ({
                 <AlertDialogAction
                   onClick={handleDelete}
                   className={`bg-red-600 flex items-center disabled:cursor-not-allowed gap-2 text-white hover:bg-red-700 ${
-                    deleteConfirmation !== `delete ${name}` ? "opacity-50" : ""
+                    deleteConfirmation !== `delete ${index?.name}`
+                      ? "opacity-50"
+                      : ""
                   }`}
-                  disabled={deleteConfirmation !== `delete ${name}`}
+                  disabled={deleteConfirmation !== `delete ${index?.name}`}
                 >
                   {deleteLoading && <Loader />}
                   <span>

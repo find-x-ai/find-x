@@ -1,9 +1,10 @@
-export default async function IndexingLayout({
+import { IndexProvider } from "@/context/index-context";
+export default function IndexingLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <main className="flex w-full h-full flex-col">
-      <div className="w-full h-full">{children}</div>
-    </main>
+    <IndexProvider>
+      <main className="flex w-full h-full flex-col">{children}</main>
+    </IndexProvider>
   );
 }

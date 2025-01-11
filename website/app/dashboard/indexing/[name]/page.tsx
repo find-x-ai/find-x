@@ -12,7 +12,6 @@ const page = async ({ params }: { params: { name: string } }) => {
     redirect("/login");
   }
 
-  // decode the name
   const name = decodeURIComponent(params.name);
 
   const indexes =
@@ -24,7 +23,7 @@ const page = async ({ params }: { params: { name: string } }) => {
   ) {
     redirect("/dashboard/indexing");
   }
-
+  
   return (
     <main className="flex flex-col w-full h-full">
       <Screen index={indexes[0]} />
