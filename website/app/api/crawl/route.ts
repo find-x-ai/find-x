@@ -60,6 +60,8 @@ export const { POST } = serve(async (context) => {
     ) {
       console.error("Invalid response from crawling-website");
 
+      console.log(response);
+
       await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
 
       await redis.lpush(

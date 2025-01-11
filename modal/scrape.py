@@ -38,6 +38,7 @@ app = App(name="link-scraper", image=playwright_image)
 @web_endpoint(label="scrape", method="POST")
 async def crawl_website(request: Dict):
     try:
+        
         def get_base_url(url):
             parsed = urlparse(url)
             netloc = parsed.netloc.replace('www.', '')
@@ -72,6 +73,15 @@ async def crawl_website(request: Dict):
 
         # Initialize Redis client
         redis = Redis(url=upstash_url, token=upstash_password)
+        process_key = f"process_{process_id}"
+
+        # Initialize with 0% progress since we're just starting
+        redis.set(process_key, json.dumps({
+            "queueLength": 0,
+            "scrapedDataLength": 0,
+            "visitedLength": 0,
+            "percentage": 0
+        }))
         
         # Get base_url before using it
         base_url = get_base_url(start_url)
@@ -84,13 +94,8 @@ async def crawl_website(request: Dict):
         request_delay = 0.2
 
         # Try to load existing state from Redis
-        process_key = f"process_{process_id}"
-        existing_state = redis.get(process_key)
-        if existing_state:
-            state_dict = json.loads(existing_state)
-            queue = deque(state_dict.get('queue', []))
-            scraped_data = state_dict.get('scrapedData', [])
-            visited = set(state_dict.get('visited', []))
+        
+   
 
         # Initialize robots.txt parser
         robot_parser = None
@@ -386,7 +391,8 @@ async def crawl_website(request: Dict):
                 current_state = {
                     'queueLength': len(queue),
                     'scrapedDataLength': len(scraped_data),
-                    'visitedLength': len(visited)
+                    'visitedLength': len(visited),
+                    'percentage': min(80, int((1 - (len(queue) / (len(visited) + len(queue)))) * 100)) if (len(visited) + len(queue)) > 0 else 0
                 }
                 redis.set(process_key, json.dumps(current_state))
 

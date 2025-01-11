@@ -52,14 +52,12 @@ export const Header = ({
   status,
   name,
   created_at,
-  setLogs,
 }: {
   id: string;
   url: string;
   status: Index["status"];
   name: string;
   created_at: Date;
-  setLogs: React.Dispatch<SetStateAction<Log[]>>;
 }) => {
   const [deployementType, setDeployementType] = useState<
     "override" | "new" | undefined
@@ -78,8 +76,8 @@ export const Header = ({
     setRedeployLoading(true);
     const res = await redeploy(id, url, deployementType);
     if (res.success) {
-      setLogs([]);
       toast.success(res.message);
+      router.refresh();
     } else {
       toast.error(res.message);
     }

@@ -22,6 +22,8 @@ def generate_embedding(requestData: Dict):
     data = requestData["data"]
     client_id = requestData["client"]
     secret_key = requestData["secret"]
+
+    process_key = f"process_{client_id}"
     
     if secret_key != key:
         return {"error": "Invalid upsert key!"}
@@ -34,11 +36,11 @@ def generate_embedding(requestData: Dict):
     try:
         upsert_url = os.environ["UPSERT_URL"]
         
-        # Define batch size
-        BATCH_SIZE = 10
-        total_processed = 0
-        
         # Process data in batches
+        BATCH_SIZE = 10
+        total_batches = (len(data) + BATCH_SIZE - 1) // BATCH_SIZE  # Calculate total number of batches
+        total_processed = 0
+
         for i in range(0, len(data), BATCH_SIZE):
             batch = data[i:i + BATCH_SIZE]
             response = requests.post(
@@ -57,6 +59,15 @@ def generate_embedding(requestData: Dict):
                 raise Exception(f"Upsert failed with status {response.status_code}: {response.text}")
             
             total_processed += len(batch)
+            current_batch = i // BATCH_SIZE + 1
+            
+            # Calculate percentage between 80-100 based on batch progress
+            percentage = 80 + int((current_batch / total_batches) * 20)
+            
+            # Get existing state and update only the percentage
+            current_state = json.loads(redis.get(process_key) or "{}")
+            current_state["percentage"] = percentage
+            redis.set(process_key, json.dumps(current_state))
 
         return {
             "status": "success",
