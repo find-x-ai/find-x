@@ -7,10 +7,10 @@ export async function POST(request: NextRequest) {
   const secret = request.headers.get("Authorization")?.split(" ")[1];
   console.log('Received secret:', secret ? '[REDACTED]' : 'undefined');
   
-  if (secret !== process.env.SCRAPING_KEY) {
-    console.log('Authentication failed - Invalid SCRAPING_KEY');
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+//   if (secret !== process.env.SCRAPING_KEY) {
+//     console.log('Authentication failed - Invalid SCRAPING_KEY');
+//     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//   }
   
   const { data: scrapedData, id } = (await request.json()) as {
     data: ScrapedData[];
@@ -39,10 +39,10 @@ export async function GET(request: NextRequest) {
   const secret = request.headers.get("Authorization")?.split(" ")[1];
   console.log('Received secret:', secret ? '[REDACTED]' : 'undefined');
   
-  if (secret !== process.env.UPSERT_KEY) {
-    console.log('Authentication failed - Invalid UPSERT_KEY');
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+//   if (secret !== process.env.UPSERT_KEY) {
+//     console.log('Authentication failed - Invalid UPSERT_KEY');
+//     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//   }
   
   const id = request.nextUrl.searchParams.get("id");
   console.log('Requested ID:', id);

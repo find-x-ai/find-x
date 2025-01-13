@@ -405,7 +405,7 @@ async def crawl_website(request: Dict):
                 res = requests.post(
                     store_url, 
                     json={"data": scraped_data, "id": process_id}, 
-                    headers={"Authorization": f"Bearer {key}"},
+                    headers={"Authorization": f"Bearer {secret_key}"},
                     timeout=30  # Add timeout to prevent hanging
                 )
                 if not res.ok:
