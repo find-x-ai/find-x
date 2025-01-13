@@ -33,102 +33,91 @@ export const GET = async () => {
 };
 
 export const { POST } = serve(async (context) => {
-  try {
-    const { url, indexId, email } = context.requestPayload as {
-      url: string;
-      indexId: string;
-      email: string;
-    };
-    
-    console.log(`Starting crawl process for URL: ${url}, IndexID: ${indexId}`);
+  const { url, indexId, email } = context.requestPayload as {
+    url: string;
+    indexId: string;
+    email: string;
+  };
 
-    // Before crawling
-    console.log('Initiating website crawling...');
-    const response = await context.call<{
-      totalLinks: number;
-      status: "success" | "error";
-    }>("crawling-website", {
-      url: `${process.env.SCRAPING_URL}`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: {
-        url: url,
-        secret_key: process.env.SCRAPING_KEY || "",
-        id: indexId,
-        maxURLs: 500,
-        store_url: process.env.STORE_URL || "",
-      },
-      retries: 3,
-      timeout: "900s",
-    });
-    console.log('Crawling completed. Response:', response.body);
+  console.log(`Starting crawl process for URL: ${url}, IndexID: ${indexId}`);
 
-    await context.run("check-crawl-response", async () => {
-      if (
-        response.body.status !== "success" ||
-        response.body.totalLinks === 0
-      ) {
-        console.error("Crawl failed:", {
-          status: response.body.status,
-          totalLinks: response.body.totalLinks,
-          indexId
-        });
-        await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
-        throw new WorkflowAbort("Invalid response from crawling-website");
-      }
-      console.log(`Crawl successful. Total links found: ${response.body.totalLinks}`);
-      await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
-    });
+  // Before crawling
+  console.log("Initiating website crawling...");
+  const response = await context.call<{
+    totalLinks: number;
+    status: "success" | "error";
+  }>("crawling-website", {
+    url: `${process.env.SCRAPING_URL}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: {
+      url: url,
+      secret_key: process.env.SCRAPING_KEY || "",
+      id: indexId,
+      maxURLs: 500,
+      store_url: process.env.STORE_URL || "",
+    },
+    retries: 3,
+    timeout: "900s",
+  });
+  console.log("Crawling completed. Response:", response.body);
 
-    // Before generating embeddings
-    console.log(`Starting embeddings generation for index: ${indexId}`);
-    const { body } = await context.call<UpsertResponse>(
-      "generate-embeddings",
-      {
-        url: `${process.env.UPSERT_URL}`,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: {
-          secret: process.env.UPSERT_KEY || "",
-          client: indexId.toString(),
-          store_url: process.env.STORE_URL || "",
-        },
-        timeout: "900s",
-      } as any
-    );
-    console.log('Embeddings generation response:', body);
-
-    await context.run("check-upsert-response", async () => {
-      if (body?.status !== "success") {
-        console.error("Embeddings generation failed:", {
-          status: body?.status,
-          indexId
-        });
-        await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
-        throw new WorkflowAbort("Invalid response from generate-embeddings");
-      }
-      
-      console.log(`Embeddings generated successfully for index: ${indexId}`);
-      await sql`UPDATE indexes SET status = 'success' WHERE id = ${indexId}`;
-      
-      const creditExists = await sql`SELECT * FROM credits WHERE index_id = ${indexId}`;
-      console.log('Credit check result:', { exists: creditExists?.length > 0, indexId });
-      
-      if (creditExists?.length === 0 || !creditExists) {
-        console.log(`Creating new credits entry for index: ${indexId}, email: ${email}`);
-        await sql`INSERT INTO credits(index_id, total_requests, user_email) VALUES (${indexId}, 0, ${email})`;
-      }
-    });
-  } catch (error) {
-    if (error instanceof WorkflowAbort) {
-      console.error('Workflow aborted:', error.message);
-      throw error;
-    } else {
-      console.error("Unexpected error:", {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
+  await context.run("check-crawl-response", async () => {
+    if (response.body.status !== "success" || response.body.totalLinks === 0) {
+      console.error("Crawl failed:", {
+        status: response.body.status,
+        totalLinks: response.body.totalLinks,
+        indexId,
       });
-      throw new WorkflowAbort("An unexpected error occurred");
+      await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
+      throw new WorkflowAbort("Invalid response from crawling-website");
     }
-  }
+    console.log(
+      `Crawl successful. Total links found: ${response.body.totalLinks}`
+    );
+    await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
+  });
+
+  // Before generating embeddings
+  console.log(`Starting embeddings generation for index: ${indexId}`);
+  const { body } = await context.call<UpsertResponse>("generate-embeddings", {
+    url: `${process.env.UPSERT_URL}`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: {
+      secret: process.env.UPSERT_KEY || "",
+      client: indexId.toString(),
+      store_url: process.env.STORE_URL || "",
+    },
+    timeout: "900s",
+  } as any);
+  console.log("Embeddings generation response:", body);
+
+  await context.run("check-upsert-response", async () => {
+    if (body?.status !== "success") {
+      console.error("Embeddings generation failed:", {
+        status: body?.status,
+        indexId,
+      });
+      await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
+      throw new WorkflowAbort("Invalid response from generate-embeddings");
+    }
+
+    console.log(`Embeddings generated successfully for index: ${indexId}`);
+    await sql`UPDATE indexes SET status = 'success' WHERE id = ${indexId}`;
+
+    const creditExists =
+      await sql`SELECT * FROM credits WHERE index_id = ${indexId}`;
+    console.log("Credit check result:", {
+      exists: creditExists?.length > 0,
+      indexId,
+    });
+
+    if (creditExists?.length === 0 || !creditExists) {
+      console.log(
+        `Creating new credits entry for index: ${indexId}, email: ${email}`
+      );
+      await sql`INSERT INTO credits(index_id, total_requests, user_email) VALUES (${indexId}, 0, ${email})`;
+    }
+  });
 });
