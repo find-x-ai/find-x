@@ -13,7 +13,7 @@ export const GET = async (req: NextRequest) => {
     scrapedDataLength: number;
     visitedLength: number;
   };
-  console.log(processData);
+  // console.log(processData);
   if (!processData) {
     return NextResponse.json({
       queueLength: 0,

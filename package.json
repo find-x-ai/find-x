@@ -1,0 +1,7 @@
+{
+    "name": "find-x-ai",
+    "type": "module",
+    "scripts": {
+        "start": "node scripts/start.js"
+    }
+}

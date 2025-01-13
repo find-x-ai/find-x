@@ -1,8 +1,7 @@
 import { serve } from "@upstash/workflow/nextjs";
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { redis } from "@/lib/db";
-import { WorkflowAbort } from '@upstash/workflow';
+import { WorkflowAbort } from "@upstash/workflow";
 
 interface ScrapedImage {
   src: string;
@@ -51,41 +50,28 @@ export const { POST } = serve(async (context) => {
         id: indexId,
         maxURLs: 500,
       },
+      retries: 3,
+      timeout: "900s",
     });
-    if (
-      response.status !== 200 ||
-      !response.body ||
-      !response.body.data ||
-      response.body.data.length === 0
-    ) {
-      console.error("Invalid response from crawling-website");
 
-      console.log(response);
+    console.log("response", response);
+    console.log("response.body", response.body);
 
-      await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
-
-      await redis.lpush(
-        `scraper_logs:${indexId}`,
-        JSON.stringify({
-          tag: "error",
-          message: "Invalid response from crawling-website",
-          timestamp: new Date().toISOString(),
-        })
-      );
-
-      throw new WorkflowAbort("Invalid response from crawling-website");
-    }
-
-    await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
-
-    await redis.lpush(
-      `scraper_logs:${indexId}`,
-      JSON.stringify({
-        tag: "info",
-        message: "Waiting for upserting...",
-        timestamp: new Date().toISOString(),
-      })
-    );
+    await context.run("check-crawl-response", async () => {
+      if (
+        response.status !== 200 ||
+        !response.body ||
+        !response.body.data ||
+        response.body.data.length === 0
+      ) {
+        console.error("Invalid response from crawling-website");
+        console.log(response);
+        await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
+        throw new WorkflowAbort("Invalid response from crawling-website");
+      } else {
+        await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
+      }
+    });
 
     const { status, body } = await context.call<UpsertResponse>(
       "generate-embeddings",
@@ -98,22 +84,24 @@ export const { POST } = serve(async (context) => {
           secret: process.env.UPSERT_KEY || "",
           client: indexId.toString(),
         },
-      }
+        timeout: "900s",
+      } as any
     );
 
-    if (status !== 200 || !body || body.status !== "success") {
-      console.error("Invalid response from generate-embeddings");
-      await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
-      throw new WorkflowAbort("Invalid response from generate-embeddings");
-    }
-    // const plan = await sql`SELECT * FROM plans WHERE user_email = ${email}`;
-    const creditExists =
-      await sql`SELECT * FROM credits WHERE index_id = ${indexId}`;
-    if (creditExists?.length === 0 || !creditExists) {
-      await sql`INSERT INTO credits(index_id, total_requests, user_email) VALUES (${indexId}, 0, ${email})`;
-    }
-    await sql`UPDATE indexes SET status = 'success', content = ${response.body} WHERE id = ${indexId}`;
-    return;
+    await context.run("check-upsert-response", async () => {
+      if (status !== 200 || !body || body.status !== "success") {
+        console.error("Invalid response from generate-embeddings");
+        await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
+        throw new WorkflowAbort("Invalid response from generate-embeddings");
+      } else {
+        const creditExists =
+          await sql`SELECT * FROM credits WHERE index_id = ${indexId}`;
+        if (creditExists?.length === 0 || !creditExists) {
+          await sql`INSERT INTO credits(index_id, total_requests, user_email) VALUES (${indexId}, 0, ${email})`;
+        }
+        await sql`UPDATE indexes SET status = 'success', content = ${response.body} WHERE id = ${indexId}`;
+      }
+    });
   } catch (error) {
     if (error instanceof WorkflowAbort) {
       throw error;
