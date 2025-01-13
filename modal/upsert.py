@@ -33,19 +33,25 @@ def generate_embedding(requestData: Dict):
     redis = Redis(url=upstash_redis_url, token=upstash_redis_password)
 
     try:
-        data = requests.get(store_url, params={"id": client_id}).json()
-        if data.status != 200:
-            raise Exception(data.get("error"))
-        data = data["data"]
+        response = requests.get(store_url, params={"id": client_id}, headers={"Authorization": f"Bearer {key}"})
+        if not response.ok:
+            raise Exception(f"Failed to fetch data: {response.status_code} - {response.text}")
+        
+        data = response.json()
+        if "data" not in data:
+            raise Exception("Invalid response format: missing 'data' field")
+            
+        pages_data = data["data"]
+        
         upsert_url = os.environ["UPSERT_URL"]
         
         # Process data in batches
         BATCH_SIZE = 10
-        total_batches = (len(data) + BATCH_SIZE - 1) // BATCH_SIZE  # Calculate total number of batches
+        total_batches = (len(pages_data) + BATCH_SIZE - 1) // BATCH_SIZE
         total_processed = 0
 
-        for i in range(0, len(data), BATCH_SIZE):
-            batch = data[i:i + BATCH_SIZE]
+        for i in range(0, len(pages_data), BATCH_SIZE):
+            batch = pages_data[i:i + BATCH_SIZE]
             response = requests.post(
                 upsert_url,
                 headers={
@@ -74,7 +80,7 @@ def generate_embedding(requestData: Dict):
 
         return {
             "status": "success",
-            "message": f"Successfully processed {len(data)} pages",
+            "message": f"Successfully processed {len(pages_data)} pages",
         }
     except Exception as e:
         return {

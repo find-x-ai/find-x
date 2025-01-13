@@ -72,7 +72,7 @@ export const { POST } = serve(async (context) => {
       }
     });
 
-    const { status, body } = await context.call<UpsertResponse>(
+    const { body } = await context.call<UpsertResponse>(
       "generate-embeddings",
       {
         url: `${process.env.UPSERT_URL}`,
@@ -88,11 +88,12 @@ export const { POST } = serve(async (context) => {
     );
 
     await context.run("check-upsert-response", async () => {
-      if (status !== 200 || !body || body.status !== "success") {
+      if (body?.status !== "success") {
         console.error("Invalid response from generate-embeddings");
         await sql`UPDATE indexes SET status = 'failed' WHERE id = ${indexId}`;
         throw new WorkflowAbort("Invalid response from generate-embeddings");
       } else {
+        await sql`UPDATE indexes SET status = 'success' WHERE id = ${indexId}`;
         const creditExists =
           await sql`SELECT * FROM credits WHERE index_id = ${indexId}`;
         if (creditExists?.length === 0 || !creditExists) {

@@ -402,15 +402,23 @@ async def crawl_website(request: Dict):
             await browser.close()
             # store scraped data in database by api call http
             try:
-                res = requests.post(store_url, json={"data": scraped_data, "id": process_id})
-                if res.status_code != 200:
-                    raise Exception("Failed to store scraped data")
+                res = requests.post(
+                    store_url, 
+                    json={"data": scraped_data, "id": process_id}, 
+                    headers={"Authorization": f"Bearer {key}"},
+                    timeout=30  # Add timeout to prevent hanging
+                )
+                if not res.ok:
+                    error_msg = f"Failed to store scraped data: {res.status_code} - {res.text}"
+                    raise Exception(error_msg)
+
             except Exception as e:
-                print(e)
+                raise Exception(f"Failed to store scraped data: {str(e)}")
 
         return {
             "status": "success",
-            "totalLinks": len(visited)
+            "totalLinks": len(visited),
+            "scrapedLinks": len(scraped_data)
         }
 
     except ValueError as ve:
