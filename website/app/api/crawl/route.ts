@@ -40,7 +40,10 @@ export const { POST } = serve(async (context) => {
       email: string;
     };
     // Crawl whole website
-    const response = await context.call<ScraperResponse>("crawling-website", {
+    const response = await context.call<{
+      totalLinks: number;
+      status: "success" | "error";
+    }>("crawling-website", {
       url: `${process.env.SCRAPING_URL}`,
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,20 +52,16 @@ export const { POST } = serve(async (context) => {
         secret_key: process.env.SCRAPING_KEY || "",
         id: indexId,
         maxURLs: 500,
+        store_url: process.env.STORE_URL || "",
       },
       retries: 3,
       timeout: "900s",
     });
 
-    console.log("response", response);
-    console.log("response.body", response.body);
-
     await context.run("check-crawl-response", async () => {
       if (
-        response.status !== 200 ||
-        !response.body ||
-        !response.body.data ||
-        response.body.data.length === 0
+        response.body.status !== "success" ||
+        response.body.totalLinks === 0
       ) {
         console.error("Invalid response from crawling-website");
         console.log(response);
@@ -80,9 +79,9 @@ export const { POST } = serve(async (context) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: {
-          data: response.body.data,
           secret: process.env.UPSERT_KEY || "",
           client: indexId.toString(),
+          store_url: process.env.STORE_URL || "",
         },
         timeout: "900s",
       } as any
@@ -99,7 +98,6 @@ export const { POST } = serve(async (context) => {
         if (creditExists?.length === 0 || !creditExists) {
           await sql`INSERT INTO credits(index_id, total_requests, user_email) VALUES (${indexId}, 0, ${email})`;
         }
-        await sql`UPDATE indexes SET status = 'success', content = ${response.body} WHERE id = ${indexId}`;
       }
     });
   } catch (error) {

@@ -1,4 +1,5 @@
 import re
+import requests
 from bs4 import BeautifulSoup
 import os
 import modal
@@ -29,7 +30,8 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "playwright install-deps chromium",
     "playwright install chromium",
     "pip install markdownify beautifulsoup4 pillow aiohttp",
-    "pip install upstash-redis"
+    "pip install upstash-redis", 
+    "pip install requests"
 )
 
 app = App(name="link-scraper", image=playwright_image)
@@ -57,6 +59,7 @@ async def crawl_website(request: Dict):
         start_url = request.get('url')
         key = request.get('secret_key')
         process_id = request.get('id')
+        store_url = request.get('store_url')
         
         if not process_id:
             raise ValueError("Process ID is missing in the request")
@@ -397,9 +400,16 @@ async def crawl_website(request: Dict):
                 redis.set(process_key, json.dumps(current_state))
 
             await browser.close()
+            # store scraped data in database by api call http
+            try:
+                res = requests.post(store_url, json={"data": scraped_data, "id": process_id})
+                if res.status_code != 200:
+                    raise Exception("Failed to store scraped data")
+            except Exception as e:
+                print(e)
 
         return {
-            "data": scraped_data,
+            "status": "success",
             "totalLinks": len(visited)
         }
 

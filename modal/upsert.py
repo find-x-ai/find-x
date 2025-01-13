@@ -4,7 +4,6 @@ import os
 import modal
 from upstash_vector import Index
 from upstash_redis import Redis
-import time
 import requests
 import json
 from datetime import datetime
@@ -19,9 +18,9 @@ app = App(name="upsert", image=image)
 @web_endpoint(label="upsert", method="POST")
 def generate_embedding(requestData: Dict):
     key = os.environ["AUTH"]
-    data = requestData["data"]
     client_id = requestData["client"]
     secret_key = requestData["secret"]
+    store_url = requestData["store_url"]
 
     process_key = f"process_{client_id}"
     
@@ -34,6 +33,10 @@ def generate_embedding(requestData: Dict):
     redis = Redis(url=upstash_redis_url, token=upstash_redis_password)
 
     try:
+        data = requests.get(store_url, params={"id": client_id}).json()
+        if data.status != 200:
+            raise Exception(data.get("error"))
+        data = data["data"]
         upsert_url = os.environ["UPSERT_URL"]
         
         # Process data in batches
