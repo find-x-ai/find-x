@@ -418,10 +418,24 @@ async def crawl_website(request: Dict):
         return {
             "status": "success",
             "totalLinks": len(visited),
-            "scrapedLinks": len(scraped_data)
+            "scrapedLinks": len(scraped_data),
+            "indexId": process_id
         }
 
     except ValueError as ve:
-        return {"error": str(ve)}
+        return {
+            "status": "error",
+            "totalLinks": 0,
+            "scrapedLinks": 0,
+            "indexId": process_id,
+            "error": str(ve)
+        }
     except Exception as e:
-        return {"error": "An unexpected error occurred", "details": str(e)}
+        return {
+            "status": "error",
+            "totalLinks": 0,
+            "scrapedLinks": 0,
+            "indexId": process_id,
+            "error": "An unexpected error occurred",
+            "details": str(e)
+        }
