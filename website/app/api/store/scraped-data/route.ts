@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   try {
     await sql`UPDATE indexes SET content = ${{
       data: scrapedData,
-    }} WHERE id = ${id}`;
+    }}, total_links = ${scrapedData.length} WHERE id = ${id}`;
     console.log('Successfully updated database');
   } catch (error) {
     console.error("Error storing scraped data:", error);

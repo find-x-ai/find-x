@@ -69,6 +69,12 @@ export const Progress = () => {
                 : "Upserting..."
               : "Scraping..."}
           </p>
+          <p className="ml-auto">Progress: {processData.percentage}%</p>
+          <p className="ml-auto">Queue Length: {processData.queueLength}</p>
+          <p className="ml-auto">
+            Scraped Data Length: {processData.scrapedDataLength}
+          </p>
+          <p className="ml-auto">Visited Length: {processData.visitedLength}</p>
         </div>
         <div className="w-full relative h-2 bg-[#202020] rounded-full">
           <span

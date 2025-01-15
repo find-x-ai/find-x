@@ -33,16 +33,16 @@ export const GET = async () => {
 };
 
 export const { POST } = serve(async (context) => {
-  const { url, indexId, email } = context.requestPayload as {
-    url: string;
+  const { website, indexId, email } = context.requestPayload as {
+    website: string;
     indexId: string;
     email: string;
   };
 
-  console.log(`Starting crawl process for URL: ${url}, IndexID: ${indexId}`);
+  // console.log(`Starting crawl process for URL: ${url}, IndexID: ${indexId}`);
 
   // Before crawling
-  console.log("Initiating website crawling...");
+  // console.log("Initiating website crawling...");
   const response = await context.call<{
     totalLinks: number;
     status: "success" | "error";
@@ -51,16 +51,16 @@ export const { POST } = serve(async (context) => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: {
-      url: url,
+      url: website,
       secret_key: process.env.SCRAPING_KEY || "",
       id: indexId,
       maxURLs: 500,
       store_url: process.env.STORE_URL || "",
     },
-    retries: 3,
-    timeout: "900s",
+    retries: 0,
+    timeout: "900s"
   });
-  console.log("Crawling completed. Response:", response.body);
+  // console.log("Crawling completed. Response:", response.body);
 
   await context.run("check-crawl-response", async () => {
     if (response.body.status !== "success" || response.body.totalLinks === 0) {
@@ -78,8 +78,6 @@ export const { POST } = serve(async (context) => {
     await sql`UPDATE indexes SET total_links = ${response.body.totalLinks} WHERE id = ${indexId}`;
   });
 
-  // Before generating embeddings
-  console.log(`Starting embeddings generation for index: ${indexId}`);
   const { body } = await context.call<UpsertResponse>("generate-embeddings", {
     url: `${process.env.UPSERT_URL}`,
     method: "POST",
@@ -89,8 +87,9 @@ export const { POST } = serve(async (context) => {
       client: indexId.toString(),
       store_url: process.env.STORE_URL || "",
     },
-    timeout: "900s",
-  } as any);
+    retries: 0,
+    timeout: "900s"
+  });
   console.log("Embeddings generation response:", body);
 
   await context.run("check-upsert-response", async () => {

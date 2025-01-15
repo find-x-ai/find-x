@@ -69,13 +69,13 @@ export const createIndex = async (
       return { success: false, message: "Something went wrong!", name: null };
     }
     try {
-      const res = await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
+      await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          url,
+          website: url,
           indexId: newIndex.id,
           email: data.email,
         }),
