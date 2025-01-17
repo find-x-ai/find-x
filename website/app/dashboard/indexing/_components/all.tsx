@@ -142,7 +142,7 @@ export function AllIndexes({ indexes }: { indexes: Index[] }) {
                       </span>
                     </div>
                     <div className=" hidden sm:block w-full">
-                      <span>{index.content.data.length} pages</span>
+                      <span>{index.content?.data?.length || 0} pages</span>
                     </div>
                     <div className="text-start hidden xl:block w-full">
                       <span>{index.url}</span>
