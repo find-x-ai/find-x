@@ -60,8 +60,8 @@ export const createIndex = async (
     }
     const apiKey = "fx_" + nanoid(16) + "-" + nanoid(16);
     const [newIndex] = (await sql`
-      insert into indexes (name, url, user_id, total_links, api_key, last_deploy, status) 
-      values (${name}, ${mainUrl}, ${id}, 0, ${apiKey}, ${timeNow}, 'deploying') 
+      insert into indexes (name, url, user_id, api_key, last_deploy, status) 
+      values (${name}, ${mainUrl}, ${id}, ${apiKey}, ${timeNow}, 'deploying') 
       returning *`) as Index[];
 
     if (!newIndex) {
@@ -69,15 +69,18 @@ export const createIndex = async (
       return { success: false, message: "Something went wrong!", name: null };
     }
     try {
-      await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
+      fetch(`${process.env.SERVER_URL}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          website: url,
-          indexId: newIndex.id,
-          email: data.email,
+          url,
+          id: newIndex.id,
+          max_url: 1000,
+          scrape_api: process.env.SCRAPE_URL,
+          upsert_api: process.env.UPSERT_URL,
+          secret_key: process.env.SERVER_SECRET,
         }),
       });
     } catch (error) {
@@ -132,19 +135,22 @@ export const redeploy = async (
   }
   try {
     await redis.del(`process_logs:${id}`);
-
     await sql`UPDATE indexes SET status = 'deploying' WHERE id = ${id} and user_id = ${session.data.id}`;
-
     tag === "new" && (await index.deleteNamespace(id));
-
-    await fetch(`${process.env.UPSTASH_WORKFLOW_URL}/api/crawl`, {
+    fetch(`${process.env.SERVER_URL}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url, indexId: id }),
+      body: JSON.stringify({
+        url,
+        id,
+        max_url: 1000,
+        scrape_api: process.env.SCRAPE_URL,
+        upsert_api: process.env.UPSERT_URL,
+        secret_key: process.env.SERVER_SECRET,
+      }),
     });
-
     return { success: true, message: "Deployement started" };
   } catch (error) {
     console.log(error);

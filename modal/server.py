@@ -1,108 +1,116 @@
-# from modal import Stub, build, enter, method, web_endpoint,Image
-# from typing import Dict
-# import os
-# import modal
+import psycopg2
+import json
+import os
+import modal
+from modal import App, current_function_call_id
+import requests
+from typing import Dict
+from neon_db import connect_to_db, upsert_scraped_data, status_update, function_call_id
 
-# image = Image.debian_slim().pip_install(
-#     "upstash_vector",
-#     "openai"
-# )
+# Modal setup
+image = modal.Image.debian_slim(python_version="3.10").run_commands(
+    "pip install requests",
+    "pip install psycopg2-binary"
+)
 
-# stub = Stub(name="find-x", image=image)
+app = App(name="Central-server", image=image)
 
-# @stub.function(timeout=1000)
-# @web_endpoint(label="embed",method="POST")
-# def generate_embedding(requestData : Dict):
-#     #imports
-    
-#     from upstash_vector import Index
+@app.function(secrets=[modal.Secret.from_name("Database"), modal.Secret.from_name("server")], timeout=3600)
+@modal.web_endpoint(label="central-server", method="POST")
+async def api_call(request: Dict):
+    """
+    Handles scraping and upserting requests.
+    Updates the status to `deploying` after successful scraping and Neon DB upsertion,
+    or `failed` if upserting to Upstash fails.
+    """
+    try:
+        # request header
+        secret_key = request['secret_key']
+        server_secret = os.environ["SERVER_SECRET"]
 
-#     data = requestData["data"]  #data is array of dict i.e. [{url: string , content: string }]
-#     clientId = requestData["client"] #client id is string
-#     my_list=[]
-    
-#     return {"message": "not allowed!"}
-    
-#     for id, item in enumerate(data):
-#         url = item.get("url", "")
-#         content = item.get("content", "")
-#         my_list.append({'content':content,'url':url})
-    
-#     #environmen variables
-#     upstash_token = os.environ["Token"] 
-#     upstash_url = os.environ["URL"]
-    
-#     index = Index(url=upstash_url, token=upstash_token) #initialize the vector index
 
-#     #upserting vector data
-#     for id, value in enumerate(my_list):
-#         index.upsert(
-#             vectors=[
-#                     (f"{clientId}_{str(id)}", value['content'], {"client_id": clientId,"Data": value}),
-#                 ],
-#             namespace=clientId
-#             )
-    
-#     return {
-#         "Status": "success",
-#         "message": "successfully generated embedding...",
-#     }
-    
-# @stub.function()
-# @web_endpoint(label="query",method="POST")
-# def start_query(requestData : Dict):
-#     from fastapi.responses import StreamingResponse
-#     query = requestData["query"]
-#     client= requestData["client"]
-#     #res = Model.query_data.remote(query)
-#     return {"message": "not allowed!"}
-#     return StreamingResponse(Model.query_data.remote_gen(client,query), media_type="text/event-stream")
+        if secret_key != server_secret:
+            raise ValueError("Invalid secret key")
+        # Extract and validate input data
+        url = request.get("url")
+        process_id = request.get("id")
+        scrape_api = request.get("scrape_api")
+        upsert_api = request.get("upsert_api")
+        max_url = request.get("max_url",None)
 
-# @stub.cls(secrets=[modal.Secret.from_name("upstash-token"), modal.Secret.from_name("upstash-url"),modal.Secret.from_name("open-ai-key")])
-# class Model:
-#     @build()
-#     @enter()
-#     def start_model(self):
+        # load database url from environment variables
+        database_url = os.environ["DATABASE_URL"]
+
+        # load secrets from environment variables
+        crawl_secret = os.environ["CRAWL_SECRET"]
+        upsert_secret = os.environ["UPSERT_SECRET"]
+
+        if not url or not process_id:
+            raise ValueError("Missing required fields in the input data.")
+
+        input_data = {"url": url, "id": process_id, "max_url":max_url, "secret_key": crawl_secret}
+
+        # Call the scraping API
+        scrape_response = requests.post(
+            scrape_api,
+            json=input_data,
+            headers={"Content-Type": "application/json"},
+            timeout=3600
+        )
+        scrape_info = scrape_response.json()
+        if not scrape_response.ok or scrape_info.get("error") or not scrape_info.get("data"):
+            error_msg = scrape_info.get("error", "No data returned")
+            raise Exception(f"Scraping failed: {error_msg}")
+
+        # Update scrape function call ID in the database
+        conn = connect_to_db(database_url)
         
-#         from upstash_vector import Index
-#         from openai import OpenAI
-#         upstash_token = os.environ["Token"] 
-#         upstash_url = os.environ["URL"]
-#         self.index = Index(url=upstash_url, token=upstash_token)
-#         open_ai_key = os.environ["open_ai_key"]
-#         self.client = OpenAI(api_key=open_ai_key)
-#         self.instructions = """enter instructions here"""
-        
-#     @method()
-#     def query_data(self,client:str,query:str):
-#         from fastapi.responses import StreamingResponse
-#         result = self.index.query(
-#             data=query,
-#             top_k=3,
-#             namespace=client,
-#             include_vectors=False,
-#             include_metadata=True
-#         ) 
-#         array_of_context = []
-        
-#         for chunk in result:
-#             info=chunk.metadata.get("Data")
-#             temp = {'url': info["url"] , 'content': info["content"]}
-#             array_of_context.append(temp)
-            
-         
-#         page1 = [array_of_context[0]["url"] , array_of_context[0]["content"]]
-#         page2 = [array_of_context[1]["url"] , array_of_context[1]["content"]]
 
-        
-#         data = f"<message><query>{query}</query><chunks><page><url>{page1[0]}</url><content>{page1[1]}</content></page><page><url>{page2[0]}</url><content>{page2[1]}</content></page></chunks></message>" 
-#         print(data)
-#         for chunk in self.client.chat.completions.create(
-#                        model="gpt-3.5-turbo",
-#                        messages=[{"role": "system", "content": self.instructions},{"role": "user", "content": data}],
-#                        stream=True,
-#                        ):
-#             content = chunk.choices[0].delta.content
-#             if content is not None:
-#                print(content, end="")
-#                yield content
+        # Store scraped data in Neon DB
+        upsert_result = upsert_scraped_data(conn, {"data": scrape_info["data"]}, process_id)
+        if upsert_result.get("status") != "success":
+            status_update(conn, process_id, "failed")
+            conn.close()
+            raise Exception("Database upsertion failed.")
+
+        # Update status to `deploying`
+        status_update(conn, process_id, "deploying")
+
+        # Call the Upstash API
+        upsert_payload = {"client": process_id, "data": scrape_info["data"], "secret_key": upsert_secret}
+        upsert_response = requests.post(
+            upsert_api,
+            json=upsert_payload,
+            headers={"Content-Type": "application/json"},
+            timeout=3600
+        )
+
+        upstash_info = upsert_response.json()
+
+       
+
+        # Check for HTTP or logical errors in Upstash response
+        if not upsert_response.ok or "error" in upstash_info or not upstash_info.get("message"):
+            status_update(conn, process_id, "failed")
+            conn.close()
+            raise Exception(f"Upstash upsertion failed: {upstash_info.get('error', 'Unknown error')}")
+
+        if "Expected a list" in upstash_info.get("message", ""):
+            status_update(conn, process_id, "failed")
+            conn.close()
+            raise Exception(f"Upstash response error: {upstash_info.get('message')}")
+
+        # Update status to `success` upon successful upsertion
+        status_update(conn, process_id, "success")
+        conn.close()
+
+        return {
+            "status": "success",
+            "scrape_message": "Scraping and database storage successful",
+            "upsert_message": upstash_info.get("message", "Upsert completed successfully"),
+        }
+
+    except Exception as e:
+        # Log error and return response
+        return {"status": "error", "message": str(e)}
+

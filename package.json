@@ -1,7 +1,11 @@
 {
-    "name": "find-x-ai",
-    "type": "module",
-    "scripts": {
-        "start": "node scripts/start.js"
-    }
+  "name": "find-x-ai",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/web.js",
+    "modal:server": "cd modal && python -m modal serve server.py",
+    "modal:scrape": "cd modal && python -m modal serve scrape.py",
+    "modal:upsert": "cd modal && python -m modal serve upsert.py",
+    "modal": "node scripts/modal.js"
+  }
 }

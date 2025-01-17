@@ -1,27 +1,21 @@
 import re
-import requests
 from bs4 import BeautifulSoup
 import os
 import modal
-from modal import App, build, enter, method, web_endpoint,current_function_call_id
+from modal import App, web_endpoint,current_function_call_id
 from typing import Dict
 import aiohttp
 from PIL import Image
 from io import BytesIO
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse
 from playwright.async_api import async_playwright, Error as PlaywrightError
 from markdownify import markdownify as md
 import asyncio
 from collections import deque
 from upstash_redis import Redis
-import time
-from tenacity import retry, stop_after_attempt, wait_exponential
 from urllib.robotparser import RobotFileParser
-import traceback
 import json
-from datetime import datetime
 from neon_db import connect_to_db , function_call_id
-import psycopg2
 
 playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "apt-get update",
@@ -39,11 +33,14 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
 
 app = App(name="link-scraper", image=playwright_image)
 
-@app.function(secrets=[modal.Secret.from_name("upstash"),modal.Secret.from_name("Database")], timeout=3600)
+@app.function(secrets=[modal.Secret.from_name("upstash"),modal.Secret.from_name("Database"), modal.Secret.from_name("server")], timeout=3600)
 @web_endpoint(label="scrape", method="POST")
 async def crawl_website(request: Dict):
+    secret_key = request['secret_key']
+    crawl_secret = os.environ["CRAWL_SECRET"]
+    if secret_key != crawl_secret:
+        raise ValueError("Invalid secret key")
     start_url = request.get('url')
-    key = request.get('secret_key')
     process_id = request.get('id')
     max_url = request.get('max_url',None)
     Database_url=os.environ["DATABASE_URL"]
@@ -79,8 +76,6 @@ async def crawl_website(request: Dict):
         upstash_password = os.environ["UPSTASH_REDIS_PASS"]
         # Database_url = os.environ["DATABASE_URL"]
 
-        if key != secret_key:
-            raise ValueError("Invalid secret key")
         if not start_url:
             raise ValueError("URL is missing in the request")
 

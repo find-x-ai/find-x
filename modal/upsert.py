@@ -5,11 +5,8 @@ import os
 import modal
 from upstash_vector import Index,Vector
 from upstash_redis import Redis
-import requests
 import json
-from datetime import datetime
 from neon_db import connect_to_db , function_call_id
-import psycopg2
 
 
 image = modal.Image.debian_slim(python_version="3.10").run_commands(
@@ -20,14 +17,19 @@ image = modal.Image.debian_slim(python_version="3.10").run_commands(
 
 app = App(name="upsert", image=image)
 
-@app.function(secrets=[modal.Secret.from_name("upstash"),modal.Secret.from_name("Database")], timeout=3600)
+@app.function(secrets=[modal.Secret.from_name("upstash"),modal.Secret.from_name("Database"), modal.Secret.from_name("server")], timeout=3600)
 @web_endpoint(label="upsert", method="POST")
-def generate_embedding(requestData: Dict):
-    client_id = requestData["client"]
-    secret_key = requestData["secret"]
-    data=requestData["data"]
+def generate_embedding(request: Dict):
+    # load secrets from environment variables
+    upsert_secret = os.environ["UPSERT_SECRET"]
+    secret_key = request['secret_key']
+    if secret_key != upsert_secret:
+        raise ValueError("Invalid secret key")
     
-    key = os.environ['secret_key']
+    client_id = request["client"]
+    data=request["data"]
+
+    # load database url from environment variables
     upsert_url = os.environ["UPSERT_VECTOR_URL"]
     upsert_pass=os.environ["UPSERT_VECTOR_PASS"]
     Database_url=os.environ["DATABASE_URL"]
@@ -38,9 +40,6 @@ def generate_embedding(requestData: Dict):
     #Taking upserting Function id 
     conn=connect_to_db(Database_url)
     function_call_id(conn,client_id,current_function_call_id())
-
-    if secret_key != key:
-        return {"error": "Invalid upsert key!"}
 
     # Initialize Redis client for logging
     upstash_redis_url = os.environ["UPSTASH_REDIS_URL"]
