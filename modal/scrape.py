@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import modal
-from modal import App, build, enter, method, web_endpoint
+from modal import App, build, enter, method, web_endpoint,current_function_call_id
 from typing import Dict
 import aiohttp
 from PIL import Image
@@ -20,6 +20,8 @@ from urllib.robotparser import RobotFileParser
 import traceback
 import json
 from datetime import datetime
+from neon_db import connect_to_db , function_call_id
+import psycopg2
 
 playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "apt-get update",
@@ -31,14 +33,23 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "playwright install chromium",
     "pip install markdownify beautifulsoup4 pillow aiohttp",
     "pip install upstash-redis", 
-    "pip install requests"
+    "pip install requests",
+    "pip install psycopg2-binary"
 )
 
 app = App(name="link-scraper", image=playwright_image)
 
-@app.function(secrets=[modal.Secret.from_name("secret_key"), modal.Secret.from_name("upstash")], timeout=3600)
+@app.function(secrets=[modal.Secret.from_name("upstash"),modal.Secret.from_name("Database")], timeout=3600)
 @web_endpoint(label="scrape", method="POST")
 async def crawl_website(request: Dict):
+    start_url = request.get('url')
+    key = request.get('secret_key')
+    process_id = request.get('id')
+    max_url = request.get('max_url',None)
+    Database_url=os.environ["DATABASE_URL"]
+    conn = connect_to_db(Database_url)
+    function_call_id(conn, process_id,current_function_call_id() )
+    
     try:
         
         def get_base_url(url):
@@ -56,18 +67,17 @@ async def crawl_website(request: Dict):
             base_without_www = base_url.replace('://www.', '://')
             return link_without_www.startswith('/') or link_without_www.startswith(base_without_www)
 
-        start_url = request.get('url')
-        key = request.get('secret_key')
-        process_id = request.get('id')
-        store_url = request.get('store_url')
+        
+        # store_url = request.get('store_url')
         
         if not process_id:
             raise ValueError("Process ID is missing in the request")
 
-        secret_key = os.environ.get('secret_key')
+        secret_key = os.environ['secret_key']
         # Upstash redis url and password
-        upstash_url = os.environ["UPSTASH_URL"]
-        upstash_password = os.environ["UPSTASH_PASSWORD"]
+        upstash_url = os.environ["UPSTASH_REDIS_URL"]
+        upstash_password = os.environ["UPSTASH_REDIS_PASS"]
+        # Database_url = os.environ["DATABASE_URL"]
 
         if key != secret_key:
             raise ValueError("Invalid secret key")
@@ -119,11 +129,13 @@ async def crawl_website(request: Dict):
             browser = await p.chromium.launch()
 
             batch_number = 0
-            while queue:
+            while queue and len(visited) < max_url:
                 batch_number += 1
                 current_batch = []
                 batch_urls = []
-                for _ in range(min(batch_size, len(queue))):
+                remaining_urls = max_url - len(visited)
+                current_batch_size = min(batch_size, remaining_urls, len(queue))
+                for _ in range(min(current_batch_size, len(queue))):
                     if queue:
                         url = queue.popleft()
                         if url not in visited:
@@ -399,27 +411,24 @@ async def crawl_website(request: Dict):
                 }
                 redis.set(process_key, json.dumps(current_state))
 
+                if len(visited) >= max_url:
+                    break
             await browser.close()
             # store scraped data in database by api call http
-            try:
-                res = requests.post(
-                    store_url, 
-                    json={"data": scraped_data, "id": process_id}, 
-                    headers={"Authorization": f"Bearer {secret_key}"},
-                    timeout=30  # Add timeout to prevent hanging
-                )
-                if not res.ok:
-                    error_msg = f"Failed to store scraped data: {res.status_code} - {res.text}"
-                    raise Exception(error_msg)
-
-            except Exception as e:
-                raise Exception(f"Failed to store scraped data: {str(e)}")
+            # try:
+            #     conn = connect_to_db(Database_url)
+            #     for data in scraped_data:
+            #         upsert_scraped_data(conn, data)
+            #     conn.close()
+            # except Exception as e:
+            #     raise Exception(f"Failed to store scraped data in the database: {str(e)}")
 
         return {
             "status": "success",
             "totalLinks": len(visited),
             "scrapedLinks": len(scraped_data),
-            "indexId": process_id
+            "indexId": process_id,
+            "data":scraped_data
         }
 
     except ValueError as ve:
@@ -436,6 +445,6 @@ async def crawl_website(request: Dict):
             "totalLinks": 0,
             "scrapedLinks": 0,
             "indexId": process_id,
-            "error": "An unexpected error occurred",
+            "error": f"An unexpected error occurred. {str(e)}",
             "details": str(e)
         }

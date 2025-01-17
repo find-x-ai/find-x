@@ -1,87 +1,103 @@
-from modal import App, build, enter, method, web_endpoint, Image
+from modal import App, web_endpoint, Image,current_function_call_id
+import modal
 from typing import Dict
 import os
 import modal
-from upstash_vector import Index
+from upstash_vector import Index,Vector
 from upstash_redis import Redis
 import requests
 import json
 from datetime import datetime
+from neon_db import connect_to_db , function_call_id
+import psycopg2
 
-image = Image.debian_slim().pip_install(
-    "upstash_vector",
-    "upstash-redis"
+
+image = modal.Image.debian_slim(python_version="3.10").run_commands(
+    "pip install upstash_vector",
+    "pip install upstash-redis",
+    "pip install psycopg2-binary"
 )
+
 app = App(name="upsert", image=image)
 
-@app.function(secrets=[modal.Secret.from_name("upstash")], timeout=300)
+@app.function(secrets=[modal.Secret.from_name("upstash"),modal.Secret.from_name("Database")], timeout=3600)
 @web_endpoint(label="upsert", method="POST")
 def generate_embedding(requestData: Dict):
-    key = os.environ["AUTH"]
     client_id = requestData["client"]
     secret_key = requestData["secret"]
-    store_url = requestData["store_url"]
+    data=requestData["data"]
+    
+    key = os.environ['secret_key']
+    upsert_url = os.environ["UPSERT_VECTOR_URL"]
+    upsert_pass=os.environ["UPSERT_VECTOR_PASS"]
+    Database_url=os.environ["DATABASE_URL"]
 
     process_key = f"process_{client_id}"
-    
+
+
+    #Taking upserting Function id 
+    conn=connect_to_db(Database_url)
+    function_call_id(conn,client_id,current_function_call_id())
+
     if secret_key != key:
         return {"error": "Invalid upsert key!"}
 
     # Initialize Redis client for logging
-    upstash_redis_url = os.environ["UPSTASH_URL"]
-    upstash_redis_password = os.environ["UPSTASH_PASSWORD"]
+    upstash_redis_url = os.environ["UPSTASH_REDIS_URL"]
+    upstash_redis_password = os.environ["UPSTASH_REDIS_PASS"]
+
+    # Initialize Upstash Index and Redis for logging progress
     redis = Redis(url=upstash_redis_url, token=upstash_redis_password)
+    index = Index(url=upsert_url, token=upsert_pass)
+    
 
     try:
-        response = requests.get(store_url, params={"id": client_id}, headers={"Authorization": f"Bearer {key}"})
-        if not response.ok:
-            raise Exception(f"Failed to fetch data: {response.status_code} - {response.text}")
-        
-        data = response.json()
-        if "data" not in data:
-            raise Exception("Invalid response format: missing 'data' field")
-            
-        pages_data = data["data"]
-        
-        upsert_url = os.environ["UPSERT_URL"]
-        
-        # Process data in batches
+        # Validate incoming data structure
+        if not data or not isinstance(data, list):
+            raise Exception("Invalid data format: 'data' field must be a non-empty list")
+
+        # Batch processing configuration
         BATCH_SIZE = 10
-        total_batches = (len(pages_data) + BATCH_SIZE - 1) // BATCH_SIZE
+        total_batches = (len(data) + BATCH_SIZE - 1) // BATCH_SIZE
         total_processed = 0
 
-        for i in range(0, len(pages_data), BATCH_SIZE):
-            batch = pages_data[i:i + BATCH_SIZE]
-            response = requests.post(
-                upsert_url,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {key}"
-                },
-                json={
-                    "client": client_id,
-                    "data": batch 
-                }
-            )
-            
-            if not response.ok:
-                raise Exception(f"Upsert failed with status {response.status_code}: {response.text}")
-            
+        for i in range(0, len(data), BATCH_SIZE):
+            batch = data[i:i + BATCH_SIZE]
+
+            # Prepare vectors for the batch
+            vectors = [
+               (
+                    f"{client_id}-{chunk['url']}",
+                        chunk["content"],
+                        {
+                        "namespace": client_id,
+                        "title": chunk["title"],
+                        "client": client_id,
+                        "url": chunk["url"],
+                        "images": json.dumps(chunk["images"]),
+                    }
+                )
+                for chunk in batch
+            ]
+
+            # Upsert the batch of vectors
+            index.upsert(vectors=vectors)
+
             total_processed += len(batch)
             current_batch = i // BATCH_SIZE + 1
-            
-            # Calculate percentage between 80-100 based on batch progress
+
+            # Update progress in Redis (80-100% range)
             percentage = 80 + int((current_batch / total_batches) * 20)
-            
-            # Get existing state and update only the percentage
             current_state = json.loads(redis.get(process_key) or "{}")
             current_state["percentage"] = percentage
             redis.set(process_key, json.dumps(current_state))
 
         return {
             "status": "success",
-            "message": f"Successfully processed {len(pages_data)} pages",
+            "message": f"Successfully processed {total_processed} pages"
+           
         }
+
     except Exception as e:
         return {
             "status": "error",
