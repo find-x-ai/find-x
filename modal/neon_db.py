@@ -96,6 +96,39 @@ def function_call_id(conn, record_id, function_id):
     except Exception as e:
         conn.rollback()
         raise Exception(f"Failed to update function_call_id: {str(e)}")
+    
+def credit_table_update(conn, index_id, user_email):
+
+    try:
+        with conn.cursor() as cursor:
+            # Check if the row with the given index_id exists
+            check_query = "SELECT 1 FROM indexes WHERE id = %s;"
+            cursor.execute(check_query, (index_id,))
+            row_exists = cursor.fetchone()
+
+            if row_exists:
+                # Row exists, no update needed
+                return {"status": "success", "message": "Row exists. No update needed."}
+            else:
+                # Row does not exist, insert new row
+                insert_query = """
+                INSERT INTO indexes (index_id, total_request , user_email)
+                VALUES (%s, %s, %s);
+                """
+                cursor.execute(insert_query, (index_id,0, user_email))
+                conn.commit()
+                return {"status": "success", "message": "New row inserted successfully."}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+
+
+
+
+
+    
+
+
 
 
     
