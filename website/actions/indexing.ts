@@ -101,6 +101,7 @@ export const createIndex = async (
           scrape_api: process.env.SCRAPE_URL,
           upsert_api: process.env.UPSERT_URL,
           secret_key: process.env.SERVER_SECRET,
+          user_email: data.email,
         }),
       });
     } catch (error) {
@@ -169,6 +170,7 @@ export const redeploy = async (
         scrape_api: process.env.SCRAPE_URL,
         upsert_api: process.env.UPSERT_URL,
         secret_key: process.env.SERVER_SECRET,
+        user_email: session.data.email,
       }),
     });
     return { success: true, message: "Deployement started" };
