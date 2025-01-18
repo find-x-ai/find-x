@@ -91,16 +91,6 @@ export function CreateIndex({
               <CardContent>
                 <div className="flex flex-col  gap-5 w-full">
                   <div className="flex flex-1 flex-col space-y-2">
-                    <Label>URL</Label>
-                    <Input
-                      name="url"
-                      type="url"
-                      required
-                      placeholder="https://example.com/"
-                      className="border-[#202020]"
-                    />
-                  </div>
-                  <div className="flex flex-1 flex-col space-y-2">
                     <Label>Name</Label>
                     <Input
                       name="name"
@@ -112,11 +102,21 @@ export function CreateIndex({
                       className="border-[#202020] autofill:fill-[#111]"
                     />
                   </div>
+                  <div className="flex flex-1 flex-col space-y-2">
+                    <Label>URL</Label>
+                    <Input
+                      name="url"
+                      type="url"
+                      required
+                      placeholder="https://example.com/"
+                      className="border-[#202020]"
+                    />
+                  </div>
                 </div>
-                <p className="text-sm text-[#757575] pt-5 px-1">
+                {/* <p className="text-sm text-[#757575] pt-5 px-1">
                   By clicking create you agree to the rules and regulations of
                   fnd-x.
-                </p>
+                </p> */}
               </CardContent>
 
               <CardFooter className="flex justify-end gap-3">

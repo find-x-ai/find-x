@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useIndex } from "@/context/index-context";
 import { motion } from "framer-motion";
+import { CheckCircle, Loader2, Database, ListOrdered } from "lucide-react";
+
 export const Progress = () => {
   const { index, setIndex } = useIndex();
   const [processData, setProcessData] = useState<{
@@ -60,27 +62,58 @@ export const Progress = () => {
       transition={{ duration: 0.5 }}
       className="w-full p-5"
     >
-      <div className="border border-[#202020] rounded-lg p-5 flex flex-col gap-5">
-        <div className="flex gap-2 items-center">
-          <p className="text-sm text-gray-500">
-            {processData.percentage > 80
-              ? processData.percentage === 100
-                ? "Success"
-                : "Upserting..."
-              : "Scraping..."}
-          </p>
-          <p className="ml-auto">Progress: {processData.percentage}%</p>
-          <p className="ml-auto">Queue Length: {processData.queueLength}</p>
-          <p className="ml-auto">
-            Scraped Data Length: {processData.scrapedDataLength}
-          </p>
-          <p className="ml-auto">Visited Length: {processData.visitedLength}</p>
+      <div className="border border-[#202020] bg-[#121212] transition-colors rounded-xl p-6 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            {processData.percentage === 100 ? (
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle className="w-4 h-4" />
+                <span className="text-sm">Indexing Complete</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-gray-400">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">
+                  {processData.percentage > 80
+                    ? "Upserting Data"
+                    : "Scraping Content"}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-400">
+                {processData.scrapedDataLength} pages scraped
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ListOrdered className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-400">
+                {processData.queueLength} in queue
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="w-full relative h-2 bg-[#202020] rounded-full">
-          <span
-            className={`w-full h-full bg-emerald-400/50 border border-emerald-400 rounded-full absolute transition-all duration-300 ease-in-out top-0 left-0`}
-            style={{ width: `${processData.percentage}%` }}
-          />
+
+        <div className="space-y-2">
+          <div className="w-full relative h-2 bg-[#202020] rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${processData.percentage}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className={`absolute inset-y-0 left-0 bg-emerald-500`}
+            />
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">
+              {Math.round(processData.percentage) || 0}%
+            </span>
+            <span className="text-xs text-gray-500">
+              {processData.visitedLength} URLs processed
+            </span>
+          </div>
         </div>
       </div>
     </motion.div>

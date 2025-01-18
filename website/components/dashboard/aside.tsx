@@ -129,8 +129,10 @@ export const Sidebar = ({
                   }
                 }}
                 key={i}
-                className={`flex items-center gap-2 py-2 px-3 rounded-md  ${
-                  path.startsWith(link.url) ? "bg-emerald-700" : "hover:bg-[#141414]"
+                className={`flex items-center gap-2 py-2 px-3 border rounded-md  ${
+                  path.startsWith(link.url)
+                    ? "bg-emerald-700 border-emerald-300"
+                    : "hover:bg-[#141414] border-transparent"
                 }`}
               >
                 {link.icon}

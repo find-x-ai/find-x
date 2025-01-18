@@ -97,8 +97,8 @@ export const Header = () => {
   };
 
   return (
-    <div className="w-full p-4 border-b border-[#202020] flex md:flex-row flex-col gap-5 justify-between items-center">
-      <div className="flex flex-col gap-2 w-full">
+    <div className="w-full p-5 border-b border-[#202020] flex md:flex-row flex-col gap-5 justify-between items-center">
+      <div className="flex flex-col gap-2 w-full ">
         <h1 className="text-2xl font-semibold">{index?.name}</h1>
         <p className="text-[#656565] text-sm">
           {index?.created_at.toLocaleString("en-us")}
