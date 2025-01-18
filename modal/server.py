@@ -5,7 +5,7 @@ import modal
 from modal import App, current_function_call_id
 import requests
 from typing import Dict
-from neon_db import connect_to_db, upsert_scraped_data, status_update, function_call_id
+from neon_db import connect_to_db, upsert_scraped_data, status_update, credit_table_update
 
 # Modal setup
 image = modal.Image.debian_slim(python_version="3.10").run_commands(
@@ -37,6 +37,7 @@ async def api_call(request: Dict):
         scrape_api = request.get("scrape_api")
         upsert_api = request.get("upsert_api")
         max_url = request.get("max_url",None)
+        user_email = request.get("user_email")
 
         # load database url from environment variables
         database_url = os.environ["DATABASE_URL"]
@@ -102,6 +103,7 @@ async def api_call(request: Dict):
 
         # Update status to `success` upon successful upsertion
         status_update(conn, process_id, "success")
+        credit_table_update(conn,process_id,user_email)
         conn.close()
 
         return {
