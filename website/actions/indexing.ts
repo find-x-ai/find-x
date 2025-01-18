@@ -190,9 +190,8 @@ export const deleteIndex = async (id: string) => {
     // First delete from database
     const res =
       (await sql`select * from indexes where id = ${id} and user_id = ${session.data.id}`) as Index[];
-    await sql`DELETE FROM credits WHERE index_id = ${id} and user_email = ${session.data.email}`;
+    // await sql`DELETE FROM credits WHERE index_id = ${id} and user_email = ${session.data.email}`;
     await sql`DELETE FROM indexes where id = ${id} and user_id = ${session.data.id} and user_id = ${session.data.id}`;
-
     const deleteIds = res[0].content.data.map((item) => `${id}-${item.url}`);
     await index.delete(deleteIds);
     return { success: true, message: "Deleted index" };

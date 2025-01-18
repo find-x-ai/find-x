@@ -1,4 +1,4 @@
-const URL = "https://server.find-x.workers.dev/query";
+const URL = "http://127.0.0.1:8787/query";
 
 export const fetchResponse = async (
   search: string,

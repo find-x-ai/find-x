@@ -15,31 +15,6 @@ app.use(cors());
 
 app.get('/', (c) => c.text('working fine...'));
 
-app.get('/autocomplete', async (c) => {
-	const input = c.req.query('input')?.toLowerCase();
-	const secret = c.req.header('Authorization');
-	if (!input) {
-		return c.json({ message: 'working', suggestion: '' }, 200);
-	}
-	if (!secret) {
-		return c.json({ message: 'Invalid authorization header' }, 401);
-	}
-	try {
-		const api_key = secret.split('Bearer ')[1];
-		const { UPSTASH_REDIS_REST_TOKEN, UPSTASH_REDIS_REST_URL } = c.env as EnvironmentVariables;
-		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
-		const keys = (await redis.keys(`*${input}*${api_key}`)) as string[];
-		if (keys.length == 0) {
-			return c.json({ message: 'working', suggestions: [] }, 200);
-		}
-		const filtered_suggestions = keys.map((key) => key.split(api_key)[0]);
-		console.log(filtered_suggestions);
-		return c.json({ message: 'working', suggestions: filtered_suggestions }, 200);
-	} catch (error) {
-		console.log(error);
-		return c.json({ message: 'something went wrong!', suggestions: [] }, 500);
-	}
-});
 
 //endpoint for query
 app.post(
@@ -123,6 +98,7 @@ app.post(
 				return c.text('Facing some issues regarding your plan, please try again later or contact support', 400);
 		}
 
+
 		if (db_res.length < 1) {
 			console.log('Invalid Authorization key');
 			return c.text('Invalid Authorization key', 400);
@@ -132,14 +108,14 @@ app.post(
 		const cached_response = (await redis.get(query.trim().toLowerCase() + key)) as { header: string; response: string };
 		let header: Header = { sources: [], images: { data: [] } };
 
-		if (cached_response) {
-			return streamText(c, async (stream) => {
-				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
-				await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
-				await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 200]);
-				await stream.close();
-			});
-		}
+		// if (cached_response) {
+		// 	return streamText(c, async (stream) => {
+		// 		await stream.write(cached_response.header + '<#$#>' + cached_response.response);
+		// 		await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
+		// 		await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 200]);
+		// 		await stream.close();
+		// 	});
+		// }
 
 		try {
 			const groq = new Groq({ apiKey: env[apiKeys[9]] });
@@ -156,8 +132,9 @@ app.post(
 				includeVectors: false,
 				includeMetadata: true,
 				includeData: true,
-				filter: `namespace = "${id.toString()}"`,
+				filter: `namespace = ${id}`,
 			})) as Chunk[];
+
 			let concatenatedHeader = '';
 			let context: String[] = [];
 
