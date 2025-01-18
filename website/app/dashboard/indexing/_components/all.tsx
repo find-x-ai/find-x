@@ -18,6 +18,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getIndexes } from "@/actions/indexing";
 
+type IndexWithContentLength = Omit<Index, "content"> & {
+  content_length: number;
+};
+
 function getRelativeTimeString(dateInput: string | Date): string {
   // Convert string input to Date object if needed
   const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
@@ -69,23 +73,26 @@ function getRelativeTimeString(dateInput: string | Date): string {
   return `${diffInYears}y ago`;
 }
 
-export function AllIndexes({ indexes }: { indexes: Index[] }) {
-  const [allIndexes, setAllIndexes] = useState<Index[]>(indexes);
+export function AllIndexes() {
+  const [allIndexes, setAllIndexes] = useState<IndexWithContentLength[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const handleFetch = async () => {
+      setLoading(true);
       const res = await getIndexes();
       if (res.length > 0) {
         setAllIndexes(res);
       }
+      setLoading(false);
     };
     handleFetch();
   }, []);
   return (
     <main className="w-full h-full">
       {" "}
-      {indexes.length === 0 ? (
+      {allIndexes.length === 0 && !loading ? (
         <CreateIndex text="Create Index +" heading={true} />
       ) : (
         <div className="flex flex-col w-full h-full max-w-6xl mx-auto ">
@@ -142,7 +149,7 @@ export function AllIndexes({ indexes }: { indexes: Index[] }) {
                       </span>
                     </div>
                     <div className=" hidden sm:block w-full">
-                      <span>{index.content?.data?.length || 0} pages</span>
+                      <span>{index.content_length || 0} pages</span>
                     </div>
                     <div className="text-start hidden xl:block w-full">
                       <span>{index.url}</span>

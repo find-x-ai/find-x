@@ -5,16 +5,36 @@ import { nanoid } from "nanoid";
 import { Index } from "./types/index";
 import { revalidatePath } from "next/cache";
 
-export const getIndexes = async (): Promise<Index[]> => {
+type IndexWithContentLength = Omit<Index, "content"> & {
+  content_length: number;
+};
+export const getIndexes = async (): Promise<IndexWithContentLength[]> => {
   try {
     const { success, data } = await getSession();
     if (!success || !data) {
       return [];
     }
     const { id } = data;
-    const indexes =
-      (await sql`select * from indexes where user_id = ${id}`) as Index[];
-    return indexes;
+    const indexes = (await sql`
+      SELECT 
+        id, 
+        created_at, 
+        url, 
+        api_key, 
+        status, 
+        name, 
+        last_deploy, 
+        user_id,
+        jsonb_array_length(content->'data') as content_length
+      FROM indexes 
+      WHERE user_id = ${id}
+    `) as (Omit<Index, "content"> & { content_length: number })[];
+
+    // Transform the result to match Index type
+    return indexes.map((index) => ({
+      ...index,
+      contentLength: index.content_length,
+    }));
   } catch (error) {
     console.log(error);
     return [];
