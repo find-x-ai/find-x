@@ -108,14 +108,14 @@ app.post(
 		const cached_response = (await redis.get(query.trim().toLowerCase() + key)) as { header: string; response: string };
 		let header: Header = { sources: [], images: { data: [] } };
 
-		// if (cached_response) {
-		// 	return streamText(c, async (stream) => {
-		// 		await stream.write(cached_response.header + '<#$#>' + cached_response.response);
-		// 		await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
-		// 		await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 200]);
-		// 		await stream.close();
-		// 	});
-		// }
+		if (cached_response) {
+			return streamText(c, async (stream) => {
+				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
+				await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
+				await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 200]);
+				await stream.close();
+			});
+		}
 
 		try {
 			const groq = new Groq({ apiKey: env[apiKeys[9]] });
