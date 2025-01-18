@@ -1,6 +1,9 @@
-const URL = "http://127.0.0.1:8787/query";
+const URL = "https://server.find-x.workers.dev/query";
 
-export const fetchResponse = async (search: string, findx_key: string): Promise<AsyncIterable<string>> => {
+export const fetchResponse = async (
+  search: string,
+  findx_key: string
+): Promise<AsyncIterable<string>> => {
   const res = await fetch(URL, {
     method: "POST",
     cache: "force-cache",
@@ -28,10 +31,10 @@ export const fetchResponse = async (search: string, findx_key: string): Promise<
           if (done) return { done: true, value: undefined };
           return {
             done: false,
-            value: decoder.decode(value, { stream: true })
+            value: decoder.decode(value, { stream: true }),
           };
-        }
+        },
       };
-    }
+    },
   };
 };
