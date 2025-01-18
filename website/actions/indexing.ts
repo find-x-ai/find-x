@@ -165,7 +165,7 @@ export const redeploy = async (
       },
       body: JSON.stringify({
         url,
-        id,
+        id: parseInt(id),
         max_url: 1000,
         scrape_api: process.env.SCRAPE_URL,
         upsert_api: process.env.UPSERT_URL,
