@@ -155,7 +155,7 @@ export const redeploy = async (
     return { success: false, message: "Unauthorized" };
   }
   try {
-    await redis.del(`process_logs:${id}`);
+    await redis.del(`process_${id}`);
     await sql`UPDATE indexes SET status = 'deploying' WHERE id = ${id} and user_id = ${session.data.id}`;
     tag === "new" && (await index.deleteNamespace(id));
     fetch(`${process.env.SERVER_URL}`, {

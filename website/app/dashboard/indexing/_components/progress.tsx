@@ -10,11 +10,13 @@ export const Progress = () => {
     scrapedDataLength: number;
     visitedLength: number;
     percentage: number;
+    status: "success" | "failed" | "deploying" | "queued";
   }>({
     queueLength: 0,
     scrapedDataLength: 0,
     visitedLength: 0,
     percentage: 0,
+    status: index?.status || "deploying",
   });
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -22,6 +24,13 @@ export const Progress = () => {
     let timeoutId: NodeJS.Timeout;
     const fetchProcessData = async () => {
       setLoading(true);
+      setProcessData({
+        queueLength: 0,
+        scrapedDataLength: 0,
+        visitedLength: 0,
+        percentage: 0,
+        status: index?.status || "deploying",
+      });
       timeoutId = setInterval(async () => {
         try {
           const data = await fetch(
@@ -32,14 +41,19 @@ export const Progress = () => {
             scrapedDataLength: number;
             visitedLength: number;
             percentage: number;
+            status: "success" | "failed" | "deploying" | "queued";
           };
+
           setProcessData(json);
           if (json.percentage === 100) {
             clearInterval(timeoutId);
-
             setTimeout(() => {
               setIndex({ ...index!, status: "success" });
             }, 3000);
+          }
+          if (json.status === "failed") {
+            clearInterval(timeoutId);
+            setIndex({ ...index!, status: "failed" });
           }
         } catch (error) {
           console.error(error);

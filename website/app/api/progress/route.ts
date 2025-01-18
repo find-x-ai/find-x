@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/db";
+import { redis, sql } from "@/lib/db";
 
 export const GET = async (req: NextRequest) => {
   const indexId = req.nextUrl.searchParams.get("indexId");
@@ -13,12 +13,14 @@ export const GET = async (req: NextRequest) => {
     scrapedDataLength: number;
     visitedLength: number;
   };
-  // console.log(processData);
+  const dbRes = await sql`select status from indexes where id = ${indexId}`;
+  const status = dbRes[0]?.status;
   if (!processData) {
     return NextResponse.json({
       queueLength: 0,
       scrapedDataLength: 0,
       visitedLength: 0,
+      status: status,
     });
   }
   return NextResponse.json(processData);
