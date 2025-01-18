@@ -47,14 +47,16 @@ export type Context = {
 
 export type Data = {
 	id: number;
-	joined_at: Date;
-	name: string;
-	email: string;
-	api_key: string;
-	plan: number;
+	created_at: Date;
 	url: string;
+	api_key: string;
+	status: 'queued' | 'deploying' | 'failed' | 'success';
+	name: string;
+	last_deploy: Date;
+	user_id: number;
 	total_requests: string;
-	remaining: number;
+	email: string;
+	plan_name: 'free' | 'pro' | 'enterprise';
 };
 
 export type Header = {

@@ -81,10 +81,31 @@ app.post(
 
 		const db = neon(NEON_KEY);
 
-		const db_res = (await db('SELECT * FROM clients WHERE api_key = $1', [key])) as Data[];
+		const db_res = (await db(
+			`
+			SELECT i.id, i.created_at, i.url, i.api_key, i.status, i.name, i.last_deploy, i.user_id,
+			       COALESCE(SUM(c.total_requests), 0) as total_requests,
+			       c.user_email as email,
+			       p.name as plan_name 
+			FROM indexes i 
+			LEFT JOIN credits c ON c.index_id = i.id 
+			LEFT JOIN plans p ON p.user_email = c.user_email 
+			WHERE i.api_key = $1
+			GROUP BY i.id, i.created_at, i.url, i.api_key, i.status, i.name, 
+			         i.last_deploy, i.user_id, c.user_email, p.name
+		`,
+			[key]
+		)) as Data[];
+
+		// console.log('db_res', db_res);
+
+		if (db_res[0]?.status !== 'success') {
+			return c.text('Deployement is in progress , please wait for a few minutes', 400);
+		}
 
 		if (db_res.length < 1) {
-			return c.json({ message: 'Invalid Authorization key' }, 400);
+			console.log('Invalid Authorization key');
+			return c.text('Invalid Authorization key', 400);
 		}
 		const id = db_res[0].id;
 		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
@@ -94,8 +115,8 @@ app.post(
 		if (cached_response) {
 			return streamText(c, async (stream) => {
 				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
-				await db(`UPDATE clients SET total_requests = $1 WHERE id = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].id]);
-				await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
+				await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
+				await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 200]);
 				await stream.close();
 			});
 		}
@@ -163,13 +184,14 @@ app.post(
 					const content = chunk.choices[0].delta.content;
 					if (content) {
 						if (oneTime === 0) {
-							await db(`UPDATE clients SET total_requests = $1 , remaining = $2 WHERE id = $3`, [
-								parseInt(db_res[0].total_requests) + 1,
-								(db_res[0].remaining - 0.02).toFixed(2),
-								db_res[0].id,
+							await Promise.all([
+								db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2 AND index_id = $3`, [
+									parseInt(db_res[0].total_requests) + 1,
+									db_res[0].email,
+									db_res[0].id,
+								]),
+								db('INSERT INTO logs (name, index_id, status) VALUES ($1, $2, $3)', [db_res[0].name, db_res[0].id, 200]),
 							]);
-
-							await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 200]);
 							oneTime = 1;
 						}
 						full_content += content;
@@ -187,7 +209,7 @@ app.post(
 				await stream.close();
 			});
 		} catch (error) {
-			await db('INSERT INTO logs (name , status) VALUES ($1, $2)', [db_res[0].name, 500]);
+			await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 500]);
 
 			console.log(error);
 			c.json({ success: false, answer: 'Something went wrong!!!' }, 500);
@@ -199,75 +221,75 @@ app.post(
 	})
 );
 
-app.post('/upsert', async (c) => {
-	const token = c.req.header('Authorization') as string;
+// app.post('/upsert', async (c) => {
+// 	const token = c.req.header('Authorization') as string;
 
-	const key = token.split('Bearer ')[1];
+// 	const key = token.split('Bearer ')[1];
 
-	if (!key || !token) {
-		console.log('No authorization key provided');
-		return c.json({ mssage: 'No authorization key provided' }, 400);
-	}
+// 	if (!key || !token) {
+// 		console.log('No authorization key provided');
+// 		return c.json({ mssage: 'No authorization key provided' }, 400);
+// 	}
 
-	try {
-		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
+// 	try {
+// 		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
 
-		if (key !== UPSERT_SECRET_KEY) {
-			console.log('Invalid key provided');
-			return c.json({ mssage: 'Invalid key provided' }, 400);
-		}
+// 		if (key !== UPSERT_SECRET_KEY) {
+// 			console.log('Invalid key provided');
+// 			return c.json({ mssage: 'Invalid key provided' }, 400);
+// 		}
 
-		const { client, data } = (await c.req.json()) as {
-			client: number;
-			data: [
-				{
-					url: string;
-					title: string;
-					content: string;
-					images: {
-						data: [
-							{
-								src: string;
-								alt: string;
-							}
-						];
-					};
-				}
-			];
-		};
+// 		const { client, data } = (await c.req.json()) as {
+// 			client: number;
+// 			data: [
+// 				{
+// 					url: string;
+// 					title: string;
+// 					content: string;
+// 					images: {
+// 						data: [
+// 							{
+// 								src: string;
+// 								alt: string;
+// 							}
+// 						];
+// 					};
+// 				}
+// 			];
+// 		};
 
-		if (!client || !data || data.length < 1) {
-			console.log('Missing parameters,', client, data);
-			return c.json({ message: 'Missing parameters' }, 400);
-		}
+// 		if (!client || !data || data.length < 1) {
+// 			console.log('Missing parameters,', client, data);
+// 			return c.json({ message: 'Missing parameters' }, 400);
+// 		}
 
-		const index = new Index({
-			url: UPSTASH_VECTOR_REST_URL,
-			token: UPSTASH_VECTOR_REST_TOKEN,
-			cache: false,
-		});
-		// const baseDomain = new URL(data[0].url).hostname;
-		for (let i = 0; i < data.length; i++) {
-			const chunk = data[i];
-			if (chunk && chunk.content.trim().length > 50) {
-				await index.upsert({
-					id: `${client}-${chunk.url}`,
-					data: chunk.content,
-					metadata: {
-						namespace: client.toString(),
-						title: chunk.title,
-						client: client,
-						url: chunk.url,
-						images: JSON.stringify(chunk.images),
-					},
-				});
-			}
-		}
-		return c.json({ message: 'successfully embedded the chunks' }, 200);
-	} catch (error) {
-		console.log(error);
-		return c.json({ message: 'Something went wrong' }, 500);
-	}
-});
+// 		const index = new Index({
+// 			url: UPSTASH_VECTOR_REST_URL,
+// 			token: UPSTASH_VECTOR_REST_TOKEN,
+// 			cache: false,
+// 		});
+// 		// const baseDomain = new URL(data[0].url).hostname;
+// 		for (let i = 0; i < data.length; i++) {
+// 			const chunk = data[i];
+// 			if (chunk && chunk.content.trim().length > 50) {
+// 				await index.upsert({
+// 					id: `${client}-${chunk.url}`,
+// 					data: chunk.content,
+// 					metadata: {
+// 						namespace: client.toString(),
+// 						title: chunk.title,
+// 						client: client,
+// 						url: chunk.url,
+// 						images: JSON.stringify(chunk.images),
+// 					},
+// 				});
+// 			}
+// 		}
+// 		return c.json({ message: 'successfully embedded the chunks' }, 200);
+// 	} catch (error) {
+// 		console.log(error);
+// 		return c.json({ message: 'Something went wrong' }, 500);
+// 	}
+// });
 
 export default app;
