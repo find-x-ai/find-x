@@ -103,6 +103,26 @@ app.post(
 			return c.text('Deployement is in progress , please wait for a few minutes', 400);
 		}
 
+		switch (db_res[0].plan_name) {
+			case 'free':
+				if (parseInt(db_res[0].total_requests) >= 1000) {
+					return c.text('You have reached the limit of your free plan, please upgrade to a paid plan', 400);
+				}
+				break;
+			case 'pro':
+				if (parseInt(db_res[0].total_requests) >= 2000) {
+					return c.text('You have reached the limit of your pro plan, please upgrade to a paid plan', 400);
+				}
+				break;
+			case 'enterprise':
+				if (parseInt(db_res[0].total_requests) >= 10000) {
+					return c.text('You have reached the limit of your enterprise plan, please upgrade to a paid plan', 400);
+				}
+				break;
+			default:
+				return c.text('Facing some issues regarding your plan, please try again later or contact support', 400);
+		}
+
 		if (db_res.length < 1) {
 			console.log('Invalid Authorization key');
 			return c.text('Invalid Authorization key', 400);
