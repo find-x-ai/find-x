@@ -1,5 +1,7 @@
-export const fetchResponse = async (search: string, findx_key: string) => {
-  const res = await fetch("https://server.find-x.workers.dev/query", {
+const URL = "http://127.0.0.1:8787/query";
+
+export const fetchResponse = async (search: string, findx_key: string): Promise<AsyncIterable<string>> => {
+  const res = await fetch(URL, {
     method: "POST",
     cache: "force-cache",
     headers: {
@@ -19,12 +21,17 @@ export const fetchResponse = async (search: string, findx_key: string) => {
   const decoder = new TextDecoder();
 
   return {
-    [Symbol.asyncIterator]: async function* () {
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        yield decoder.decode(value, { stream: true });
-      }
-    },
+    [Symbol.asyncIterator]() {
+      return {
+        async next() {
+          const { value, done } = await reader.read();
+          if (done) return { done: true, value: undefined };
+          return {
+            done: false,
+            value: decoder.decode(value, { stream: true })
+          };
+        }
+      };
+    }
   };
 };
