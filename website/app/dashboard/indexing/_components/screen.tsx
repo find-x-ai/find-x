@@ -5,13 +5,8 @@ import { Key } from "./key";
 import { useEffect, useState } from "react";
 import { Progress } from "./progress";
 import { useIndex } from "@/context/index-context";
-type LogType = "success" | "warning" | "info" | "error";
-
-interface Log {
-  tag?: string;
-  message: string;
-  timestamp: number;
-}
+import Steps from "./steps.mdx";
+import Link from "next/link";
 
 export const Screen = ({ index }: { index: Index }) => {
   const [indexObj, _setIndexObj] = useState<Index>(index);
@@ -28,6 +23,40 @@ export const Screen = ({ index }: { index: Index }) => {
       <Header />
       {indexContext?.status === "deploying" && <Progress />}
       <Key api_key={indexContext?.api_key} />
+      <div className="p-5 w-full max-w-[1100px]">
+        <StepsWrapper />
+        <KnowMore />
+      </div>
     </main>
+  );
+};
+
+const StepsWrapper = () => {
+  return (
+    <div className="docs">
+      <Steps />
+    </div>
+  );
+};
+
+const KnowMore = () => {
+  return (
+   <div className="w-full">
+     <div className="flex flex-col p-8 bg-[#141414] rounded-lg border border-[#202020] mt-6">
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-white">Want to learn more?</h2>
+        <p className="text-muted-foreground mt-2">Check out our comprehensive documentation to get the most out of our search functionality.</p>
+      </div>
+      <Link
+        className="inline-flex items-center px-4 py-2.5 bg-[#141414] hover:bg-[#202020] text-gray-200 font-medium rounded-lg border border-[#202020] transition-colors duration-200 max-w-fit"
+        href="/docs/getting_started"
+      >
+        View documentation
+        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </Link>
+    </div>
+   </div>
   );
 };

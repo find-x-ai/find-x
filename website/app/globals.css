@@ -46,6 +46,12 @@
     @apply !bg-[#101010] rounded border border-[#202020] p-4 mb-4 overflow-x-auto text-sm;
   }
 
+
+  .docs code:not(.code-block):not(.code-block *) {
+    @apply bg-[#141414] rounded border border-[#181818] px-2 py-1 overflow-x-auto text-sm;
+  }
+
+
   .blogs h1 {
     @apply text-3xl text-white text-center font-semibold pb-5;
   }
