@@ -3,7 +3,16 @@ import { useIndex } from "@/context/index-context";
 import { motion } from "framer-motion";
 import { CheckCircle, Loader2, Database, ListOrdered } from "lucide-react";
 
-export const Progress = () => {
+export const Progress = ({
+  initialProcessData,
+}: {
+  initialProcessData: {
+    queueLength: number;
+    scrapedDataLength: number;
+    visitedLength: number;
+    percentage: number;
+  };
+}) => {
   const { index, setIndex } = useIndex();
   const [processData, setProcessData] = useState<{
     queueLength: number;
@@ -11,26 +20,30 @@ export const Progress = () => {
     visitedLength: number;
     percentage: number;
     status: "success" | "failed" | "deploying" | "queued";
-  }>({
-    queueLength: 0,
-    scrapedDataLength: 0,
-    visitedLength: 0,
-    percentage: 0,
-    status: index?.status || "deploying",
-  });
+  }>(
+    initialProcessData
+      ? { ...initialProcessData, status: index?.status || "deploying" }
+      : {
+          queueLength: 0,
+          scrapedDataLength: 0,
+          visitedLength: 0,
+          percentage: 0,
+          status: index?.status || "deploying",
+        }
+  );
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const fetchProcessData = async () => {
       setLoading(true);
-      setProcessData({
-        queueLength: 0,
-        scrapedDataLength: 0,
-        visitedLength: 0,
-        percentage: 0,
-        status: index?.status || "deploying",
-      });
+      // setProcessData({
+      //   queueLength: 0,
+      //   scrapedDataLength: 0,
+      //   visitedLength: 0,
+      //   percentage: 0,
+      //   status: index?.status || "deploying",
+      // });
       timeoutId = setInterval(async () => {
         try {
           const data = await fetch(

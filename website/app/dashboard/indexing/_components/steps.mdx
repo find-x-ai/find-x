@@ -6,7 +6,7 @@ import CodeBlock from "@/app/docs/_components/code/code";
 
 Copy this and paste it in your `.env` file
 
-<CodeBlock code={`NEXT_PUBLIC_FINDX_KEY=your_api_key`} lang="bash" />
+<CodeBlock code={`NEXT_PUBLIC_FINDX_KEY=${props.apiKey || 'YOUR_API_KEY'}`} lang="bash" />
 
 ### Step 2: Install FIND-X SDK
 

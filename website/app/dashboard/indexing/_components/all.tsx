@@ -23,54 +23,58 @@ type IndexWithContentLength = Omit<Index, "content"> & {
 };
 
 function getRelativeTimeString(dateInput: string | Date): string {
-  // Convert string input to Date object if needed
-  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  try {
+    // Convert string input to Date object if needed
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    const now = new Date();
 
-  // Validate if the date is valid
-  if (isNaN(date.getTime())) {
-    throw new Error("Invalid date input");
+    // Validate if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
+
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    // Handle small time differences that might appear as future due to clock sync
+    if (Math.abs(diffInSeconds) < 30) {
+      return "Just now";
+    }
+
+    // Handle future dates (with a small buffer for clock sync issues)
+    if (diffInSeconds < -30) {
+      return "Invalid date";
+    }
+
+    // Minutes
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}m ago`;
+    }
+
+    // Hours
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return `${diffInHours}h ago`;
+    }
+
+    // Days
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) {
+      return `${diffInDays}d ago`;
+    }
+
+    // Months
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) {
+      return `${diffInMonths}mo ago`;
+    }
+
+    // Years
+    const diffInYears = Math.floor(diffInMonths / 12);
+    return `${diffInYears}y ago`;
+  } catch (error) {
+    return "Invalid date";
   }
-
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  // Handle future dates
-  if (diffInSeconds < 0) {
-    return "In the future";
-  }
-
-  // Less than a minute
-  if (diffInSeconds < 60) {
-    return "Just now";
-  }
-
-  // Minutes
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes}m ago`;
-  }
-
-  // Hours
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours}h ago`;
-  }
-
-  // Days
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return `${diffInDays}d ago`;
-  }
-
-  // Months
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return `${diffInMonths}mo ago`;
-  }
-
-  // Years
-  const diffInYears = Math.floor(diffInMonths / 12);
-  return `${diffInYears}y ago`;
 }
 
 export function AllIndexes() {
@@ -83,7 +87,11 @@ export function AllIndexes() {
       setLoading(true);
       const res = await getIndexes();
       if (res.length > 0) {
-        setAllIndexes(res);
+        // Sort indexes by created_at in ascending order (oldest first)
+        const sortedIndexes = [...res].sort((a, b) => 
+          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        );
+        setAllIndexes(sortedIndexes);
       }
       setLoading(false);
     };

@@ -148,7 +148,8 @@ export const getIndex = async (id: string) => {
 export const redeploy = async (
   id: string,
   url: string,
-  tag: "override" | "new"
+  tag: "override" | "new",
+  timeNow: Date
 ) => {
   const session = await getSession();
   if (!session || !session.data) {
@@ -156,7 +157,7 @@ export const redeploy = async (
   }
   try {
     await redis.del(`process_${id}`);
-    await sql`UPDATE indexes SET status = 'deploying' WHERE id = ${id} and user_id = ${session.data.id}`;
+    await sql`UPDATE indexes SET status = 'deploying', last_deploy = ${timeNow} WHERE id = ${id} and user_id = ${session.data.id}`;
     tag === "new" && (await index.deleteNamespace(id));
     fetch(`${process.env.SERVER_URL}`, {
       method: "POST",

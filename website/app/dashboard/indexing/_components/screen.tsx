@@ -8,7 +8,12 @@ import { useIndex } from "@/context/index-context";
 import Steps from "./steps.mdx";
 import Link from "next/link";
 
-export const Screen = ({ index }: { index: Index }) => {
+export const Screen = ({ index, processData }: { index: Index, processData: {
+  queueLength: number;
+  scrapedDataLength: number;
+  visitedLength: number;
+  percentage: number;
+} }) => {
   const [indexObj, _setIndexObj] = useState<Index>(index);
   const { setIndex, index: indexContext } = useIndex();
 
@@ -21,20 +26,21 @@ export const Screen = ({ index }: { index: Index }) => {
   return (
     <main>
       <Header />
-      {indexContext?.status === "deploying" && <Progress />}
+      {indexContext?.status === "deploying" && <Progress initialProcessData={processData} />}
       <Key api_key={indexContext?.api_key} />
       <div className="p-5 w-full max-w-[1100px]">
-        <StepsWrapper />
+        <StepsWrapper apiKey={indexContext?.api_key} />
         <KnowMore />
       </div>
     </main>
   );
 };
 
-const StepsWrapper = () => {
+const StepsWrapper = ({ apiKey }: { apiKey: string }) => {
   return (
     <div className="docs">
-      <Steps />
+      {/* @ts-ignore */}
+      <Steps apiKey={apiKey} />
     </div>
   );
 };

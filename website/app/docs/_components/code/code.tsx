@@ -1,8 +1,8 @@
-import { codeToHtml } from "shiki";
 import { CodeCopy } from "./copy";
 
 async function CodeBlock({ code, lang }: { code: string; lang: string }) {
-  const out = await codeToHtml(code, {
+  const shiki = await import('shiki');
+  const out = await shiki.codeToHtml(code, {
     lang: lang,
     theme: "aurora-x",
   });

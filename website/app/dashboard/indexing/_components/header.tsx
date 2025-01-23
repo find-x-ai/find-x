@@ -67,7 +67,8 @@ export const Header = () => {
     const res = await redeploy(
       index!.id.toString(),
       index!.url,
-      deployementType
+      deployementType,
+      new Date()
     );
     if (res.success) {
       toast.success(res.message);
@@ -151,12 +152,13 @@ export const Header = () => {
                 disabled={index?.status === "deploying"}
                 className="px-3 py-2 md:w-[120px] group hover:bg-[#181818] disabled:cursor-not-allowed disabled:opacity-50 rounded-md border border-[#202020] flex items-center justify-center gap-2"
               >
-                <span className="sm:block hidden">Redeploy</span>{" "}
                 <RotateCw
                   className={`w-5 h-5 transition-transform duration-700 ${
-                    index?.status !== "deploying" && "group-hover:rotate-[360deg]"
+                    index?.status !== "deploying" &&
+                    "group-hover:rotate-[360deg]"
                   } text-[#656565]`}
                 />
+                <span className="sm:block hidden">Redeploy</span>{" "}
               </button>
             </div>
           </DialogTrigger>
@@ -233,12 +235,12 @@ export const Header = () => {
             <AlertDialogTrigger asChild>
               <button
                 onClick={() => setAlertOpen(true)}
-                className={`px-3 disabled:cursor-not-allowed disabled:opacity-50 py-2 md:w-[120px] group bg-red-600 ${
+                className={`px-2 disabled:cursor-not-allowed disabled:opacity-50 py-2 md:w-[120px] group bg-red-600 ${
                   status !== "deploying" && "hover:bg-red-700"
                 } text-white rounded-md border border-red-600 flex items-center justify-center gap-2`}
               >
+                <Trash2 className="w-4 h-4" />
                 <span className="sm:block hidden">Delete</span>
-                <Trash2 className="w-5 h-5" />
               </button>
             </AlertDialogTrigger>
             <AlertDialogContent className="bg-[#111] tetx-white border-[#202020]">
