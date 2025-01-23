@@ -15,7 +15,6 @@ app.use(cors());
 
 app.get('/', (c) => c.text('working fine...'));
 
-
 //endpoint for query
 app.post(
 	'/query',
@@ -74,9 +73,9 @@ app.post(
 
 		// console.log('db_res', db_res);
 
-		if (db_res[0]?.status !== 'success') {
-			return c.text('Deployement is in progress , please wait for a few minutes', 400);
-		}
+		// if (db_res[0]?.status !== 'success') {
+		// 	return c.text('Deployement is in progress , please wait for a few minutes', 400);
+		// }
 
 		switch (db_res[0].plan_name) {
 			case 'free':
@@ -97,7 +96,6 @@ app.post(
 			default:
 				return c.text('Facing some issues regarding your plan, please try again later or contact support', 400);
 		}
-
 
 		if (db_res.length < 1) {
 			console.log('Invalid Authorization key');
@@ -134,6 +132,10 @@ app.post(
 				includeData: true,
 				filter: `namespace = ${id}`,
 			})) as Chunk[];
+
+			if (res.length < 1) {
+				return c.text('Deployement is in progress , please wait for a few minutes');
+			}
 
 			let concatenatedHeader = '';
 			let context: String[] = [];
