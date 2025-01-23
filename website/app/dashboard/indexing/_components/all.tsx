@@ -120,7 +120,7 @@ export function AllIndexes() {
                       <span className="text-[#656565]">{i + 1}</span>
                     </div>
                     <div className="w-full text-start pl-5">
-                      <span>{index.name.toUpperCase()}</span>
+                      <span>{index.name}</span>
                     </div>
                     <div
                       className={`w-full text-start ${
