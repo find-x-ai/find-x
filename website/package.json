@@ -32,7 +32,7 @@
     "clsx": "^2.1.1",
     "cookies-next": "^4.2.1",
     "date-fns": "^4.1.0",
-    "find-x-ai": "^0.0.91",
+    "find-x-ai": "latest",
     "framer-motion": "^11.3.2",
     "jose": "^5.9.3",
     "lucide-react": "^0.407.0",

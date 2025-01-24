@@ -78,8 +78,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       find-x-ai:
-        specifier: 0.0.87
-        version: 0.0.87(@types/react@18.3.3)
+        specifier: latest
+        version: 0.0.91(@types/react@18.3.3)
       framer-motion:
         specifier: ^11.3.2
         version: 11.3.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1167,8 +1167,8 @@ packages:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
 
-  find-x-ai@0.0.87:
-    resolution: {integrity: sha512-Byo4y4Up4UNyokZPGiO6SFamt/Cq7a48ldhcTaQRwTSM/cx4qiLt3uGEr0EKqIWe1WBGq6e5wxmsOX9nb2CpXw==}
+  find-x-ai@0.0.91:
+    resolution: {integrity: sha512-Gdm6AcxNE/h5AK+Dos0jBaoZl9SIqvvJTv+04P0pNqrtNt6nYLh7lth/2Jhopg6fogyY7ylTNy7jNpzqHjRRPg==}
 
   foreground-child@3.2.1:
     resolution: {integrity: sha512-PXUUyLqrR2XCWICfv6ukppP96sdFwWbNEnfEMt7jNsISjMsvaLNinAHNDYyvkyU+SZG2BTSbT5NjG+vZslfGTA==}
@@ -2048,6 +2048,9 @@ packages:
 
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
   typescript@5.5.3:
     resolution: {integrity: sha512-/hreyEujaB0w76zKo6717l3L0o/qEUtRgdvUBvlkhoWeOVMjMuHNHk0BRBzikzuGDqNmPQbg5ifMEqsHLiIUcQ==}
@@ -3225,12 +3228,13 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  find-x-ai@0.0.87(@types/react@18.3.3):
+  find-x-ai@0.0.91(@types/react@18.3.3):
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-markdown: 9.0.1(@types/react@18.3.3)(react@18.3.1)
       remark-gfm: 4.0.0
+      tslib: 2.8.1
     transitivePeerDependencies:
       - '@types/react'
       - supports-color
@@ -4415,6 +4419,8 @@ snapshots:
   ts-interface-checker@0.1.13: {}
 
   tslib@2.6.3: {}
+
+  tslib@2.8.1: {}
 
   typescript@5.5.3: {}
 
