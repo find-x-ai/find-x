@@ -75,6 +75,10 @@ app.post(
 			[key]
 		)) as Data[];
 
+		if (db_res?.length < 1 || !db_res) {
+			return c.text('Invalid Authorization key', 400);
+		}
+
 		// console.log('db_res', db_res);
 
 		// if (db_res[0]?.status !== 'success') {
@@ -107,14 +111,20 @@ app.post(
 		}
 		const id = db_res[0].id;
 		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
-		const cached_response = (await redis.get(query.trim().toLowerCase() + key)) as { header: string; response: string };
+		const cached_response = (await redis.get(`<${query.toLowerCase().trim()}>:<${key}>`)) as { header: string; response: string };
 		let header: Header = { sources: [], images: { data: [] } };
 
 		if (cached_response) {
 			return streamText(c, async (stream) => {
 				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
 				await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
-				await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5 )', [db_res[0].name, db_res[0].id, 200, query, "cached"]);
+				await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5 )', [
+					db_res[0].name,
+					db_res[0].id,
+					200,
+					query,
+					'cached',
+				]);
 				await stream.close();
 			});
 		}
@@ -152,8 +162,10 @@ app.post(
 					url: chunk.metadata.url,
 				});
 				context.push(chunk.data);
-				const images = JSON.parse(chunk.metadata.images) as { data: Image[] };
-				header.images.data = [...header.images.data, ...images.data];
+				if (chunk.score > 0.75) {
+					const images = JSON.parse(chunk.metadata.images) as { data: Image[] };
+					header.images.data = [...header.images.data, ...images.data];
+				}
 			}
 			// data for AI model
 			const data = JSON.stringify({
@@ -193,7 +205,13 @@ app.post(
 									db_res[0].email,
 									db_res[0].id,
 								]),
-								db('INSERT INTO logs (name, index_id, status , query, type) VALUES ($1, $2, $3, $4, $5)', [db_res[0].name, db_res[0].id, 200, query, "normal"]),
+								db('INSERT INTO logs (name, index_id, status , query, type) VALUES ($1, $2, $3, $4, $5)', [
+									db_res[0].name,
+									db_res[0].id,
+									200,
+									query,
+									'normal',
+								]),
 							]);
 							oneTime = 1;
 						}
@@ -202,7 +220,7 @@ app.post(
 					}
 				}
 				await redis.set(
-					query.toLowerCase() + key,
+					`<${query.toLowerCase().trim()}>:<${key}>`,
 					{
 						header: JSON.stringify(header),
 						response: full_content,
@@ -212,7 +230,13 @@ app.post(
 				await stream.close();
 			});
 		} catch (error) {
-			await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5)', [db_res[0].name, db_res[0].id, 500, query, "normal"]);
+			await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5)', [
+				db_res[0].name,
+				db_res[0].id,
+				500,
+				query,
+				'normal',
+			]);
 
 			console.log(error);
 			c.json({ success: false, answer: 'Something went wrong!!!' }, 500);

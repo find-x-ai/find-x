@@ -21,6 +21,7 @@ export type EnvironmentVariables = {
 
 export type Chunk = {
 	id: string;
+	score: number;
 	metadata: {
 		title: string;
 		client_id: string;
