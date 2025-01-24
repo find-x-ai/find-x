@@ -47,10 +47,14 @@ app.post(
 
 		const key = secret.split('Bearer ')[1];
 
-		const { query } = await c.req.json();
+		const { query } = (await c.req.json()) as { query: string };
 
 		if (!query) {
 			return c.json({ message: 'Missing parameters' }, 400);
+		}
+
+		if (query.length > 50000) {
+			return c.text('Query too long, please limit to 50,000 characters');
 		}
 
 		const db = neon(NEON_KEY);
@@ -110,7 +114,7 @@ app.post(
 			return streamText(c, async (stream) => {
 				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
 				await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
-				await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 200]);
+				await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5 )', [db_res[0].name, db_res[0].id, 200, query, "cached"]);
 				await stream.close();
 			});
 		}
@@ -189,7 +193,7 @@ app.post(
 									db_res[0].email,
 									db_res[0].id,
 								]),
-								db('INSERT INTO logs (name, index_id, status) VALUES ($1, $2, $3)', [db_res[0].name, db_res[0].id, 200]),
+								db('INSERT INTO logs (name, index_id, status , query, type) VALUES ($1, $2, $3, $4, $5)', [db_res[0].name, db_res[0].id, 200, query, "normal"]),
 							]);
 							oneTime = 1;
 						}
@@ -203,12 +207,12 @@ app.post(
 						header: JSON.stringify(header),
 						response: full_content,
 					},
-					{ ex: 60 * 720 }
+					{ ex: 60 * 60 }
 				);
 				await stream.close();
 			});
 		} catch (error) {
-			await db('INSERT INTO logs (name , index_id , status) VALUES ($1, $2 , $3 )', [db_res[0].name, db_res[0].id, 500]);
+			await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5)', [db_res[0].name, db_res[0].id, 500, query, "normal"]);
 
 			console.log(error);
 			c.json({ success: false, answer: 'Something went wrong!!!' }, 500);
