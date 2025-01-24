@@ -1,6 +1,12 @@
 import { getSession } from "@/actions/auth";
 import { Sidebar } from "@/components/dashboard";
 import { BreadcrumbComponent } from "@/app/docs/_components/bread";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "FIND-X | Dashboard",
+  description: "Dashboard for FIND-X",
+};
 
 export default async function DashboardLayout({
   children,

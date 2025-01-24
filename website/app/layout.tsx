@@ -2,9 +2,31 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { ChatBox } from "find-x-ai";
+
+// good seo need to be done
 export const metadata: Metadata = {
-  title: "Find-X",
-  description: "The most comprehensive ai search for web",
+  title: "FIND-X | Home",
+  description: "The Most Comprehensive AI Search for Web",
+  icons: [
+    {
+      url: "/favicon.ico",
+      sizes: "any",
+      type: "image/x-icon",
+    },
+  ],
+  openGraph: {
+    title: "FIND-X | Home",
+    description: "The Most Comprehensive AI Search for Web",
+    url: "https://find-x.tech",
+    siteName: "FIND-X",
+    images: [
+      {
+        url: "https://find-x.tech/preview.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

@@ -3,13 +3,12 @@ import CodeBlock from "./code/code";
 
 # Custom Component
 
-We have a default UI component to trigger `ChatBox` that creates a small sparkle icon at bottom-right corner
-of the screen. Its completely your choice to keep it or create a **custom** component to trigger the chat.
+FIND-X provides a default UI component that displays a sparkle icon in the bottom-right corner
+of the screen. You can choose to use this default component or create a custom trigger component.
 
-## Config Props
+## Configuration
 
-To configure custom component you need to change the props passed to the `<ChatBox/>` component.
-Here is the example code for it.
+To use a custom component, update the configuration of the `ChatBox` component as shown below:
 
 <CodeBlock code={`<ChatBox
   config={{
@@ -20,33 +19,28 @@ Here is the example code for it.
 />
 `} lang="typescript" />
 
-The value for `default` is a boolean value that indicates whether you want to use the default UI component or not.
-Making the value **false** will remove the default UI component from bottom-right corner of the screen.
+The `default` property controls the visibility of the default UI component. Setting it to `false` removes the default trigger from the screen.
 
-**Note**: You can use the default UI component and custom component together to trigger the chat without any conflict.
+**Note**: You can use both the default UI component and a custom component simultaneously without conflicts.
 
-## Triggering the chat UI
+## Implementing a Custom Trigger
 
-Triggering the chat UI is a simple process that just consists of a function that needs to be called to toggle the chat.
-Here is how you can do it.
+Creating a custom trigger involves using the `toggleChatBox` function to control the chat UI visibility:
 
 <CodeBlock code={`"use client"
-// Fuction to toggle the chat
 import { toggleChatBox } from "find-x-ai";
 
-export function CustomChatComponent(){
+export function CustomChatComponent() {
   return (
-    <button onClick={ ()=> toggleChatBox() }>
-       Search here...
+    <button onClick={() => toggleChatBox()}>
+      Search with FIND-X
     </button>
-  )
+  );
 }
 `} lang="typescript" />
 
-Here is how it will look : 
+Example implementation:
 <CustomChatComponent/>
-
-That's it! Now you have a custom component that triggers the chat. 🎉
 
 ---
 <NextLink prev="/docs/setup" />

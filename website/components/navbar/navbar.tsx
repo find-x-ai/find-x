@@ -2,15 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AlignJustify, Menu, X } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { AlignJustify, X } from "lucide-react";
 
 const links = [
-  { name: "Features", url: "/" },
   { name: "Pricing", url: "/pricing" },
   { name: "Team", url: "/team" },
-  { name: "Company", url: "/" },
   { name: "Blogs", url: "/blogs" },
   { name: "Contact", url: "mailto:team@find-x.tech" },
 ];
