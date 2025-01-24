@@ -1,5 +1,5 @@
 import React from "react";
-import { TextIcon } from "../icons/svgs";
+import { RegenerateIcon, TextIcon } from "../icons/svgs";
 import { ResponseWithCodeSnippets, Sources } from "../ui";
 import { Image, Source } from "../types";
 import { Images } from "./images";
@@ -11,6 +11,7 @@ type ResponseAreaProps = {
   codeSnippets: string[];
   theme: "light" | "dark";
   images: Image[];
+  handleRegenerate: () => Promise<void>;
 };
 
 export const ResponseArea: React.FC<ResponseAreaProps> = ({
@@ -20,6 +21,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
   codeSnippets,
   theme,
   images,
+  handleRegenerate,
 }) => (
   <div className="f-w-full f-flex f-justify-center f-relative f-font-[sans-serif]">
     <div
@@ -42,7 +44,7 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
               response === "Searching" ? "f-block f-pl-3" : "f-hidden"
             }`}
           >
-            <div className={`loader-fx`}></div>
+            <div className={`${theme === "light" ? "loader-fx-light" : "loader-fx-dark"}`}></div>
           </div>
           {response !== "Searching" ? (
             <>
@@ -50,11 +52,22 @@ export const ResponseArea: React.FC<ResponseAreaProps> = ({
                 <Sources sources={sources} theme={theme} />
                 <div
                   className={`f-py-3 f-text-lg ${
-                    theme === "light" ? "f-text-[#273734]" : "f-text-[#21bad3]"
-                  }  f-flex f-items-center f-gap-2`}
+                    theme === "light" ? "f-text-[#273734]" : "f-text-white"
+                  }  f-flex f-items-center f-gap-2 f-justify-between`}
                 >
-                  <TextIcon theme={theme} />
-                  <p>AI response</p>
+                  <div className="f-flex f-items-center f-gap-2">
+                    <TextIcon theme={theme} />
+                    <p>AI response</p>
+                  </div>
+                  <div className="f-px-2">
+                    <div
+                      onClick={handleRegenerate}
+                      title="Regenerate"
+                      className="f-border-2 f-border-transparent hover:f-opacity-80 f-duration-1000 f-rounded-full f-cursor-pointer hover:f-transition-transform f-transition-all hover:f-rotate-90"
+                    >
+                      <RegenerateIcon theme={theme} />
+                    </div>
+                  </div>
                 </div>
               </div>
               {images.length > 0 ? (

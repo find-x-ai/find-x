@@ -8,6 +8,7 @@ import Groq from 'groq-sdk';
 import { cache } from 'hono/cache';
 import { neon } from '@neondatabase/serverless';
 import { EnvironmentVariables, Header, Image, Chunk, Data } from './types';
+import { use } from 'hono/jsx';
 
 const app = new Hono();
 //allow cross origin requests
@@ -47,7 +48,7 @@ app.post(
 
 		const key = secret.split('Bearer ')[1];
 
-		const { query } = (await c.req.json()) as { query: string };
+		const { query, use_cache } = (await c.req.json()) as { query: string; use_cache: boolean };
 
 		if (!query) {
 			return c.json({ message: 'Missing parameters' }, 400);
@@ -111,7 +112,9 @@ app.post(
 		}
 		const id = db_res[0].id;
 		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
-		const cached_response = (await redis.get(`<${query.toLowerCase().trim()}>:<${key}>`)) as { header: string; response: string };
+		const cached_response = use_cache
+			? ((await redis.get(`<${query.toLowerCase().trim()}>:<${key}>`)) as { header: string; response: string })
+			: null;
 		let header: Header = { sources: [], images: { data: [] } };
 
 		if (cached_response) {

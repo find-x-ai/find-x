@@ -34,6 +34,7 @@ const ChatBox = ({ config }: { config: Config }) => {
   const [codeSnippets, setCodeSnippets] = useState<string[]>([]);
   const [images, setImages] = useState<Image[]>([]);
 
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const uiRef = useRef<HTMLDivElement>(null);
   const typeEffect = useTypeEffect();
   const extractCodeSnippets = useExtractCodeSnippets();
@@ -74,6 +75,7 @@ const ChatBox = ({ config }: { config: Config }) => {
   const handleSubmit = async (e: FormEvent, search: string) => {
     e.preventDefault();
     if (!search.trim() || isLoading) return;
+    setSearchQuery(search);
     (document.querySelector("form") as HTMLFormElement).reset();
     await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
     setIsLoading(true);
@@ -83,7 +85,11 @@ const ChatBox = ({ config }: { config: Config }) => {
     setImages([]);
 
     try {
-      const responseStream = await fetchResponse(search, config.findx_key);
+      const responseStream = await fetchResponse(
+        search,
+        config.findx_key,
+        true
+      );
       let wholeResponse = "";
       setResponse(""); // Clear the previous response
 
@@ -113,6 +119,39 @@ const ChatBox = ({ config }: { config: Config }) => {
     }
   };
 
+  const handleRegenerate = async () => {
+    if (!searchQuery.trim() || isLoading) return;
+    (document.querySelector("form") as HTMLFormElement).reset();
+    await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
+    setResponse("Regenerating...");
+    try {
+      const responseStream = await fetchResponse(
+        searchQuery,
+        config.findx_key,
+        false
+      );
+      setResponse(" ");
+      let wholeResponse = "";
+      for await (const chunk of responseStream) {
+        if (chunk.includes("<#$#>")) {
+          const [_headerString, responseText] = chunk.split("<#$#>");
+          wholeResponse += responseText;
+          await typeEffect(responseText, setResponse);
+        } else {
+          wholeResponse += chunk;
+          await typeEffect(chunk, setResponse);
+        }
+      }
+
+      const { snippets, processedText } = extractCodeSnippets(wholeResponse);
+      setCodeSnippets(snippets);
+      setResponse(processedText);
+    } catch (error) {
+      console.log(error);
+      setResponse("Failed to fetch response!");
+    }
+  };
+
   return (
     <div className="find-x f-text-start">
       {isOpen && (
@@ -137,6 +176,7 @@ const ChatBox = ({ config }: { config: Config }) => {
               codeSnippets={codeSnippets}
               theme={config.theme}
               images={images}
+              handleRegenerate={handleRegenerate}
             />
           </div>
         </div>

@@ -26,10 +26,19 @@
 }
 
 /* HTML: <div class="loader"></div> */
-.loader-fx {
+.loader-fx-dark {
   width: 25px;
   aspect-ratio: 1.154;
-  --_g: no-repeat radial-gradient(farthest-side, #21bad3 90%, transparent);
+  --_g: no-repeat radial-gradient(farthest-side, #d4d4d4 90%, transparent);
+  background: var(--_g) 50% 0, var(--_g) 0 100%, var(--_g) 100% 100%;
+  background-size: 35% calc(35% * 1.154);
+  animation: l16 0.5s infinite;
+}
+
+.loader-fx-light {
+  width: 25px;
+  aspect-ratio: 1.154;
+  --_g: no-repeat radial-gradient(farthest-side, #313131 90%, transparent);
   background: var(--_g) 50% 0, var(--_g) 0 100%, var(--_g) 100% 100%;
   background-size: 35% calc(35% * 1.154);
   animation: l16 0.5s infinite;

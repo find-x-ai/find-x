@@ -5,6 +5,18 @@ import Markdown from "react-markdown";
 //@ts-ignore
 import remarkGfm from "remark-gfm";
 
+const debounce = (fn: Function, delay: number) => {
+  let timeout: any | null = null;
+  return (...args: any[]) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  };
+};
+
 const ResponseWithCodeSnippets = ({
   text,
   snippets,
@@ -19,11 +31,16 @@ const ResponseWithCodeSnippets = ({
   );
 
   const endOfResponseRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
+  const scrollToBottom = () => {
     if (endOfResponseRef.current) {
       endOfResponseRef.current.scrollIntoView({ behavior: "smooth" });
     }
+  };
+
+  const debouncedScrollToBottom = debounce(scrollToBottom, 200);
+
+  useEffect(() => {
+    debouncedScrollToBottom();
   }, [text]);
 
   const copyToClipBoard = async (textToCopy: string, index: number) => {

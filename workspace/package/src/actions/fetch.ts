@@ -2,7 +2,8 @@ const URL = "https://server.find-x.workers.dev/query";
 
 export const fetchResponse = async (
   search: string,
-  findx_key: string
+  findx_key: string,
+  use_cache: boolean
 ): Promise<AsyncIterable<string>> => {
   const res = await fetch(URL, {
     method: "POST",
@@ -13,6 +14,7 @@ export const fetchResponse = async (
     },
     body: JSON.stringify({
       query: search,
+      use_cache,
     }),
   });
 

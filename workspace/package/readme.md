@@ -1,8 +1,9 @@
-# Find-X: AI based local search engine for websites.
+# FIND-X
+### Perplexity for your website.
 
-Welcome to **Find-X**, an advanced AI-powered search engine crafted to deliver precise, contextually accurate answers for any query.
+Welcome to **FIND-X**, an advanced AI-powered local search engine crafted to deliver precise, contextually accurate answers for any query.
 
-## 🌐 Supported Frameworks
+## Supported Frameworks
 
 Currently, Find-X supports the following frameworks, with plans to expand to all major frameworks soon:
 

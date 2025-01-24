@@ -50,7 +50,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             theme === "light"
               ? "f-bg-zinc-800 hover:f-bg-zinc-900 f-text-white"
               : "f-bg-zinc-800 hover:f-bg-zinc-800/90 f-text-white/80"
-          } f-transition-colors f-duration-200 f-cursor-pointer esc`}
+          } f-transition-colors f-duration-200 f-cursor-pointer esc f-border f-border-[#303030]`}
         >
           Esc
         </div>
