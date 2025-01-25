@@ -3,10 +3,10 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { ChatBox } from "find-x-ai";
 
-// good seo need to be done
 export const metadata: Metadata = {
   title: "FIND-X | Home",
-  description: "The Most Comprehensive AI Search for Web",
+  description: "Perplexity for your website",
+  category: "technology",
   icons: [
     {
       url: "/favicon.ico",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "FIND-X | Home",
-    description: "The Most Comprehensive AI Search for Web",
+    description: "Perplexity for your website",
     url: "https://find-x.tech",
     siteName: "FIND-X",
     images: [
@@ -24,9 +24,41 @@ export const metadata: Metadata = {
         url: "https://find-x.tech/preview.png",
         width: 1200,
         height: 630,
+        type: "image/png",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FIND-X | Home",
+    description: "Perplexity for your website",
+    images: [
+      {
+        url: "https://find-x.tech/preview.png",
+        width: 1200,
+        height: 630,
+        type: "image/png",
       },
     ],
   },
+  keywords: [
+    "FIND-X",
+    "find-x ai",
+    "find x ai",
+    "Perplexity",
+    "Perplexity for your website",
+    "Perplexity for Next.js",
+    "Perplexity for React.js",
+    "local search engine",
+    "RAG",
+    "RAG as a Service",
+    "AI powered search engine",
+    "Internal search",
+    "Local search",
+  ],
+  creator: "Sahil",
+  robots: "index, follow",
 };
 
 export default function RootLayout({

@@ -5,10 +5,8 @@ export const Footer = () => {
     <footer className="flex justify-center border-t border-[#181818] p-5 text-[#f1f1f1]/80">
       <div className="w-full max-w-[1000px] flex flex-col lg:flex-row p-5">
         <div className="mb-5 lg:mb-0 lg:w-1/4">
-          <h2 className="text-xl mb-2 ">Find-X</h2>
-          <p className="text-sm text-[#656565]">
-            The most comprehensive <br /> AI search for web.
-          </p>
+          <h2 className="text-xl mb-2 ">FIND-X</h2>
+          <p className="text-sm text-[#656565]">Perplexity for your website</p>
         </div>
         <div className="mb-5 lg:mb-0 lg:w-1/4">
           <h3 className="text-lg mb-2">Quick Links</h3>
