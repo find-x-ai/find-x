@@ -76,7 +76,7 @@ export const SideBar = () => {
         <div className="flex items-center gap-1">
           <img src="/logo.png" alt="Find-X" className="w-6 h-6 rounded-full" />
           <p>
-            <Link href="/home">
+            <Link href="/">
               <span className="pr-3">FIND-X</span>
             </Link>
             |{" "}

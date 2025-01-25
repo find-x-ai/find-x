@@ -4,12 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { blogPosts } from "./blogs";
 
-export const metadata: Metadata = {
-  title: "FIND-X AI Search Blog",
-  description:
-    "Latest updates and insights about FIND-X AI search engine for web applications",
-};
-
 const Page = () => {
   return (
     <div className="container mx-auto pb-8 px-4">

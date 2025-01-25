@@ -14,11 +14,12 @@ export const Hero = ({ version }: { version: string }) => (
           </Button>
         </div>
         <div className="flex flex-col gap-4">
-          <h1 className="max-w-2xl text-white text-center font-regular text-5xl tracking-tighter md:text-7xl">
-            The Future of Internal Search for Websites
+          <h1 className="max-w-2xl text-white text-center font-regular text-5xl tracking-tight md:text-7xl">
+             <span>Perplexity</span> <span className="gradient-text">But</span> <br />
+             For Your Website
           </h1>
           <p className="max-w-2xl text-center text-lg text-muted-foreground leading-relaxed tracking-tight md:text-xl">
-            Searching for right thing with old keyword based searches is a thing of the past. Transform your website into data and search with the power of AI.
+             Integrate ready made answer engine to your website in minutes
           </p>
         </div>
         <div className="flex flex-row gap-3">
@@ -27,8 +28,8 @@ export const Hero = ({ version }: { version: string }) => (
               Get started <MoveRight className="h-4 w-4" />
             </Link>
           </Button>
-          <Button size="lg" className="gap-4" asChild>
-            <Link href={'/docs'}>
+          <Button size="lg" className="gap-4 border border-[#202020]" asChild>
+            <Link href={'/docs/getting_started'}>
               Documentation 
             </Link>
           </Button>

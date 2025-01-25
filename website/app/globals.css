@@ -109,7 +109,7 @@
   }
 
   .gradient-text {
-    @apply bg-clip-text text-transparent font-semibold bg-gradient-to-br from-[#fff] via-[#f7f7f7] to-[#f8f8f8];
+    @apply bg-clip-text text-transparent font-medium bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-600;
   }
   :root {
     --background: 0 0% 100%;

@@ -4,7 +4,10 @@ import "./globals.css";
 import { ChatBox } from "find-x-ai";
 
 export const metadata: Metadata = {
-  title: "FIND-X | Home",
+  title: {
+    default: "Home | FIND-X",
+    template: "%s | FIND-X",
+  },
   description: "Perplexity for your website",
   category: "technology",
   icons: [

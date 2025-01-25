@@ -5,8 +5,8 @@ export const Features = () => {
   return (
     <div className="w-full flex flex-col gap-10 items-center text-center pt-10 text-[#f7f8f8]">
       <div className=" space-y-3">
-        <h3 className="text-xl">Introduction</h3>
-        <h2 className=" text-4xl md:text-5xl gradient-text">What is it?</h2>
+        <h3 className="text-xl gradient-text">Introduction</h3>
+        <h2 className=" text-4xl md:text-5xl">What is it?</h2>
       </div>
       <div className="w-full flex flex-col gap-3">
         <div className="w-full flex flex-col md:flex-row gap-3">

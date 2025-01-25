@@ -9,11 +9,6 @@ import {
 export const middleware = async (req: NextRequest) => {
   const url = req.nextUrl.clone();
 
-  // Handle root redirect
-  if (url.pathname === "/home") {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
   // Handle docs redirect
   if (url.pathname === "/docs") {
     return NextResponse.redirect(new URL("/docs/getting_started", req.url));
