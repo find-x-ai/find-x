@@ -18,10 +18,8 @@ export default async function Home() {
 
     const package_info = await res.json();
     version = package_info["dist-tags"].latest;
-    const db_res = await sql`SELECT total_requests FROM clients`;
-    db_res.forEach((c) => {
-      count += parseInt(c.total_requests);
-    });
+    const db_res = await sql`SELECT COUNT(*) FROM logs`;
+    count = db_res[0].count;
   } catch (error) {
     console.log(error);
   }
