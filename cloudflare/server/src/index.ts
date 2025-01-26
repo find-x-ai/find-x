@@ -113,14 +113,14 @@ app.post(
 		const id = db_res[0].id;
 		const redis = new Redis({ url: UPSTASH_REDIS_REST_URL, token: UPSTASH_REDIS_REST_TOKEN, cache: 'force-cache' });
 		const cached_response = use_cache
-			? ((await redis.get(`<${query.toLowerCase().trim()}>:<${key}>`)) as { header: string; response: string })
+			? ((await redis.get(`<${db_res[0].id}>:<${query.toLowerCase().trim()}>`)) as { header: string; response: string })
 			: null;
 		let header: Header = { sources: [], images: { data: [] } };
 
 		if (cached_response) {
 			return streamText(c, async (stream) => {
 				await stream.write(cached_response.header + '<#$#>' + cached_response.response);
-				await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
+				// await db(`UPDATE credits SET total_requests = $1 WHERE user_email = $2`, [parseInt(db_res[0].total_requests) + 1, db_res[0].email]);
 				await db('INSERT INTO logs (name , index_id , status, query, type) VALUES ($1, $2 , $3, $4, $5 )', [
 					db_res[0].name,
 					db_res[0].id,
@@ -223,7 +223,7 @@ app.post(
 					}
 				}
 				await redis.set(
-					`<${query.toLowerCase().trim()}>:<${key}>`,
+					`<${db_res[0].id}>:<${query.toLowerCase().trim()}>`,
 					{
 						header: JSON.stringify(header),
 						response: full_content,
