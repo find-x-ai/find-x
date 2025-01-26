@@ -24,7 +24,7 @@ async def api_call(request: Dict):
     """
     conn = None
     try:
-        # request header
+        # Request header
         secret_key = request['secret_key']
         server_secret = os.environ["SERVER_SECRET"]
         vector_url = os.environ["UPSERT_VECTOR_URL"]
@@ -42,10 +42,10 @@ async def api_call(request: Dict):
         user_email = request.get("user_email")
         redeploy = request.get("redeploy", False)
 
-        # load database url from environment variables
+        # Load database URL from environment variables
         database_url = os.environ["DATABASE_URL"]
 
-        # load secrets from environment variables
+        # Load secrets from environment variables
         crawl_secret = os.environ["CRAWL_SECRET"]
         upsert_secret = os.environ["UPSERT_SECRET"]
 
@@ -69,21 +69,21 @@ async def api_call(request: Dict):
                 error_msg = scrape_info.get("error", "No data returned")
                 raise Exception(f"Scraping failed: {error_msg}")
 
+            # Initialize ids
+            ids = []
             if redeploy:
-                # delete all the older indexes
-                res = get_upserted_ids(conn, process_id)
-                if not res:
+                # Delete all the older indexes
+                ids = get_upserted_ids(conn, process_id)
+                if not ids:
                     raise Exception("No upserted ids found.")
-
             
             # Database upsertion phase
             upsert_result = upsert_scraped_data(conn, {"data": scrape_info["data"]}, process_id)
             if upsert_result.get("status") != "success":
                 raise Exception("Database upsertion failed.")
                 
-
             # Upstash upsertion phase
-            upsert_payload = {"client": process_id, "data": scrape_info["data"], "secret_key": upsert_secret, "vector_ids": res}
+            upsert_payload = {"client": process_id, "data": scrape_info["data"], "secret_key": upsert_secret, "vector_ids": ids}
             upsert_response = requests.post(
                 upsert_api,
                 json=upsert_payload,
@@ -117,6 +117,7 @@ async def api_call(request: Dict):
 
     except Exception as e:
         error_message = str(e)
+        print(error_message)
         # Ensure status is set to failed even for outer exceptions
         if conn and process_id:
             try:
@@ -133,4 +134,3 @@ async def api_call(request: Dict):
                 conn.close()
             except Exception:
                 pass  # Suppress any connection closing errors
-
