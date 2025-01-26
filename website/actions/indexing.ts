@@ -102,6 +102,7 @@ export const createIndex = async (
           upsert_api: process.env.UPSERT_URL,
           secret_key: process.env.SERVER_SECRET,
           user_email: data.email,
+          redeploy: false,
         }),
       });
     } catch (error) {
@@ -145,12 +146,7 @@ export const getIndex = async (id: string) => {
   }
 };
 
-export const redeploy = async (
-  id: string,
-  url: string,
-  tag: "override" | "new",
-  timeNow: Date
-) => {
+export const redeploy = async (id: string, url: string, timeNow: Date) => {
   const session = await getSession();
   if (!session || !session.data) {
     return { success: false, message: "Unauthorized" };
@@ -158,7 +154,6 @@ export const redeploy = async (
   try {
     await redis.del(`process_${id}`);
     await sql`UPDATE indexes SET status = 'deploying', last_deploy = ${timeNow} WHERE id = ${id} and user_id = ${session.data.id}`;
-    tag === "new" && (await index.deleteNamespace(id));
     fetch(`${process.env.SERVER_URL}`, {
       method: "POST",
       headers: {
@@ -172,6 +167,7 @@ export const redeploy = async (
         upsert_api: process.env.UPSERT_URL,
         secret_key: process.env.SERVER_SECRET,
         user_email: session.data.email,
+        redeploy: true,
       }),
     });
     return { success: true, message: "Deployement started" };

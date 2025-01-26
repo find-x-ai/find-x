@@ -4,7 +4,7 @@ import { BreadcrumbComponent } from "@/app/docs/_components/bread";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FIND-X | Dashboard",
+  title: "Dashboard",
   description: "Dashboard for FIND-X",
 };
 

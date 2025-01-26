@@ -1,6 +1,5 @@
-import { Index } from "@/actions/types";
-import { RotateCw, Settings, Trash2 } from "lucide-react";
-import { SetStateAction, useState } from "react";
+import { RotateCw, Trash2 } from "lucide-react";
+import { useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -14,13 +13,6 @@ import {
   CardTitle,
   CardHeader,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectContent,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { deleteIndex, redeploy } from "@/actions/indexing";
@@ -41,17 +33,8 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useIndex } from "@/context/index-context";
 
-interface Log {
-  tag?: string;
-  message: string;
-  timestamp: number;
-}
-
 export const Header = () => {
   const { index, setIndex } = useIndex();
-  const [deployementType, setDeployementType] = useState<
-    "override" | "new" | undefined
-  >();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [redeployLoading, setRedeployLoading] = useState<boolean>(false);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
@@ -61,13 +44,11 @@ export const Header = () => {
   const router = useRouter();
 
   const handleRedeploy = async () => {
-    if (!deployementType) return;
     await new Promise((res) => setTimeout(res, 0));
     setRedeployLoading(true);
     const res = await redeploy(
       index!.id.toString(),
       index!.url,
-      deployementType,
       new Date()
     );
     if (res.success) {
@@ -78,8 +59,6 @@ export const Header = () => {
       toast.error(res.message);
     }
     setDialogOpen(false);
-
-    setDeployementType(undefined);
     setRedeployLoading(false);
   };
 
@@ -165,45 +144,14 @@ export const Header = () => {
           <DialogContent className="bg-transparent border-none text-white">
             <Card className="bg-[#141414] border-[#202020] p-5 space-y-2 min-w-[300px]">
               <CardHeader className="p-0">
-                <CardTitle className="text-2xl text-white">
-                  Redeploy Options
-                </CardTitle>
+                <CardTitle className="text-2xl text-white">Redeploy</CardTitle>
               </CardHeader>
               <form
                 className="m-0 rounded-none bg-transparent border-none"
                 action={handleRedeploy}
               >
                 <CardContent className="p-0 space-y-3">
-                  <div className="space-y-2">
-                    <Label className="text-[#959595]">
-                      Select Deployement Type
-                    </Label>
-                    <Select
-                      value={deployementType}
-                      onValueChange={(v: "override" | "new") =>
-                        setDeployementType(v)
-                      }
-                      required
-                    >
-                      <SelectTrigger className="text-white">
-                        <SelectValue placeholder="Choose here" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="override">
-                          Override old pages (old pages won't be removed)
-                        </SelectItem>
-                        <SelectItem value="new">
-                          Remove Old pages ( all old pages will be removed )
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="bg-yellow-600/10 p-2 rounded-md border border-yellow-600 text-yellow-600 text-sm">
-                    Note: Removing old pages will have a downtime until
-                    deployment is completed, so make sure to select that option
-                    only when there are changes in URLs of pages to prevent old
-                    pages being shown in search results.
-                  </div>
+                  <p className="text-zinc-500">Want to redeploy your index?</p>
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2 p-0 pt-3">
                   <DialogClose asChild>
