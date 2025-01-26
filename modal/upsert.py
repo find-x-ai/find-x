@@ -28,11 +28,19 @@ def generate_embedding(request: Dict):
     
     client_id = request["client"]
     data=request["data"]
+    vector_ids = request["vector_ids"]
+    incoming_vector_ids = set(f"{client_id}-{chunk['url']}" for chunk in data)
+
+    filtered_vector_ids = [vector_id for vector_id in vector_ids if vector_id not in incoming_vector_ids]
+
+
+    print("Filtered Vector IDs:", filtered_vector_ids)
 
     # load database url from environment variables
     upsert_url = os.environ["UPSERT_VECTOR_URL"]
     upsert_pass=os.environ["UPSERT_VECTOR_PASS"]
     Database_url=os.environ["DATABASE_URL"]
+    
 
     process_key = f"process_{client_id}"
 
@@ -90,6 +98,17 @@ def generate_embedding(request: Dict):
             current_state = json.loads(redis.get(process_key) or "{}")
             current_state["percentage"] = percentage
             redis.set(process_key, json.dumps(current_state))
+        
+        # delete the filtered vector ids
+        if filtered_vector_ids or filtered_vector_ids != []:
+            index.delete(ids=filtered_vector_ids)
+        
+        try:
+                keys = redis.keys(f"<{client_id}>:*")
+                if keys:
+                    redis.delete(*keys)
+        except:
+                pass
 
         return {
             "status": "success",

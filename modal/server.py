@@ -1,21 +1,21 @@
-import psycopg2
-import json
 import os
 import modal
-from modal import App, current_function_call_id
+from modal import App
 import requests
 from typing import Dict
-from neon_db import connect_to_db, upsert_scraped_data, status_update, credit_table_update
+from neon_db import connect_to_db, upsert_scraped_data, status_update, credit_table_update, get_upserted_ids
+from upstash_vector import Index
 
 # Modal setup
 image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install requests",
-    "pip install psycopg2-binary"
+    "pip install psycopg2-binary",
+    "pip install upstash_vector",
 )
 
 app = App(name="Central-server", image=image)
 
-@app.function(secrets=[modal.Secret.from_name("Database"), modal.Secret.from_name("server")], timeout=3600)
+@app.function(secrets=[modal.Secret.from_name("Database"), modal.Secret.from_name("server"), modal.Secret.from_name("upstash")], timeout=3600)
 @modal.web_endpoint(label="central-server", method="POST")
 async def api_call(request: Dict):
     """
@@ -27,6 +27,8 @@ async def api_call(request: Dict):
         # request header
         secret_key = request['secret_key']
         server_secret = os.environ["SERVER_SECRET"]
+        vector_url = os.environ["UPSERT_VECTOR_URL"]
+        vector_pass = os.environ["UPSERT_VECTOR_PASS"]
 
         if secret_key != server_secret:
             raise ValueError("Invalid secret key")
@@ -38,6 +40,7 @@ async def api_call(request: Dict):
         upsert_api = request.get("upsert_api")
         max_url = request.get("max_url", None)
         user_email = request.get("user_email")
+        redeploy = request.get("redeploy", False)
 
         # load database url from environment variables
         database_url = os.environ["DATABASE_URL"]
@@ -66,16 +69,21 @@ async def api_call(request: Dict):
                 error_msg = scrape_info.get("error", "No data returned")
                 raise Exception(f"Scraping failed: {error_msg}")
 
+            if redeploy:
+                # delete all the older indexes
+                res = get_upserted_ids(conn, process_id)
+                if not res:
+                    raise Exception("No upserted ids found.")
+
+            
             # Database upsertion phase
             upsert_result = upsert_scraped_data(conn, {"data": scrape_info["data"]}, process_id)
             if upsert_result.get("status") != "success":
                 raise Exception("Database upsertion failed.")
-
-            # Update status to deploying only after successful scraping and DB upsertion
-            status_update(conn, process_id, "deploying")
+                
 
             # Upstash upsertion phase
-            upsert_payload = {"client": process_id, "data": scrape_info["data"], "secret_key": upsert_secret}
+            upsert_payload = {"client": process_id, "data": scrape_info["data"], "secret_key": upsert_secret, "vector_ids": res}
             upsert_response = requests.post(
                 upsert_api,
                 json=upsert_payload,

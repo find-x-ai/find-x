@@ -1,6 +1,5 @@
 import psycopg2
 import json
-import os
 
 def connect_to_db(DATABASE_URL):
     """
@@ -123,6 +122,32 @@ def credit_table_update(conn, index_id, user_email):
     except Exception as e:
         conn.rollback()
         print(f"Failed to insert new row: {e}")
+        return {"status": "error", "message": str(e)}
+
+def get_upserted_ids(conn, record_id):
+    try:
+        with conn.cursor() as cursor:
+            select_json_query = "SELECT content FROM indexes WHERE id = %s;"
+            cursor.execute(select_json_query, (record_id,))
+            conn.commit()
+            json_data = cursor.fetchone()[0]
+            if json_data:
+                data = json_data["data"]
+                # print("Data to delete:", data.len())
+                vector_ids = []
+                if data: 
+                  for chunk in data:
+                    vector_ids.append(f"{record_id}-{chunk['url']}")
+                          
+                if vector_ids:
+                    return vector_ids   
+            else:
+
+                print("JSON data not found for record ID:", record_id)
+                return None
+    except Exception as e:
+        conn.rollback()
+        print(f"Failed to delete the record: {e}")
         return {"status": "error", "message": str(e)}
 
 
