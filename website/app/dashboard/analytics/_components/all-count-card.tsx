@@ -11,13 +11,16 @@ export const CountCard = ({
   title,
   count,
   description,
+  loading
+
 }: {
   title: string;
   count: number;
   description: string;
+  loading: boolean;
 }) => {
   return (
-    <Card className="bg-[#181818] border-[#202020]">
+    <Card className={`bg-[#181818] border-[#202020] ${loading && "animate-pulse"}`}>
       <CardHeader>
         <CardTitle className="text-2xl font-semibold text-[#f8f8f8]">
           {title}

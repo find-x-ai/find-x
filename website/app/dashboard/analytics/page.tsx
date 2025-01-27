@@ -41,16 +41,18 @@ const page = () => {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5">
         <CountCard
+          loading={data.loading}
           title="Total Requests"
           count={data.total}
           description="Total requests count"
         />
         <CachedCountCard
+          loading={data.loading}
           title="Cached Requests"
           count={data.cached}
           description="Cached requests count"
         />
-        <SuccessRateCard rate={data.successRate} />
+        <SuccessRateCard loading={data.loading} rate={data.successRate} />
       </div>
     </div>
   );

@@ -7,9 +7,17 @@ import {
 } from "@/components/ui/card";
 import CountUp from "react-countup";
 
-export const SuccessRateCard = ({ rate }: { rate: number }) => {
+export const SuccessRateCard = ({
+  rate,
+  loading,
+}: {
+  rate: number;
+  loading: boolean;
+}) => {
   return (
-    <Card className="bg-[#181818] border-[#202020]">
+    <Card
+      className={`bg-[#181818] border-[#202020] ${loading && "animate-pulse"}`}
+    >
       <CardHeader>
         <CardTitle className="text-2xl font-semibold text-[#f8f8f8]">
           Success Rate
