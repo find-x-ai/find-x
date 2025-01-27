@@ -95,7 +95,7 @@ export function Register() {
       <Card className="w-full max-w-[400px] text-gray-100 border-[#353535] bg-[#111111]">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-semibold">
-            Register for <span className="gradient-text">Find-X</span>
+            Register for <span className="gradient-text">FIND-X</span>
           </CardTitle>
           <CardDescription className="text-gray-400">
             Choose your preferred registration method
@@ -162,7 +162,7 @@ export function Register() {
             onClick={handleGoogleRegister}
           >
             <img
-              className="w-[20px] h-[20px]"
+              className="w-[17px] h-[17px]"
               src="/icons/google.png"
               alt="google logo"
             />
@@ -174,8 +174,15 @@ export function Register() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 text-sm text-[#656565] text-center">
           <p>
-            By registering, you agree to our Terms of Service and Privacy
-            Policy.
+            By registering, you agree to our{" "}
+            <Link className="underline" href={"/terms"}>
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link className="underline" href={"/policy"}>
+              Privacy Policy
+            </Link>
+            .
           </p>
           <p>
             Already have an account?{" "}
@@ -183,7 +190,7 @@ export function Register() {
               href="/login"
               className="text-emerald-500 hover:text-emerald-400"
             >
-              Login here
+              login here
             </Link>
           </p>
         </CardFooter>

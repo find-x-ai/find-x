@@ -76,7 +76,7 @@ export function Login() {
       <Card className=" w-full max-w-[400px] text-gray-100 border-[#353535] bg-[#111111] ">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-semibold">
-            Login to <span className="gradient-text">Find-X</span>
+            Login to <span className="gradient-text">FIND-X</span>
           </CardTitle>
           <CardDescription className="text-gray-400">
             Choose your preferred login method
@@ -129,7 +129,7 @@ export function Login() {
             disabled={googleLoading || emailLoading}
           >
             <img
-              className="w-[20px] h-[20px]"
+              className="w-[17px] h-[17px]"
               src="/icons/google.png"
               alt="google logo"
             />
@@ -141,8 +141,15 @@ export function Login() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-2 text-sm text-[#656565] text-center">
           <p>
-            By registering, you agree to our Terms of Service and Privacy
-            Policy.
+            By registering, you agree to our{" "}
+            <Link className="underline" href={"/terms"}>
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link className="underline" href={"/policy"}>
+              Privacy Policy
+            </Link>
+            .
           </p>
           <p>
             Don't have an account?{" "}

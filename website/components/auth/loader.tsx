@@ -11,7 +11,7 @@ export function Loader({ token }: { token: string }) {
     const handle_token = async () => {
       const res = await verifyMagicLink({ token });
       if (res.success) {
-        router.refresh();
+        router.push("/dashboard"); 
       } else {
         router.push("/login");
       }
