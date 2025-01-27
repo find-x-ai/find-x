@@ -2,6 +2,7 @@
 import { CountCard } from "./_components/all-count-card";
 import { SuccessRateCard } from "./_components/success-rate-card";
 import { CachedCountCard } from "./_components/cached-count-card";
+import { LiveLogs } from "./_components/live-logs";
 import { useState, useEffect } from "react";
 
 type Data = {
@@ -12,6 +13,15 @@ type Data = {
   loading: boolean;
 };
 
+type Log = {
+  id: number;
+  index_id: number;
+  query: string;
+  type: string;
+  status: number;
+  name: string;
+};
+
 const page = () => {
   const [data, setData] = useState<Data>({
     normal: 0,
@@ -20,6 +30,8 @@ const page = () => {
     total: 0,
     loading: true,
   });
+
+  const [logs, setLogs] = useState<Log[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,11 +47,11 @@ const page = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [logs]);
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5">
+    <div className="flex flex-col">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 pb-0">
         <CountCard
           loading={data.loading}
           title="Total Requests"
@@ -53,6 +65,9 @@ const page = () => {
           description="Cached requests count"
         />
         <SuccessRateCard loading={data.loading} rate={data.successRate} />
+      </div>
+      <div className="p-5">
+        <LiveLogs logs={logs} setLogs={setLogs} />
       </div>
     </div>
   );

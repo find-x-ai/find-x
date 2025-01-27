@@ -26,8 +26,8 @@ export const SuccessRateCard = ({
       </CardHeader>
       <CardContent>
         <div className="flex flex-col md:flex-row md:gap-2 gap-3 items-center space-x-2">
-          <strong className="text-3xl md:text-4xl font-bold gradient-text">
-            <CountUp duration={2.5} start={0} end={rate} />
+          <strong className="text-3xl md:text-4xl font-bold gradient-text mr-auto">
+            <CountUp duration={2.5} start={0} end={rate} />%
           </strong>
         </div>
       </CardContent>

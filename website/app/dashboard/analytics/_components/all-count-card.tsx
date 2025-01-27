@@ -29,7 +29,7 @@ export const CountCard = ({
       </CardHeader>
       <CardContent>
         <div className="flex flex-col md:flex-row md:gap-2 gap-3 items-center space-x-2">
-          <strong className="text-3xl md:text-4xl font-bold gradient-text">
+          <strong className="text-3xl md:text-4xl font-bold gradient-text mr-auto">
             <CountUp duration={1} start={0} end={count} />
           </strong>
         </div>
