@@ -14,19 +14,19 @@ export const Features = () => {
             <div className="flex w-full">
               <div onClick={toggleChatBox} className="w-full cursor-pointer h-[50px] bg-[#070707] border border-[#181818] rounded-lg p-2 flex items-center">
                 <div>
-                  <Search className="text-[#20A0B5] stroke-2" />
+                  <Search className="text-white stroke-2" />
                 </div>
                 <div className="w-full text-start px-5">
                   <p className="text-zinc-500">Search anything</p>
                 </div>
-                <div className="w-[40px] bg-[#181818] px-2 py-1 rounded-md text-[#656565]">
+                <div className="w-[40px] bg-[#181818] px-2 py-1 rounded-md text-[#656565] border border-[#454545]">
                   Esc
                 </div>
               </div>
             </div>
             <div className="flex w-full flex-col gap-2 justify-center items-start text-start p-2">
               <h3 className="text-xl md:text-2xl">
-                Advanced Search
+                Advanced search
               </h3>
               <p className="text-[#656565]">
                 AI based local search engine for websites that finds exactly
@@ -80,7 +80,7 @@ export const Features = () => {
 
             <div className="flex w-full flex-col gap-2 justify-center items-start text-start p-2">
               <h3 className="text-xl md:text-2xl">
-                Not Just Text
+                Not just text
               </h3>
               <p className="text-muted-foreground">
                 Explore media content with Find-X not just boring text

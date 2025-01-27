@@ -60,7 +60,7 @@ export function PricingComponent() {
   return (
     <div className="container mx-auto py-10 text-[#f7f8f8]">
       <h2 className="text-3xl text-center mb-12">
-        It's <span className="gradient-text">Worth</span> It
+        It's <span className="gradient-text">worth</span> it
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {cards_data.map((card, index) => (
