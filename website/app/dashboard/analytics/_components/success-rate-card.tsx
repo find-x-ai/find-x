@@ -11,7 +11,7 @@ export const SuccessRateCard = ({ rate }: { rate: number }) => {
   return (
     <Card className="bg-[#181818] border-[#202020]">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold text-muted-foreground">
+        <CardTitle className="text-2xl font-semibold text-[#f8f8f8]">
           Success Rate
         </CardTitle>
         <CardDescription>Success Rate</CardDescription>

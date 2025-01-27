@@ -39,9 +39,6 @@ const page = () => {
 
   return (
     <div>
-      <div className="p-5 border-b border-[#202020]">
-        <h2 className="text-2xl ">Usage Analytics</h2>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 p-5">
         <CountCard
           title="Total Requests"
