@@ -17,10 +17,15 @@ export const LiveLogs = ({
   setLogs: (logs: Log[]) => void;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [count, setCount] = useState<number>(0);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     const fetchLogs = async () => {
+      if (count > 30){
+        clearInterval(intervalId);
+        return;
+      };
       setIsLoading(true);
       try {
         const res = await fetch("/api/analytics/live");
@@ -30,6 +35,7 @@ export const LiveLogs = ({
         console.error("Error fetching logs:", error);
       } finally {
         setIsLoading(false);
+        setCount(count + 1);
       }
     };
 
