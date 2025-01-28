@@ -29,6 +29,9 @@ export const LiveLogs = ({
       setIsLoading(true);
       try {
         const res = await fetch("/api/analytics/live");
+        if(!res.ok){
+          throw new Error("Failed to fetch logs");
+        }
         const { data } = (await res.json()) as { data: Log[] };
         setLogs(data);
       } catch (error) {
