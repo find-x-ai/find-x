@@ -31,11 +31,11 @@ const links = [
     url: "/dashboard/billing",
     icon: <Receipt className="w-5 h-5" />,
   },
-  {
-    name: "Settings",
-    url: "/dashboard/settings",
-    icon: <Settings className="w-5 h-5" />,
-  },
+  // {
+  //   name: "Settings",
+  //   url: "/dashboard/settings",
+  //   icon: <Settings className="w-5 h-5" />,
+  // },
 ];
 
 export const Sidebar = ({
