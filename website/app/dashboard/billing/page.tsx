@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 import { PlanCard } from "./_components/plan-card";
-import { Loader2 } from "lucide-react";
+import { Crown, Loader2 } from "lucide-react";
 import { RemainingCard } from "./_components/remaining-card";
 import { PaidCard } from "./_components/paid-card";
 import { Button } from "@/components/ui/button";
@@ -51,8 +51,8 @@ const page = () => {
               <div className="flex flex-col gap-5 w-full h-full">
                 <PlanCard plan={data.plan.name} />
                 <Link className="w-full" href={"/pricing"}>
-                  <Button className="bg-violet-600 w-full text-white hover:bg-violet-700">
-                    Upgrade
+                  <Button className="bg-emerald-600 w-full text-white hover:bg-emerald-700">
+                    Upgrade plan  <Crown/>
                   </Button>
                 </Link>
               </div>
