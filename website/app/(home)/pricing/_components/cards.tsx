@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface PricingCard {
   title: string;
   price: number;
   features: string[];
   duration: string;
+  link: string;
 }
 
 const cards_data: PricingCard[] = [
@@ -23,12 +25,13 @@ const cards_data: PricingCard[] = [
     title: "Free",
     price: 0,
     features: [
-      "1000 searches per month",
+      "500 searches per month",
       "Basic support",
       "Limited analytics",
-      "Standard response time",
+      "Small context models",
     ],
     duration: "Monthly",
+    link: '/dashboard/indexing'
   },
   {
     title: "Pro",
@@ -36,27 +39,30 @@ const cards_data: PricingCard[] = [
     features: [
       "2000 searches per month",
       "Priority support",
-      "Custom branding",
       "Detailed analytics",
+      "Large context models",
+      
     ],
     duration: "Monthly",
+    link: 'https://checkout.find-x.tech/buy/84a8af58-8c12-430b-8919-52bd49609d7e',
   },
   {
     title: "Enterprise",
-    price: 500,
+    price: 200,
     features: [
       "Unlimited searches",
-      "Dedicated account manager",
+      "24/7 support",
       "Advanced analytics",
       "Custom integrations",
-      "24/7 support",
       "Access to beta features",
     ],
     duration: "Monthly",
+    link: 'mailto:team@find-x.tech',
   },
 ];
 
 export function PricingComponent() {
+  const router = useRouter();
   return (
     <div className="container mx-auto py-10 text-[#f7f8f8]">
       <h2 className="text-3xl text-center mb-12">
@@ -93,7 +99,7 @@ export function PricingComponent() {
             </CardContent>
             <CardFooter>
               <Button
-              onClick={()=> toast.info("Comming Soon...")}
+              onClick={()=> router.push(card.link)}
                 className="w-full"
                 variant={index === 1 ? "default" : "outline"}
               >
@@ -104,7 +110,7 @@ export function PricingComponent() {
         ))}
        
       </div>
-      <p className="py-10 text-[#656565] text-center">Note : Find-X is currently in development and free to use!</p>
+      {/* <p className="py-10 text-[#656565] text-center">Note : Find-X is currently in development and free to use!</p> */}
     </div>
   );
 }
