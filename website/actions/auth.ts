@@ -8,8 +8,11 @@ import { assignJwt, verifyJwt } from "./jwt";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { setCookie } from "cookies-next";
+import { Resend } from "resend";
+import { FINDXLoginCodeEmail } from "@/emails/magic-link";
 
 const key = new TextEncoder().encode(process.env.JWT_SECRET!);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const magicLinkSchema = z.object({
   email: z.string().email(),
@@ -90,41 +93,33 @@ export const sendMagicLink = async ({
       throw new Error("Failed to assign JWT!");
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.MAIL_USER!,
-        pass: process.env.MAIL_PASS!,
-      },
+    const { data, error } = await resend.emails.send({
+      from: "FIND-X <hello@find-x.tech>",
+      to: [email],
+      subject: "FIND-X Magic Link",
+      react: FINDXLoginCodeEmail({
+        magicLink: `${baseUrl}/magic-link?token=${res.token}`,
+        name,
+        baseUrl,
+      }),
     });
 
-    const link = `${baseUrl}/magic/${res.token}`;
-
-    const mailOptions = {
-      from: `Find-X <redshield.vercel.app@gmail.com>`,
-      to: email,
-      subject: `Magic login for Find-X`,
-      html: await magicLinkLogin({ email, name, link }),
-    };
-
-    const info = await transporter.sendMail(mailOptions);
-
-    if (info.accepted.length > 0) {
-      pipeline.set(`${email}:attempts`, attemptCount + 1, {
-        ex: 60 * 15,
-      });
-
-      await pipeline.exec();
-
+    if (error) {
       return {
-        success: true,
-        message: "Magic link sent!",
+        success: false,
+        message: "Failed to send link!",
       };
     }
 
+    pipeline.set(`${email}:attempts`, attemptCount + 1, {
+      ex: 60 * 15,
+    });
+
+    await pipeline.exec();
+
     return {
-      success: false,
-      message: "Failed to send link!",
+      success: true,
+      message: "Magic link sent!",
     };
   } catch (error) {
     return {
