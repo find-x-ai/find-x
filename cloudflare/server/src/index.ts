@@ -8,7 +8,7 @@ import Groq from 'groq-sdk';
 import { cache } from 'hono/cache';
 import { neon } from '@neondatabase/serverless';
 import { EnvironmentVariables, Header, Image, Chunk, Data } from './types';
-import { use } from 'hono/jsx';
+import Together from 'together-ai';
 
 const app = new Hono();
 //allow cross origin requests
@@ -22,20 +22,7 @@ app.post(
 	async (c) => {
 		const env = c.env as EnvironmentVariables;
 
-		const apiKeys: (keyof EnvironmentVariables)[] = [
-			'AI_API_KEY_1',
-			'AI_API_KEY_2',
-			'AI_API_KEY_3',
-			'AI_API_KEY_4',
-			'AI_API_KEY_5',
-			'AI_API_KEY_6',
-			'AI_API_KEY_7',
-			'AI_API_KEY_8',
-			'AI_API_KEY_9',
-			'AI_API_KEY_10',
-			'AI_API_KEY_11',
-			'AI_API_KEY_12',
-		];
+		const apiKeys: (keyof EnvironmentVariables)[] = ['GROQ_API_KEY', 'TOGETHER_AI_API_KEY'];
 
 		// const selectedApiKey = env[apiKeys[randomIndex - 1]];
 		const secret = c.req.header('Authorization') as string;
@@ -86,20 +73,34 @@ app.post(
 		// 	return c.text('Deployement is in progress , please wait for a few minutes', 400);
 		// }
 
+		const log_count_res = await db(
+			`
+			   SELECT l.*
+  FROM logs l
+  JOIN indexes i ON l.index_id = i.id
+  WHERE i.user_id = $1
+  AND l.type <> 'cached'
+  AND l.time >= DATE_TRUNC('month', NOW())  -- First day of the current month
+  AND l.time < NOW();  -- Up to the current timestamp
+
+			`,
+			[db_res[0].user_id]
+		);
+
 		switch (db_res[0].plan_name) {
 			case 'free':
-				if (parseInt(db_res[0].total_requests) >= 1000) {
+				if (log_count_res.length >= 500) {
 					return c.text('You have reached the limit of your free plan, please upgrade to a paid plan', 400);
 				}
 				break;
 			case 'pro':
-				if (parseInt(db_res[0].total_requests) >= 2000) {
-					return c.text('You have reached the limit of your pro plan, please upgrade to a paid plan', 400);
+				if (log_count_res.length >= 2000) {
+					return c.text('You have reached the limit of your pro plan, please upgrade your plan', 400);
 				}
 				break;
 			case 'enterprise':
-				if (parseInt(db_res[0].total_requests) >= 10000) {
-					return c.text('You have reached the limit of your enterprise plan, please upgrade to a paid plan', 400);
+				if (log_count_res.length >= 10000) {
+					return c.text('You have reached the limit of your enterprise plan, please upgrade your plan', 400);
 				}
 				break;
 			default:
@@ -133,7 +134,8 @@ app.post(
 		}
 
 		try {
-			const groq = new Groq({ apiKey: env[apiKeys[9]] });
+			const groq = new Groq({ apiKey: env.GROQ_API_KEY });
+			const together = new Together({ apiKey: env.TOGETHER_AI_API_KEY });
 
 			const index = new Index({
 				url: UPSTASH_VECTOR_REST_URL,
@@ -181,25 +183,49 @@ app.post(
 
 			return streamText(c, async (stream) => {
 				await stream.write(concatenatedHeader);
-				const chatCompletion = await groq.chat.completions.create({
-					messages: [
-						{
-							role: 'system',
-							content: instructions,
-						},
-						{
-							role: 'user',
-							content: data,
-						},
-					],
-					model: 'llama-3.1-8b-instant',
-					stream: true,
-					temperature: 0.5,
-				});
+				let chatCompletion;
+				if (db_res[0].plan_name === 'free') {
+					chatCompletion = await groq.chat.completions.create({
+						messages: [
+							{
+								role: 'system',
+								content: instructions,
+							},
+							{
+								role: 'user',
+								content: data,
+							},
+						],
+						model: 'llama-3.1-8b-instant',
+						stream: true,
+						temperature: 0.5,
+					});
+				} else if (db_res[0].plan_name === 'pro') {
+					chatCompletion = await groq.chat.completions.create({
+						messages: [
+							{
+								role: 'system',
+								content: instructions,
+							},
+							{
+								role: 'user',
+								content: data,
+							},
+						],
+						model: 'llama-3.3-70b-versatile',
+						stream: true,
+						temperature: 0.5,
+					});
+				}
+
 				let oneTime = 0;
 				let full_content = '';
-				for await (const chunk of chatCompletion) {
-					const content = chunk.choices[0].delta.content;
+				for await (const chunk of chatCompletion!) {
+					let content = chunk.choices[0].delta.content;
+
+					// if (db_res[0].plan_name === 'pro') {
+					// 	content = content!.split('</think>').length > 1 ? content?.split('</think>')[1] : content;
+					// }
 					if (content) {
 						if (oneTime === 0) {
 							await Promise.all([
