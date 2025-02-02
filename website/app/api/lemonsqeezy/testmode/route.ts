@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest) => {
   const eventName = data["meta"]["event_name"];
   const attributes = data["data"]["attributes"];
   const customerEmail = attributes["user_email"]; // Extract customer email
-  const paidAmount = attributes["total"]; // Extract the total paid amount
+  const paidAmount = attributes["total"]/100 || 0; // Extract the total paid amount
   const status = attributes["status"]; // Extract payment status
   const currency = attributes["currency"]; // Extract payment currency
   const refunded = attributes["refunded"]; // Check if the payment is refunded
