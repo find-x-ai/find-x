@@ -83,7 +83,7 @@ const container = {
 };
 
 const logo = {
-  margin: "0 auto",
+  borderRadius: "1000px"
 };
 
 const paragraph = {

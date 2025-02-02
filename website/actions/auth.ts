@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Resend } from "resend";
 import { FINDXLoginCodeEmail } from "@/emails/magic-link";
+import FINDXWelcomeEmail from "@/emails/welcome";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -151,13 +152,31 @@ export const verifyMagicLink = async ({
       throw new Error("Invalid user data in token");
     }
 
-    const dbRes = await sql`
-    INSERT INTO users (email, name, session)
-    VALUES (${email}, ${name}, ${session})
-    ON CONFLICT (email) 
-    DO UPDATE SET session = ${session}
-    RETURNING id
-  `;
+    const userExists = await sql`SELECT * FROM users WHERE email = ${email}`;
+    let dbRes;
+    if (userExists.length > 0) {
+      dbRes =
+        await sql`update users set session = ${session} where email = ${email} returning id`;
+    } else {
+      dbRes =
+        await sql`INSERT INTO users (email, name, session) VALUES (${email}, ${name}, ${session}) returning id`;
+      const teamMembers = ["Sahil", "Sohel", "Saad"];
+      // select random team member to send magic link
+      const teamMember =
+        teamMembers[Math.floor(Math.random() * teamMembers.length)];
+      const { error } = await resend.emails.send({
+        from: ` ${teamMember} <${teamMember.toLocaleLowerCase()}@find-x.tech>`,
+        to: [email],
+        subject: "Welcome to FIND-X!",
+        react: FINDXWelcomeEmail({
+          userFirstname: name,
+        }),
+      });
+
+      if (error) {
+        console.log("Error sending welcome email", error);
+      }
+    }
     const [access, refresh] = await Promise.all([
       assignJwt({ email, name, exp: 30, session, id: dbRes[0].id }),
       assignJwt({
@@ -225,7 +244,6 @@ export const signInWithGoogle = async ({
       accessToken: access.token,
       refreshToken: refresh.token,
     });
-    
 
     return {
       success: true,

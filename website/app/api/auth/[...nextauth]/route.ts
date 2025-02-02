@@ -54,7 +54,7 @@ const authOptions: NextAuthOptions = {
           // select random team member to send magic link
           const teamMember =
             teamMembers[Math.floor(Math.random() * teamMembers.length)];
-          const {} = await resend.emails.send({
+          const { error } = await resend.emails.send({
             from: ` ${teamMember} <${teamMember.toLocaleLowerCase()}@find-x.tech>`,
             to: [profile.email],
             subject: "Welcome to FIND-X!",
@@ -62,6 +62,9 @@ const authOptions: NextAuthOptions = {
               userFirstname: profile.name || "there",
             }),
           });
+          if (error) {
+            console.log("Error sending welcome email", error);
+          }
         } else {
           // For existing users, update their session
           await sql`
