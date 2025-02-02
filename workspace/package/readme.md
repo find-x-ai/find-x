@@ -5,7 +5,7 @@ Welcome to **FIND-X**, an advanced AI-powered local search engine crafted to del
 
 ## Supported Frameworks
 
-Currently, Find-X supports the following frameworks, with plans to expand to all major frameworks soon:
+Currently, **FIND-X** supports the following frameworks, with plans to expand to all major frameworks soon:
 
 - React
 - Next.js
@@ -68,4 +68,4 @@ Getting started with Find-X is quick and easy. Follow the steps below to integra
      );
    }
 
-For more information about **Find-X** check out the documentation [here](https://www.find-x.tech/docs/getting_started)
+For more information about **FIND-X** check out the documentation [here](https://www.find-x.tech/docs/getting_started)
