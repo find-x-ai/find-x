@@ -1,17 +1,12 @@
 "use server";
-
 import { z } from "zod";
-import nodemailer from "nodemailer";
-import { magicLinkLogin } from "@/components/email";
 import { sql, redis } from "@/lib/db";
 import { assignJwt, verifyJwt } from "./jwt";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { setCookie } from "cookies-next";
 import { Resend } from "resend";
 import { FINDXLoginCodeEmail } from "@/emails/magic-link";
 
-const key = new TextEncoder().encode(process.env.JWT_SECRET!);
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const magicLinkSchema = z.object({
@@ -94,7 +89,7 @@ export const sendMagicLink = async ({
     }
 
     const { data, error } = await resend.emails.send({
-      from: "FIND-X <hello@find-x.tech>",
+      from: "FIND-X <auth@find-x.tech>",
       to: [email],
       subject: "FIND-X Magic Link",
       react: FINDXLoginCodeEmail({
@@ -230,6 +225,8 @@ export const signInWithGoogle = async ({
       accessToken: access.token,
       refreshToken: refresh.token,
     });
+    
+
     return {
       success: true,
       message: "Signed in successfully",
