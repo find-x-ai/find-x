@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest) => {
   const eventName = data["meta"]["event_name"];
   const attributes = data["data"]["attributes"];
   const customerEmail = attributes["user_email"]; // Extract customer email
-  const paidAmount = attributes["total"]; // Extract the total paid amount
+  const paidAmount = attributes["total"]/100 || 0; // Extract the total paid amount
   const status = attributes["status"]; // Extract payment status
   const currency = attributes["currency"]; // Extract payment currency
   const refunded = attributes["refunded"]; // Check if the payment is refunded
@@ -47,7 +47,7 @@ export const POST = async (req: NextRequest) => {
         // Insert payment record into the payments table
         await sql`
           INSERT INTO payments (email, created_at, amount, status, currency, refunded)
-          VALUES (${customerEmail}, ${attributes["created_at"]}, ${paidAmount/100}, ${status}, ${currency}, ${refunded})
+          VALUES (${customerEmail}, ${attributes["created_at"]}, ${paidAmount}, ${status}, ${currency}, ${refunded})
         `;
         console.log("Payment success: Inserted into payments table.");
 
@@ -55,7 +55,7 @@ export const POST = async (req: NextRequest) => {
         await sql`
           UPDATE plans 
           SET name = 'pro',
-              paid = ${paidAmount/100} 
+              paid = ${paidAmount} 
           WHERE user_email = ${customerEmail}
         `;
         console.log("Subscription payment success: User updated to 'pro' plan.");
@@ -65,7 +65,7 @@ export const POST = async (req: NextRequest) => {
         // Insert payment record into the payments table
         await sql`
           INSERT INTO payments (email, created_at, amount, status, currency, refunded)
-          VALUES (${customerEmail}, ${attributes["created_at"]}, ${paidAmount/100}, ${status}, ${currency}, ${refunded})
+          VALUES (${customerEmail}, ${attributes["created_at"]}, ${paidAmount}, ${status}, ${currency}, ${refunded})
         `;
         console.log("Payment failed: Inserted into payments table.");
 
