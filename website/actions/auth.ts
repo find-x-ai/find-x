@@ -98,7 +98,7 @@ export const sendMagicLink = async ({
       to: [email],
       subject: "FIND-X Magic Link",
       react: FINDXLoginCodeEmail({
-        magicLink: `${baseUrl}/magic-link?token=${res.token}`,
+        magicLink: `${baseUrl}/magic/${res.token}`,
         name,
         baseUrl,
       }),
