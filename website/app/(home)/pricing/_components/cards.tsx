@@ -44,7 +44,7 @@ const cards_data: PricingCard[] = [
       
     ],
     duration: "Monthly",
-    link: 'https://checkout.find-x.tech/buy/84a8af58-8c12-430b-8919-52bd49609d7e',
+    link: 'https://checkout.find-x.tech/buy/d30c260e-2717-4e41-9ac5-21f9329beca3',
   },
   {
     title: "Enterprise",
