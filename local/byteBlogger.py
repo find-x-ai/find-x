@@ -1,1 +1,0 @@
-# Scraper designed to scrape bytebloggerbase.com
