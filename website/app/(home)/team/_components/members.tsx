@@ -31,8 +31,8 @@ export function TeamComponent() {
     <div className="flex gap-10 sm:px-0 px-10 flex-col py-10 text-[#f8f9f9]">
       <div>
         <h2 className="text-4xl text-center">
-          <span>Building</span> <span className="gradient-text">Future</span>{" "}
-          <span>Together</span>
+          <span>Building</span> <span className="gradient-text">future</span>{" "}
+          <span>together</span>
         </h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">

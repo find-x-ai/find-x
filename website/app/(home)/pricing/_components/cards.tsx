@@ -91,16 +91,17 @@ export function PricingComponent() {
               <ul className="space-y-2">
                 {card.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-center">
-                    <Check className="mr-2 h-4 w-4 text-[#757575]" />
-                    <span className="text-[#656565]">{feature}</span>
+                    <Check className="mr-2 h-4 w-4 text-[#858585]" />
+                    <span className="text-[#858585]">{feature}</span>
                   </li>
                 ))}
               </ul>
             </CardContent>
             <CardFooter>
               <Button
+
               onClick={()=> router.push(card.link)}
-                className="w-full"
+                className={`${index === 1 ? "bg-emerald-500 hover:bg-emerald-700 text-white hover:text-white" : ""} w-full`}
                 variant={index === 1 ? "default" : "outline"}
               >
                 Choose Plan

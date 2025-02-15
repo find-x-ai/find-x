@@ -6,11 +6,11 @@ export const Footer = () => {
       <div className="w-full max-w-[1000px] flex flex-col lg:flex-row p-5">
         <div className="mb-5 lg:mb-0 lg:w-1/4">
           <h2 className="text-xl mb-2 ">FIND-X</h2>
-          <p className="text-sm text-[#656565]">Perplexity for your website</p>
+          <p className="text-sm text-[#858585]">Perplexity for your website</p>
         </div>
         <div className="mb-5 lg:mb-0 lg:w-1/4">
           <h3 className="text-lg mb-2">Quick Links</h3>
-          <ul className="text-sm space-y-2 text-zinc-600">
+          <ul className="text-sm space-y-2 text-zinc-500">
             <li>
               <Link href="/policy" className="hover:underline">
                 Privacy Policy
@@ -25,7 +25,7 @@ export const Footer = () => {
         </div>
         <div className="mb-5 lg:mb-0 lg:w-1/4 space-y-2">
           <h3 className="text-lg mb-2">Contact Us</h3>
-          <p className="text-sm text-zinc-600">Email: team@find-x.tech</p>
+          <p className="text-sm text-zinc-500">Email: team@find-x.tech</p>
         </div>
         <div className="lg:w-1/4">
           <h3 className="text-lg mb-2">Follow Us</h3>
@@ -33,7 +33,7 @@ export const Footer = () => {
             <a
               target="_blanc"
               href="https://twitter.com/find_x_ai"
-              className="hover:underline text-zinc-600"
+              className="hover:underline text-zinc-500"
             >
               Twitter
             </a>

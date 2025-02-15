@@ -8,7 +8,7 @@ const Page = () => {
   return (
     <div className="container mx-auto pb-8 px-4">
       <h1 className="text-3xl font-semibold mb-8 text-white text-center">
-        Latest Blog Posts
+        Latest <span className="gradient-text">blog</span> posts
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {blogPosts.map((post) => (
