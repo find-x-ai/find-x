@@ -5,6 +5,7 @@ export const fetchResponse = async (
   findx_key: string,
   use_cache: boolean
 ): Promise<AsyncIterable<string>> => {
+  console.log(URL, search, findx_key, use_cache);
   const res = await fetch(URL, {
     method: "POST",
     cache: "force-cache",

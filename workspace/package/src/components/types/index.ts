@@ -2,7 +2,8 @@
 export type Config = {
   findx_key: string;
   theme: "light" | "dark";
-  default: boolean
+  default: boolean;
+  suggestions?: string[];
 };
 
 export type Image = {
@@ -11,14 +12,14 @@ export type Image = {
 };
 
 export type Source = {
-   title: string;
-   content: string;
-   url: string;
-}
+  title: string;
+  content: string;
+  url: string;
+};
 
 export type Header = {
-  sources: Source[],
+  sources: Source[];
   images: {
-    data: Image[]
-  }
-}
+    data: Image[];
+  };
+};
