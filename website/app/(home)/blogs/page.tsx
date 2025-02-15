@@ -14,25 +14,25 @@ const Page = () => {
         {blogPosts.map((post) => (
           <div
             key={post.id}
-            className="border border-[#262626] space-y-4 rounded-lg p-6 hover:shadow-lg transition-shadow flex flex-col h-full"
+            className="border border-[#262626] rounded-lg hover:shadow-lg transition-shadow flex flex-col h-full"
           >
-            <h2 className="text-xl font-semibold mb-2 text-white">
+            <h2 className="text-xl font-semibold text-white p-3">
               {post.title}
             </h2>
-            <div className="relative w-full h-40 mb-4">
+            <div className="relative w-full h-40 p-3">
               <Image
                 src={`/blogs/${post.id}.jpg`}
                 width={500}
                 height={500}
                 alt={post.title}
-                className="w-full h-40 object-cover rounded-lg"
+                className="w-full h-40 object-cover rounded-sm"
                 loading="lazy"
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4dHRsdHR4dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/2wBDAR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR3/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
               />
             </div>
-            <p className="text-muted-foreground">{post.description}</p>
-            <div className="flex justify-between items-center mt-auto">
+            <p className="text-muted-foreground px-3 py-5">{post.description}</p>
+            <div className="flex justify-between items-center mt-auto p-3">
               <p className="text-sm text-muted-foreground">
                 {new Date(post.date).toLocaleDateString()}
               </p>

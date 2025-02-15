@@ -8,7 +8,7 @@ export const Hero = ({ version }: { version: string }) => (
       <div className="flex flex-col items-center justify-center gap-8 py-16 lg:py-28">
         <div>
           <Button variant="secondary" size="sm" className="gap-4" asChild>
-            <Link href={`https://npmjs.org/find-x-ai`}>
+            <Link target='_blank' href={`https://npmjs.org/find-x-ai`}>
               Just released {version} <MoveRight className="h-4 w-4" />
             </Link>
           </Button>
