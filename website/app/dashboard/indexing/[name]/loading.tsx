@@ -6,7 +6,7 @@ export default function Loading() {
   return (
     <div className="flex h-full text-[#656565] w-full items-center justify-center">
       <div className="flex items-center gap-1">
-        <span>Loading Your Index...</span>
+        <span>Loading your index...</span>
         <Loader2 className="animate-spin w-4 h-4" />
       </div>
     </div>

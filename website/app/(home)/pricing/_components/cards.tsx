@@ -101,7 +101,7 @@ export function PricingComponent() {
               <Button
 
               onClick={()=> router.push(card.link)}
-                className={`${index === 1 ? "bg-emerald-500 hover:bg-emerald-700 text-white hover:text-white" : ""} w-full`}
+                className={`${index === 1 ? "bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white" : ""} w-full`}
                 variant={index === 1 ? "default" : "outline"}
               >
                 Choose Plan
