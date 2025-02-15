@@ -11,7 +11,7 @@ const TermsOfServicePage = () => {
       <h1 className="text-2xl font-semibold mb-4 text-white">
         FIND-X Terms of Service
       </h1>
-      <p className="text-sm text-gray-400 mb-6">Effective: [soon]</p>
+      <p className="text-sm text-gray-400 mb-6">Effective: 15th Feb 2025</p>
 
       <div className="space-y-8">
         <section>
@@ -97,10 +97,10 @@ const TermsOfServicePage = () => {
           <p className="text-gray-300">
             Email us at{" "}
             <a
-              href="mailto:support@find-x.tech"
+              href="mailto:sahil.findx@gmail.com"
               className="text-blue-400 hover:underline"
             >
-              support@find-x.tech
+              sahil.findx@gmail.com
             </a>{" "}
             with any questions - we usually respond within 24 hours.
           </p>
