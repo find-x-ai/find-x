@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef, FormEvent } from "react";
-import { ResponseArea, SearchBar, SparkleButton, Suggestions } from "./ui";
+import { ResponseArea, SearchBar, SparkleButton } from "./ui";
 import { useTypeEffect } from "./hooks/useTypeEffect";
 import { useExtractCodeSnippets } from "./hooks/useExtractCodeSnippets";
 import { fetchResponse } from "../actions/fetch";
@@ -39,9 +39,6 @@ const ChatBox = ({ config }: { config: Config }) => {
   const typeEffect = useTypeEffect();
   const extractCodeSnippets = useExtractCodeSnippets();
 
-  // Use a ref to persist the backup query across renders
-  const searchQueryBackup = useRef<string>("");
-
   useEffect(() => {
     externalToggle = toggleOpen;
     return () => {
@@ -75,14 +72,12 @@ const ChatBox = ({ config }: { config: Config }) => {
     };
   }, [setIsOpen]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent, search: string) => {
     e.preventDefault();
-
-    if (!searchQuery.trim() || isLoading) return;
-    // Backup the current query
-    searchQueryBackup.current = searchQuery;
-    // Reset the search input
-    setSearchQuery("");
+    if (!search.trim() || isLoading) return;
+    setSearchQuery(search);
+    (document.querySelector("form") as HTMLFormElement).reset();
+    await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
     setIsLoading(true);
     setResponse("Searching");
     setSources([]);
@@ -91,7 +86,7 @@ const ChatBox = ({ config }: { config: Config }) => {
 
     try {
       const responseStream = await fetchResponse(
-        searchQuery,
+        search,
         config.findx_key,
         true
       );
@@ -100,7 +95,7 @@ const ChatBox = ({ config }: { config: Config }) => {
 
       for await (const chunk of responseStream) {
         if (chunk.includes("<#$#>")) {
-          // Split the text to extract the header JSON string
+          // split the text to extract the header JSON string
           const [headerString, responseText] = chunk.split("<#$#>");
           const header = JSON.parse(headerString) as Header;
           setImages(header.images.data);
@@ -125,20 +120,18 @@ const ChatBox = ({ config }: { config: Config }) => {
   };
 
   const handleRegenerate = async () => {
-    // Use the backup query instead of the now reset searchQuery
-    if (!searchQueryBackup.current.trim() || isLoading) return;
-    setIsLoading(true);
+    if (!searchQuery.trim() || isLoading) return;
+    (document.querySelector("form") as HTMLFormElement).reset();
+    await new Promise((res) => setTimeout(res, 0)); // Dummy await for react state updates
     setResponse("Regenerating...");
-
     try {
       const responseStream = await fetchResponse(
-        searchQueryBackup.current,
+        searchQuery,
         config.findx_key,
         false
       );
       setResponse(" ");
       let wholeResponse = "";
-
       for await (const chunk of responseStream) {
         if (chunk.includes("<#$#>")) {
           const [_headerString, responseText] = chunk.split("<#$#>");
@@ -156,8 +149,6 @@ const ChatBox = ({ config }: { config: Config }) => {
     } catch (error) {
       console.log(error);
       setResponse("Failed to fetch response!");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -174,33 +165,19 @@ const ChatBox = ({ config }: { config: Config }) => {
             className="f-w-full f-h-auto f-mx-auto f-max-w-[800px] f-relative f-top-10"
           >
             <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
               handleSubmit={handleSubmit}
               setIsOpen={setIsOpen}
               theme={config.theme}
             />
-            {response.length > 0 && searchQuery.length <= 0 ? (
-              <ResponseArea
-                isLoading={isLoading}
-                response={response}
-                sources={sources}
-                codeSnippets={codeSnippets}
-                theme={config.theme}
-                images={images}
-                handleRegenerate={handleRegenerate}
-              />
-            ) : (
-              config.suggestions && (
-                <Suggestions
-                  suggestions={config.suggestions}
-                  theme={config.theme}
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  handleSubmit={handleSubmit}
-                />
-              )
-            )}
+            <ResponseArea
+              isLoading={isLoading}
+              response={response}
+              sources={sources}
+              codeSnippets={codeSnippets}
+              theme={config.theme}
+              images={images}
+              handleRegenerate={handleRegenerate}
+            />
           </div>
         </div>
       )}

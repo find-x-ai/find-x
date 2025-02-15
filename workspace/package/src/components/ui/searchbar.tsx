@@ -1,21 +1,20 @@
 import React, { FormEvent } from "react";
 import { SearchIcon } from "../icons/svgs";
+import { useState } from "react";
 
 interface SearchBarProps {
-  handleSubmit: (e: FormEvent) => Promise<void>;
+  handleSubmit: (e: FormEvent, search: string) => Promise<void>;
   setIsOpen: (isOpen: boolean) => void;
   theme: "light" | "dark";
-  searchQuery: string;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   handleSubmit,
   setIsOpen,
   theme,
-  searchQuery,
-  setSearchQuery,
 }) => {
+  const [search, setSearch] = useState<string>("");
+
   return (
     <div
       className={`f-flex f-w-full f-h-14 ${
@@ -26,10 +25,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <SearchIcon theme={theme} />
       </div>
       {/*@ts-ignore*/}
-      <form className="f-w-full f-h-full" onSubmit={(e) => handleSubmit(e)}>
+      <form
+        className="f-w-full f-h-full"
+        onSubmit={(e) => handleSubmit(e, search)}
+      >
         <input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           autoFocus={true}
           autoComplete="off"
           placeholder="Search anything"

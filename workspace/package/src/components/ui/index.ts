@@ -4,4 +4,3 @@ export { Sources } from "./Sources";
 export { ResponseArea } from "./responseArea";
 export { SearchBar } from "./searchbar";
 export { SparkleButton } from "./sparkleButton";
-export { Suggestions } from "./suggestions";
