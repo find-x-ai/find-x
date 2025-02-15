@@ -1,7 +1,7 @@
 # FIND-X
 ### Perplexity for your website.
 
-Welcome to **FIND-X**, an advanced AI-powered local search engine crafted to deliver precise, contextually accurate answers for any query.
+Welcome to **FIND-X**, an advanced ready-made answer engine for your website.
 
 ## Supported Frameworks
 
@@ -10,9 +10,9 @@ Currently, **FIND-X** supports the following frameworks, with plans to expand to
 - React
 - Next.js
 
-## 📦 Installation
+## Installation
 
-Getting started with Find-X is quick and easy. Follow the steps below to integrate Find-X into your project:
+Getting started with FIND-X is quick and easy. Follow the steps below to integrate it into your project:
 
 1. **Install the Package:**
 
