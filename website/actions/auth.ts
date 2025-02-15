@@ -160,6 +160,11 @@ export const verifyMagicLink = async ({
     } else {
       dbRes =
         await sql`INSERT INTO users (email, name, session) VALUES (${email}, ${name}, ${session}) returning id`;
+
+      await sql`
+        INSERT INTO plans (user_email, name, paid) 
+        VALUES (${email}, 'free', 0) 
+      `;
       const teamMembers = ["Sahil", "Sohel", "Saad"];
       // select random team member to send magic link
       const teamMember =

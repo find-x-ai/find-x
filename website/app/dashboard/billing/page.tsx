@@ -49,15 +49,15 @@ const page = () => {
           <div className="flex  p-5 flex-col border border-[#202020] rounded-xl justify-center mx-auto w-full items-center ">
             <div className="flex sm:flex-row flex-col w-full gap-5 items-start justify-center h-full">
               <div className="flex flex-col gap-5 w-full h-full">
-                <PlanCard plan={data.plan.name} />
+                <PlanCard plan={data?.plan?.name || "free"} />
                 <Link className="w-full" href={"/pricing"}>
                   <Button className="bg-emerald-600 w-full text-white hover:bg-emerald-700">
                     Upgrade plan  <Crown/>
                   </Button>
                 </Link>
               </div>
-              <PaidCard amount={data.plan.paid} />
-              <RemainingCard plan={data.plan.name} count={data.count} />
+              <PaidCard amount={data?.plan?.paid || 0} />
+              <RemainingCard plan={data?.plan?.name || "free"} count={data?.count || 0} />
             </div>
           </div>
           <div className="w-full border bg-[#121212] border-[#202020] rounded-xl p-5 flex flex-col justify-center gap-5 items-center">
@@ -76,16 +76,16 @@ const page = () => {
   );
 };
 
-const Upgrade = () => {
-  return (
-    <div className="w-full bg-violet-600 text-white rounded-lg">
-      <div className="text-center flex justify-center items-center p-3 gap-5">
-        <p className="font-semibold">Increase rate limits</p>{" "}
-        <Button>Upgrade</Button>
-      </div>
-    </div>
-  );
-};
+// const Upgrade = () => {
+//   return (
+//     <div className="w-full bg-violet-600 text-white rounded-lg">
+//       <div className="text-center flex justify-center items-center p-3 gap-5">
+//         <p className="font-semibold">Increase rate limits</p>{" "}
+//         <Button>Upgrade</Button>
+//       </div>
+//     </div>
+//   );
+// };
 
 const Loader = () => {
   return (

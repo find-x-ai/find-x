@@ -14,7 +14,7 @@ export const PaidCard = ({ amount }: { amount: number }) => {
         <CardDescription>Last paid amount</CardDescription>
       </CardHeader>
       <CardContent>
-        <span className="text-2xl text-white ">{amount}$</span>
+        <span className="text-2xl text-white ">${amount}</span>
       </CardContent>
     </Card>
   );

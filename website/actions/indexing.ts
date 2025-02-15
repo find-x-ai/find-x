@@ -63,6 +63,35 @@ export const createIndex = async (
       return { success: false, message: "Invalid URL format", name: null };
     }
 
+    try {
+      const validWebsiteRes = await fetch(mainUrl);
+      if (!validWebsiteRes.ok) {
+        return { success: false, message: "Invalid URL", name: null };
+      }
+    } catch (error) {
+      return { success: false, message: "Invalid URL", name: null };
+    }
+
+    const check = await sql`select * from indexes where user_id = ${data.id}`;
+    const userPlan =
+      await sql`select * from plans where user_email = ${data.email}`;
+
+    if (check.length >= 3 && userPlan[0].name === "free") {
+      return {
+        success: false,
+        message: "Please upgrade your plan to create more than 3 indexes",
+        name: null,
+      };
+    }
+
+    if (check.length >= 10 && userPlan[0].name === "pro") {
+      return {
+        success: false,
+        message: "Contact support to create more than 10 indexes",
+        name: null,
+      };
+    }
+
     const { id } = data;
     // Modified query to compare with main URL
     const checkAlreadyExists = await sql`
