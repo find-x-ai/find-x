@@ -164,9 +164,9 @@ export const RegenerateIcon = ({ theme }: { theme: string }) => {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={`f-stroke-2 f-w-[22px] f-h-[22px] ${
         theme === "light" ? "f-stroke-[#273734]" : "f-stroke-neutral-300"
       }`}
