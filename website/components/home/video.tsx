@@ -11,7 +11,7 @@ export const Video = () => {
         <div className="relative w-full pt-[56.25%] overflow-hidden rounded-lg">
           <iframe
             className="absolute top-0 left-0 w-full h-full rounded-lg"
-            src="https://www.youtube.com/embed/dNVZFkMcehg?autoplay=0&loop=1&controls=0&playlist=dNVZFkMcehg&mute=1"
+            src="https://www.youtube.com/embed/dNVZFkMcehg?autoplay=0&loop=1&controls=0&playlist=jMLb-zVCY1c&mute=1"
             title="YouTube video"
             allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
