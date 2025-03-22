@@ -16,6 +16,69 @@ app.use(cors());
 
 app.get('/', (c) => c.text('working fine...'));
 
+app.post('/get-chunks', async (c) => {
+	const env = c.env as EnvironmentVariables;
+
+	const secret = c.req.header('Authorization') as string;
+
+	if (!secret) {
+		return c.json({ message: 'Missing authorization header' }, 401);
+	}
+
+	const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, NEON_KEY } = env;
+
+	const key = secret.split('Bearer ')[1];
+
+	const db = neon(NEON_KEY);
+
+	const db_res = (await db(
+		`
+			SELECT i.id, i.created_at, i.url, i.api_key, i.status, i.name, i.last_deploy, i.user_id,
+			       COALESCE(SUM(c.total_requests), 0) as total_requests,
+			       c.user_email as email,
+			       p.name as plan_name 
+			FROM indexes i 
+			LEFT JOIN credits c ON c.index_id = i.id 
+			LEFT JOIN plans p ON p.user_email = c.user_email 
+			WHERE i.api_key = $1
+			GROUP BY i.id, i.created_at, i.url, i.api_key, i.status, i.name, 
+			         i.last_deploy, i.user_id, c.user_email, p.name
+		`,
+		[key]
+	)) as Data[];
+
+	if (db_res?.length < 1 || !db_res) {
+		return c.text('Invalid Authorization key', 400);
+	}
+
+	const { query } = (await c.req.json()) as { query: string };
+
+	if (!query) {
+		return c.json({ message: 'Missing parameters' }, 400);
+	}
+
+	if (query.length > 50000) {
+		return c.text('Query too long, please limit to 50,000 characters');
+	}
+
+	const index = new Index({
+		url: UPSTASH_VECTOR_REST_URL,
+		token: UPSTASH_VECTOR_REST_TOKEN,
+		cache: false,
+	});
+	const id = db_res[0].id;
+	const res = (await index.query({
+		data: query.toLowerCase(),
+		topK: 3,
+		includeVectors: false,
+		includeMetadata: true,
+		includeData: true,
+		filter: `namespace = ${id}`,
+	})) as Chunk[];
+
+	return c.json({ chunks: res });
+});
+
 //endpoint for query
 app.post(
 	'/query',
@@ -276,76 +339,5 @@ app.post(
 		cacheControl: 'max-age=3600',
 	})
 );
-
-// app.post('/upsert', async (c) => {
-// 	const token = c.req.header('Authorization') as string;
-
-// 	const key = token.split('Bearer ')[1];
-
-// 	if (!key || !token) {
-// 		console.log('No authorization key provided');
-// 		return c.json({ mssage: 'No authorization key provided' }, 400);
-// 	}
-
-// 	try {
-// 		const { UPSTASH_VECTOR_REST_TOKEN, UPSTASH_VECTOR_REST_URL, UPSERT_SECRET_KEY } = c.env as EnvironmentVariables;
-
-// 		if (key !== UPSERT_SECRET_KEY) {
-// 			console.log('Invalid key provided');
-// 			return c.json({ mssage: 'Invalid key provided' }, 400);
-// 		}
-
-// 		const { client, data } = (await c.req.json()) as {
-// 			client: number;
-// 			data: [
-// 				{
-// 					url: string;
-// 					title: string;
-// 					content: string;
-// 					images: {
-// 						data: [
-// 							{
-// 								src: string;
-// 								alt: string;
-// 							}
-// 						];
-// 					};
-// 				}
-// 			];
-// 		};
-
-// 		if (!client || !data || data.length < 1) {
-// 			console.log('Missing parameters,', client, data);
-// 			return c.json({ message: 'Missing parameters' }, 400);
-// 		}
-
-// 		const index = new Index({
-// 			url: UPSTASH_VECTOR_REST_URL,
-// 			token: UPSTASH_VECTOR_REST_TOKEN,
-// 			cache: false,
-// 		});
-// 		// const baseDomain = new URL(data[0].url).hostname;
-// 		for (let i = 0; i < data.length; i++) {
-// 			const chunk = data[i];
-// 			if (chunk && chunk.content.trim().length > 50) {
-// 				await index.upsert({
-// 					id: `${client}-${chunk.url}`,
-// 					data: chunk.content,
-// 					metadata: {
-// 						namespace: client.toString(),
-// 						title: chunk.title,
-// 						client: client,
-// 						url: chunk.url,
-// 						images: JSON.stringify(chunk.images),
-// 					},
-// 				});
-// 			}
-// 		}
-// 		return c.json({ message: 'successfully embedded the chunks' }, 200);
-// 	} catch (error) {
-// 		console.log(error);
-// 		return c.json({ message: 'Something went wrong' }, 500);
-// 	}
-// });
 
 export default app;
