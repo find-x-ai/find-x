@@ -13,10 +13,12 @@ image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install upstash_vector",
 )
 
-app = App(name="Central-server", image=image)
+image_with_neon_db = image.add_local_python_source("neon_db")
+
+app = App(name="Central-server", image=image_with_neon_db)
 
 @app.function(secrets=[modal.Secret.from_name("Database"), modal.Secret.from_name("server"), modal.Secret.from_name("upstash")], timeout=3600)
-@modal.web_endpoint(label="central-server", method="POST")
+@modal.fastapi_endpoint(label="central-server", method="POST")
 async def api_call(request: Dict):
     """
     Handles scraping and upserting requests with robust error handling.

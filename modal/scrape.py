@@ -31,10 +31,12 @@ playwright_image = modal.Image.debian_slim(python_version="3.10").run_commands(
     "pip install psycopg2-binary"
 )
 
-app = App(name="link-scraper", image=playwright_image)
+image_with_neon_db = playwright_image.add_local_python_source("neon_db")
+
+app = App(name="link-scraper", image=image_with_neon_db)
 
 @app.function(secrets=[modal.Secret.from_name("upstash"), modal.Secret.from_name("Database"), modal.Secret.from_name("server")], timeout=3600)
-@web_endpoint(label="scrape", method="POST")
+@modal.fastapi_endpoint(label="scrape", method="POST")
 async def crawl_website(request: Dict):
     secret_key = request['secret_key']
     crawl_secret = os.environ["CRAWL_SECRET"]
