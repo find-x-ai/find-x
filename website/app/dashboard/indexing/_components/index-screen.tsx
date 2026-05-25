@@ -3,6 +3,7 @@
 import type { Index } from "@/actions/types"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { getIndex } from "@/actions/get-index"
 import { Screen } from "./screen"
 
@@ -18,6 +19,7 @@ interface IndexScreenProps {
 }
 
 export const IndexScreen = ({ name }: IndexScreenProps) => {
+  const router = useRouter()
   const [index, setIndex] = useState<Index | null>(null)
   const [processData, setProcessData] = useState<ProcessData>({
     queueLength: 0,
@@ -35,6 +37,10 @@ export const IndexScreen = ({ name }: IndexScreenProps) => {
       try {
         const res = await getIndex(name)
         if (cancelled) return
+        if (res.unauthorized) {
+          router.push("/login")
+          return
+        }
         setIndex(res.index)
         setProcessData(res.processData)
       } catch {
@@ -47,7 +53,7 @@ export const IndexScreen = ({ name }: IndexScreenProps) => {
 
     fetchData()
     return () => { cancelled = true }
-  }, [name])
+  }, [name, router])
 
   if (isLoading) return <div className="flex items-center justify-center w-full h-full">Loading...</div>
   if (isError) return <div className="flex items-center justify-center w-full h-full">Something went wrong.</div>
