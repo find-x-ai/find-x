@@ -16,6 +16,7 @@ interface ProcessData {
 interface GetIndexResponse {
   index: Index | null
   processData: ProcessData
+  unauthorized?: boolean
 }
 
 const DEFAULT_PROCESS_DATA: ProcessData = {
@@ -25,14 +26,10 @@ const DEFAULT_PROCESS_DATA: ProcessData = {
   percentage: 0,
 }
 
-/**
- * @describe Fetches an index by name for the authenticated user,
- * along with its process data if currently deploying.
- */
 export const getIndex = async (name: string): Promise<GetIndexResponse> => {
   const session = await getSession()
   if (!session || !session.data) {
-    return { index: null, processData: DEFAULT_PROCESS_DATA }
+    return { index: null, processData: DEFAULT_PROCESS_DATA, unauthorized: true }
   }
 
   const indexes = (await sql`SELECT * FROM indexes WHERE name = ${name} AND user_id = ${session.data.id}`) as Index[]
