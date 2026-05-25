@@ -1,6 +1,6 @@
 import { getSession } from "@/actions/auth"
 import { redirect } from "next/navigation"
-import { IndexScreen } from "./_components/index-screen"
+import { IndexScreen } from "../_components/index-screen"
 
 export const revalidate = 0
 
