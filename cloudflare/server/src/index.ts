@@ -259,9 +259,8 @@ app.post(
 								content: data,
 							},
 						],
-						model: 'llama-3.1-8b-instant',
-						stream: true,
-						temperature: 0.5,
+						model: 'qwen/qwen3.6-27b',
+						stream: true
 					});
 				} else if (db_res[0].plan_name === 'pro') {
 					chatCompletion = await groq.chat.completions.create({
